@@ -1,0 +1,280 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:camel="http://camel.apache.org/schema/spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd   
+		http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd       
+		http://camel.apache.org/schema/spring 
+		http://camel.apache.org/schema/spring/camel-spring-2.18.1.xsd">
+
+	<bean id="authenticationManager"
+		class="ai.pelican.camel.authentication.AuthenticationConfigurationManager"
+		init-method="load">
+		<property name="datasource" ref="ds" />
+	</bean>
+
+	<bean id="jsengine"
+		class="ai.pelican.camel.js.engine.JSEngineGraal" init-method="init">
+		<property name="scriptFile" value="${script.Location}" />
+		<property name="maxEngineSize" value="${max.engine.size}" />
+	</bean>
+
+	<bean id="xmlParser" class="ai.pelican.camel.convertor.XMLParser"
+		init-method="init" />
+
+	<bean id="handler"
+		class="ai.pelican.camel.handler.exception.MyErrorHandler" />
+
+	<bean id="inMsg"
+		class="ai.pelican.camel.debulk.InMemoryPainGeneratorFilter"
+		init-method="load">
+		<property name="datasource" ref="ds" />
+	</bean>
+
+
+	<bean id="jspExecute"
+		class="ai.pelican.camel.js.processor.JavascriptProcessor">
+		<constructor-arg name="jsEngineInstance"
+			ref="jsengine" />
+		<property name="hazelCastInstance"
+			ref="hazelCastInstance" />
+	</bean>
+
+	<bean id="calloutAggregte"
+		class="ai.pelican.camel.js.processor.JSAggregate">
+		<constructor-arg name="jsEngineInstance"
+			ref="jsengine" />
+		<property name="functionName" value="aggregate" />
+	</bean>
+
+	<bean id="enrichofacAggregte"
+		class="ai.pelican.camel.js.processor.JSAggregate">
+		<constructor-arg name="jsEngineInstance"
+			ref="jsengine" />
+		<property name="functionName" value="enrichOfacAggregte" />
+	</bean>
+
+	<bean id="enrichfraudAggregte"
+		class="ai.pelican.camel.js.processor.JSAggregate">
+		<constructor-arg name="jsEngineInstance"
+			ref="jsengine" />
+		<property name="functionName" value="enrichfraudAggregte" />
+	</bean>
+
+	<bean id="responseAgg"
+		class="ai.pelican.camel.js.processor.JSAggregate">
+		<constructor-arg name="jsEngineInstance"
+			ref="jsengine" />
+		<property name="functionName" value="responseAgg" />
+	</bean>
+
+	<bean id="trxnAggregator"
+		class="ai.pelican.camel.js.processor.JSAggregate">
+		<constructor-arg name="jsEngineInstance"
+			ref="jsengine" />
+		<property name="functionName" value="aggregateTransaction" />
+	</bean>
+
+	<bean id="configLoader"
+		class="ai.pelican.camel.init.TableInformationXML" init-method="init">
+		<property name="configFileLocation" value="${config.fileLocation}" />
+	</bean>
+
+	<bean id="staticDataMaps"
+		class="ai.pelican.camel.hazelcast.HazelCastDataLoader">
+		<property name="hazelCastInstance"
+			ref="hazelCastInstance" />
+	</bean>
+
+	<bean id="hzlStaticFileLoader"
+		class="ai.pelican.camel.hazelcast.HazelCastFileLoader">
+		<property name="hazelCastInstance"
+			ref="hazelCastInstance" />
+	</bean>
+
+	<bean id="hashValidation" class="ai.pelican.camel.validation.HashCodeValidation">
+	</bean> 
+	
+	<!-- <bean id="aceqFilter" class="ai.pelican.camel.utils.HeaderFilter">
+		<property name="in_exclude">
+			<list value-type="java.lang.String">
+				<value>ACEQ_(.*)</value>
+				<value>ACEDB_(.*)</value>
+				<value>ADT_(.*)</value>
+				<value>Content-Le(.*)</value>
+				<value>hazelCastInstance</value>
+				<value>IdempotentKey</value>
+				<value>PLCNAPI_(.*)</value>
+				<value>PLCN_(.*)</value>
+			</list>
+		</property>
+	</bean> -->
+	
+	<bean id="aceqFilter" class="org.apache.camel.impl.DefaultHeaderFilterStrategy">
+		<property name="outFilterPattern">
+			<value>ACEQ_(.*)|ACEDB_(.*)|ADT_(.*)|Content-Le(.*)|PLCN_(.*)|PLCNAPI_transRefNo|hazelCastInstance|IdempotentKey|plcn_(.*)|Camel(.*)|ORG_body|PLCNAPI_request|MSGBLOCK(.*)|Transfer-Encoding</value>
+		</property>
+	</bean>
+
+	<bean id="tranApiFilter" class="org.apache.camel.impl.DefaultHeaderFilterStrategy">
+		<property name="outFilterPattern">
+			<value>ACEQ_(.*)|ACEDB_(.*)|ADT_(.*)|Content-Le(.*)|PLCN_(.*)|hazelCastInstance|IdempotentKey|plcn_(.*)|Camel(.*)</value>
+		</property>
+	</bean>	
+	
+ 	<bean id="licensePulse"
+		class="ai.pelican.camel.license.LicensePulseUtility" init-method="initialize">
+		<property name="applicationId" value="${pulse.applicationID}" />
+		<property name="institutionId" value="${pulse.institutionID}" />
+		<property name="instanceId" value="${instanceID}" />
+		<property name="userId" value="#{credentialUtility.decrypt('${pulse.userID}')}" />
+		<property name="password" value="#{credentialUtility.decrypt('${pulse.password}')}" />
+		<property name="licenseURL" value="${pulse.licenseURL}" />
+		<property name="pulseURL" value="${pulse.pulseURL}" />
+		<property name="pulseDelay" value="${pulse.delay}" />
+		<property name="keystorePath" value="${pulse.keystorePath}" />
+		<property name="errorLookup" value="${pulse.errorLookup}" />
+	</bean>
+	
+	<bean id="interact"
+		class="ai.pelican.camel.interact.InterActFile"
+		init-method="init">
+		<property name="datasource" ref="ds" />
+	</bean>
+	
+	<bean id="bah"
+		class="ai.pelican.camel.bah.AppHeaderHandler"
+		init-method="init">
+	</bean>
+	
+	<bean id="pelicanController"
+		class="ai.pelican.camel.utils.PelicanControllingService">
+	</bean>
+	
+	<bean id="mxMsgExtractor"
+		class="ai.pelican.camel.extractors.MXMsgExtractor">
+		<property name="datasource" ref="ds" />
+	</bean>
+	
+	<bean id="idempotentRepoHazel"
+      class="ai.pelican.camel.idempotent.hazelcast.PelicanHazelcastIdempotentRepository">
+		<constructor-arg ref="hazelCastInstance" />
+		<constructor-arg value="PelicanIdempotentRepo" />
+    </bean>
+	
+	<bean id="balanceIdempotentRepo"
+      class="ai.pelican.camel.idempotent.hazelcast.PelicanHazelcastIdempotentRepositoryRMG">
+		<constructor-arg ref="hazelCastInstance" />
+		<constructor-arg value="BalanceMirroringRepo" />
+    </bean>
+	
+	<bean id="idempotentRepoHazelSepa"
+      class="ai.pelican.camel.idempotent.hazelcast.PelicanHazelcastIdempotentRepositorySepa">
+		<constructor-arg ref="hazelCastInstance" />
+		<constructor-arg value="PelicanIdempotentRepoSepa" />
+    </bean>
+	
+	<bean id="FileDebulkerSplitter"
+		class="ai.pelican.camel.interfaces.FileDebulkerSplitter">
+	</bean>
+
+	<bean id="FileDebulkController"
+		class="ai.pelican.camel.interfaces.FileDebulkController">
+	</bean>
+
+	<bean id="FileDebulkAggregationStrategy"
+		class="ai.pelican.camel.interfaces.FileDebulkAggregationStrategy">
+		<property name="orderedAggregation" value="true" />
+		
+	</bean>
+
+	<!-- Added bean for calling JS function and OnCompletion flow -->
+	<bean id="FileDebulkAggregationCompletion"
+		class="ai.pelican.camel.interfaces.FileDebulkAggregationCompletion">
+		<property name="orderedAggregation" value="true" />
+		<property name="javaScriptProcessor"
+			ref="JavascriptProcessor" />
+	</bean>
+	
+	<bean id="SplitterHelper"
+		class="ai.pelican.camel.interfaces.SplitterHelper">
+	</bean>
+	
+	<bean id="Pacs008Iterator"
+		class="ai.pelican.camel.interfaces.Pacs008Iterator">
+	</bean>
+	
+	<bean id="JavascriptProcessor"
+		class="ai.pelican.camel.js.processor.JavascriptProcessor">
+		<constructor-arg name="jsEngineInstance"
+			ref="jsengine" />
+			<property name="hazelCastInstance" ref="hazelCastInstance" />
+	</bean>
+
+	<!--Added bean for transaction management support -->
+	<bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="ds" />
+	</bean>
+	
+	<bean id="PelicanMemoryAggregationRepository"
+		class="ai.pelican.camel.interfaces.PelicanMemoryAggregationRepository">
+	</bean>	
+		
+	<!-- beans added for pacs002 -->
+	<bean id="Pacs002Iterator"
+		class="ai.pelican.camel.interfaces.Pacs002Iterator">
+	</bean>
+	
+	<bean id="Pacs007Iterator"
+		class="ai.pelican.camel.interfaces.Pacs007Iterator">
+	</bean>
+	
+	<bean id="Camt053Iterator"
+		class="ai.pelican.camel.interfaces.Camt053Iterator">
+	</bean>
+	
+	<bean id="Pacs028Iterator"
+			class="ai.pelican.camel.interfaces.Pacs028Iterator">
+	</bean>
+	
+	<!-- <bean id="wfapiFilter" class="ai.pelican.camel.utils.HeaderFilter">
+		<property name="in_exclude">
+			<list value-type="java.lang.String">
+				<value>ACEQ_(.*)</value>
+				<value>ACEDB_(.*)</value>
+				<value>ADT_(.*)</value>
+				<value>Content-Le(.*)</value>
+				<value>ACTIVE_INSTANCE</value>
+				<value>hazelCastInstance</value>
+				<value>Camel(.*)</value>
+			</list>
+		</property>
+	</bean> -->	
+	
+	<bean id="wfapiFilter" class="org.apache.camel.impl.DefaultHeaderFilterStrategy">
+		<property name="outFilterPattern">
+			<value>ACEQ_(.*)|ACEDB_(.*)|ADT_(.*)|Content-Le(.*)|PLCN_(.*)|hazelCastInstance|IdempotentKey|plcn_(.*)|Camel(.*)|PLCNAPI_(.*)</value>
+		</property>
+	</bean>
+	
+	<bean id="generateMsgno"
+		class="ai.pelican.camel.component.aceq.GenerateMsgno">
+		<property name="datasource" ref="ds" />
+	</bean>	
+	
+	<bean id="ACKNACKSplitter"
+		class="ai.pelican.camel.interfaces.ACKNACKSplitter">
+	</bean>
+	
+	<bean id="recallUtilities"
+		class="ai.pelican.camel.utils.RecallUtilities">
+	</bean>
+
+	<bean id="serviceResponseValidationProcessor"
+          class="ai.pelican.camel.processor.ServiceResponseValidator">
+    </bean>
+	
+</beans>

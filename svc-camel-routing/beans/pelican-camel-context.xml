@@ -1,0 +1,125 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:camel="http://camel.apache.org/schema/spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd          
+		http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd       
+		http://camel.apache.org/schema/spring 
+		http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<import resource="classpath:/routes/*.xml"/>
+	
+	<camelContext id="MyCamel"
+		xmlns="http://camel.apache.org/schema/spring">
+
+
+		<defaultServiceCallConfiguration component="http">
+			<staticServiceDiscovery>
+					<servers>validation-service@172.16.0.17:8082</servers>
+					<servers>ibanBic-service@172.16.0.17:8082</servers>
+					<servers>duplicate-check-service@172.16.0.17:8082</servers>
+					<servers>scheduling-service@172.16.0.17:8082</servers>
+					<servers>matching-service@172.16.0.17:8082</servers>
+			</staticServiceDiscovery>
+		</defaultServiceCallConfiguration>
+
+		<routeContextRef ref="main1"/>
+		
+		<onException id="httpException">
+			<exception>org.apache.camel.http.common.HttpOperationFailedException</exception>
+			<exception>java.net.ConnectException</exception>
+			<redeliveryPolicy
+				maximumRedeliveries="2" />
+			<handled>
+				<camel:constant>true</camel:constant>
+			</handled>
+			<setHeader headerName="exception">
+				<simple>${exception.stacktrace}</simple>
+			</setHeader>
+			<bean ref="pelicanController" method="exceptionLogger" />
+		</onException>
+		
+		<!-- <onException>
+			<exception>ai.pelican.camel.handler.exception.ExceptionHandler</exception>
+			<handled>
+			<constant>true</constant>
+			</handled>
+			<log message="In ExceptionHandler, exception occured..." />
+			<setHeader headerName="exception">
+				<simple>${exception.stacktrace}</simple>
+			</setHeader>
+			<setHeader headerName="PLCN_queue">
+				<simple>ERRORQ</simple>
+			</setHeader>			
+			<setHeader headerName="PLCN_validFlag">
+				<simple>false</simple>
+			</setHeader>			
+			<bean ref="pelicanController" method="exceptionLogger" />
+			<bean id="jspPopulateDatadbOperationCC" ref="jspExecute"
+				method="executeWithHazelCastInstance(${exchange},dbOperation)" />
+			<to uri="aceq://authErr?queueID=ERRORQ&amp;pollStatus=79&amp;updateQueueIDStatus=Y&amp;processingStage=ERR" />
+			<log message="MESSAGE MOVED TO ERRORQ" />
+			<to uri="genaudit://route1Audit" />
+		</onException> -->
+		
+		<onException>
+			<exception>ai.pelican.camel.handler.exception.ExceptionHandler</exception>
+			<exception>org.xml.sax.SAXParseException</exception>
+			<exception>org.graalvm.polyglot.PolyglotException</exception>
+			<handled>
+			<constant>true</constant>
+			</handled>
+			<log message="In ExceptionHandler, exception occured..." />
+			<setHeader headerName="exception">
+				<simple>${exception.stacktrace}</simple>
+			</setHeader>
+			<setHeader headerName="PLCN_queue">
+				<simple>PROCDQ</simple>
+			</setHeader>			
+			<setHeader headerName="PLCN_validFlag">
+				<simple>false</simple>
+			</setHeader>			
+			<bean ref="pelicanController" method="exceptionLogger" />
+			<log loggingLevel="INFO" message="Headers before dbOperation in exception = ${headers}." />
+			<bean id="jspPopulateDatadbOperationCC" ref="jspExecute"
+				method="executeWithHazelCastInstance(${exchange},dbOperation)" />
+			<!-- <to uri="aceq://authErr?queueID=PROCDQ&amp;pollStatus=102&amp;updateQueueIDStatus=Y&amp;processingStage=FINL" /> -->
+			<to uri="aceq://endpointwrite?queueID=PROCDQ&amp;pollStatus=102&amp;processingStage=FINL" />
+			<log message="MESSAGE MOVED TO PROCDQ" />
+			<to uri="genaudit://route1Audit" />
+		</onException>
+		
+		<onException>
+			<exception>ai.pelican.camel.exception.StaticDataNotFoundException</exception>
+			<redeliveryPolicy
+				maximumRedeliveries="7" redeliveryDelay="30000" />
+			<handled>
+			<constant>true</constant>
+			</handled>
+			<log message="In StaticDataNotFoundException, exception occured..." />
+			<setHeader headerName="exception">
+				<simple>${exception.stacktrace}</simple>
+			</setHeader>
+			<bean ref="pelicanController" method="exceptionLogger" />
+			<stop/>
+		</onException>
+		
+		<onException id="hazelReconnect">
+			<exception>com.hazelcast.client.HazelcastClientNotActiveException</exception>
+			<exception>com.hazelcast.client.HazelcastClientOfflineException</exception>
+			<!-- com.hazelcast.core.HazelcastException -->
+			<handled>
+				<constant>true</constant>
+			</handled>
+			<log message="In hazelReconnect handler." />
+			<setHeader headerName="exception">
+				<simple>${exception.stacktrace}</simple>
+			</setHeader>
+			<bean ref="pelicanController" method="stopRoutes" />
+		</onException>
+
+	</camelContext>
+	
+</beans>

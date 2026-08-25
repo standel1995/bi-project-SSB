@@ -1,0 +1,146 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:camel="http://camel.apache.org/schema/spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd   
+		http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd       
+		http://camel.apache.org/schema/spring 
+		http://camel.apache.org/schema/spring/camel-spring-2.18.1.xsd">
+
+	<bean id="authenticationManager"
+		class="ai.pelican.camel.authentication.AuthenticationConfigurationManager"
+		init-method="load">
+		<property name="datasource" ref="ds" />
+	</bean>
+
+	<bean id="jsengine"
+		class="ai.pelican.camel.js.engine.JSEngineGraal" init-method="init">
+		<property name="scriptFile" value="${script.Location}" />
+		<property name="maxEngineSize" value="${max.engine.size}" />
+	</bean>
+
+	<bean id="xmlParser" class="ai.pelican.camel.convertor.XMLParser"
+		init-method="init" />
+
+	<bean id="handler"
+		class="ai.pelican.camel.handler.exception.MyErrorHandler" />
+
+	<bean id="inMsg"
+		class="ai.pelican.camel.debulk.InMemoryPainGeneratorFilter"
+		init-method="load">
+		<property name="datasource" ref="ds" />
+	</bean>
+
+
+	<bean id="jspExecute"
+		class="ai.pelican.camel.js.processor.JavascriptProcessor">
+		<constructor-arg name="jsEngineInstance"
+			ref="jsengine" />
+		<property name="hazelCastInstance"
+			ref="hazelCastInstance" />
+	</bean>
+
+	<bean id="calloutAggregte"
+		class="ai.pelican.camel.js.processor.JSAggregate">
+		<constructor-arg name="jsEngineInstance"
+			ref="jsengine" />
+		<property name="functionName" value="aggregate" />
+	</bean>
+
+	<bean id="enrichofacAggregte"
+		class="ai.pelican.camel.js.processor.JSAggregate">
+		<constructor-arg name="jsEngineInstance"
+			ref="jsengine" />
+		<property name="functionName" value="enrichOfacAggregte" />
+	</bean>
+
+	<bean id="enrichfraudAggregte"
+		class="ai.pelican.camel.js.processor.JSAggregate">
+		<constructor-arg name="jsEngineInstance"
+			ref="jsengine" />
+		<property name="functionName" value="enrichfraudAggregte" />
+	</bean>
+
+	<bean id="responseAgg"
+		class="ai.pelican.camel.js.processor.JSAggregate">
+		<constructor-arg name="jsEngineInstance"
+			ref="jsengine" />
+		<property name="functionName" value="responseAgg" />
+	</bean>
+
+	<bean id="trxnAggregator"
+		class="ai.pelican.camel.js.processor.JSAggregate">
+		<constructor-arg name="jsEngineInstance"
+			ref="jsengine" />
+		<property name="functionName" value="aggregateTransaction" />
+	</bean>
+
+	<bean id="configLoader"
+		class="ai.pelican.camel.init.TableInformationXML" init-method="init">
+		<property name="configFileLocation" value="${config.fileLocation}" />
+	</bean>
+
+	<bean id="staticDataMaps"
+		class="ai.pelican.camel.hazelcast.HazelCastDataLoader">
+		<property name="hazelCastInstance"
+			ref="hazelCastInstance" />
+	</bean>
+
+	<bean id="hzlStaticFileLoader"
+		class="ai.pelican.camel.hazelcast.HazelCastFileLoader">
+		<property name="hazelCastInstance"
+			ref="hazelCastInstance" />
+	</bean>
+
+	<bean id="hashValidation" class="ai.pelican.camel.validation.HashCodeValidation">
+	</bean> 
+	
+	<bean id="aceqFilter" class="ai.pelican.camel.utils.HeaderFilter">
+		<property name="in_exclude">
+			<list value-type="java.lang.String">
+				<value>ACEQ_(.*)</value>
+				<value>ACEDB_(.*)</value>
+				<value>ADT_(.*)</value>
+				<value>Content-Le(.*)</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="licensePulse"
+		class="ai.pelican.camel.license.LicensePulseUtility" init-method="initialize">
+		<property name="applicationId" value="${pulse.applicationID}" />
+		<property name="institutionId" value="${pulse.institutionID}" />
+		<property name="instanceId" value="${instanceID}" />
+		<property name="userId" value="#{credentialUtility.decrypt('${pulse.userID}')}" />
+		<property name="password" value="#{credentialUtility.decrypt('${pulse.password}')}" />
+		<property name="licenseURL" value="${pulse.licenseURL}" />
+		<property name="pulseURL" value="${pulse.pulseURL}" />
+		<property name="pulseDelay" value="${pulse.delay}" />
+		<property name="keystorePath" value="${pulse.keystorePath}" />
+		<property name="errorLookup" value="${pulse.errorLookup}" />
+	</bean>
+	
+	<bean id="interact"
+		class="ai.pelican.camel.interact.InterActFile"
+		init-method="init">
+		<property name="datasource" ref="ds" />
+	</bean>
+	
+	<bean id="bah"
+		class="ai.pelican.camel.bah.AppHeaderHandler"
+		init-method="init">
+	</bean>
+	
+	<bean id="pelicanController"
+		class="ai.pelican.camel.utils.PelicanControllingService">
+	</bean>
+	
+	<bean id="idempotentRepoHazel"
+      class="ai.pelican.camel.idempotent.hazelcast.PelicanHazelcastIdempotentRepository">
+		<constructor-arg ref="hazelCastInstance" />
+		<constructor-arg value="PelicanIdempotentRepo" />
+    </bean>
+	
+</beans>

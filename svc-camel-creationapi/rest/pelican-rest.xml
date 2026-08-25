@@ -1,0 +1,19 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<restContext id="restContext" xmlns="http://camel.apache.org/schema/spring">
+		<rest path="/payments/v1/creation" bindingMode="auto">
+			<post>
+				<route>
+					<log loggingLevel="TRACE" message="PaymentType in rest = ${header.PaymentType}"/>
+					<log loggingLevel="INFO" message="Body in rest before creation = ${body}" />
+					<to uri="direct://creation" />
+					<log loggingLevel="INFO" message="Body in rest after creation = ${body}" />
+				</route>
+			</post>
+		</rest>
+	</restContext>
+</beans>

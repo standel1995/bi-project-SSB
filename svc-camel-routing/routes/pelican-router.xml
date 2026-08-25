@@ -1,0 +1,167 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <routeContext id="main1" xmlns="http://camel.apache.org/schema/spring">
+	
+	<route id="licensepulse" startupOrder="1" autoStartup="true">
+			<from uri="timer://licensepulseTrigger?fixedRate=true&amp;period=15000" />
+		<log loggingLevel="DEBUG" message="License Check" />
+		<bean ref="licensePulse" method="start" />
+	</route>
+	 
+	<route id="_pel_mainRoute" startupOrder="2" autoStartup="true">
+		<from
+			uri="timer://mainRouteTimer2?fixedRate=true&amp;period=30000" />
+		<bean ref="staticDataMaps" method="getCompletedFlag" />
+		<choice>
+			<when>
+				<simple>${header.completedFlag} == true</simple>
+				<bean ref="pelicanController" method="startRoutes" />
+				<log loggingLevel="DEBUG" message="Startup activity completed.." />
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Hazelcast data not loaded, waiting..." />
+			</otherwise>
+		</choice>
+	</route>
+	
+	<route id="loggerRoute" startupOrder="3" autoStartup="true">
+		<from uri="timer://loggerRouteTrigger?fixedRate=true&amp;period=86400000" />
+		<log loggingLevel="WARN" message="Camel service is running." />
+	</route>
+
+	<route id="camel-interface-fed" autoStartup="false" streamCache="true">
+		<from id="readingDBRoute1"
+			uri="aceq://camel-interface?queueID=FEDNINTQ&amp;pollStatus=69&amp;proThreads=8&amp;configID=config1&amp;whereClause=AND ROWNUM&lt;=1000" />
+		<setHeader headerName="IdempotentKey">
+			<simple>FEDNINTQ:${header.ACEQ_MSGDB_ID}</simple>
+        	</setHeader>
+		<idempotentConsumer skipDuplicate="true" messageIdRepositoryRef="idempotentRepoHazel">
+		<header>IdempotentKey</header>
+		<!-- <bean id="xmlParserdbOperation2" ref="xmlParser" /> -->
+		<!-- <log loggingLevel="INFO" message="camel-interface - xmlParser" /> -->
+		<to uri="direct://checkHeader" />
+		<log loggingLevel="INFO" message="camel-interface - updateQueueIdFedNow" />
+		<bean id="jspCheckXMLNSDataAndUpdateQueueIDFed" ref="jspExecute" method="executeWithHazelCastInstance(${exchange},updateQueueIdFedNow)" />
+		<log message="camel-interface PLCN_XMLNS_PARSE_QUEUEID: ${header.PLCN_XMLNS_PARSE_QUEUEID}"/>
+		<toD uri="aceq://endpointwrite?queueID=${header.PLCN_XMLNS_PARSE_QUEUEID}&amp;pollStatus=69" />
+		<log loggingLevel="INFO" message="dbOperationFedNow" />
+		<log loggingLevel="INFO" message="Going to update to DB" />
+		<!-- <to uri="direct://dbOperationFedNow" /> -->
+		<to uri="genaudit://route1Audit" />
+		<log loggingLevel="INFO" message="Updated to DB from route-1-DB" />
+		<log loggingLevel="INFO" message="Message processed successfully.." />
+		<stop />
+		</idempotentConsumer>
+	</route>
+	
+	<route id="camel-interface" autoStartup="false" streamCache="true">
+		<from id="readingDBRoute1"
+			uri="aceq://camel-interface?queueID=CAMINPIN&amp;pollStatus=69&amp;proThreads=8&amp;configID=config1&amp;whereClause=AND ROWNUM&lt;=1000" />
+		<setHeader headerName="IdempotentKey">
+			<simple>CAMINPIN:${header.ACEQ_MSGDB_ID}</simple>
+        </setHeader>
+		<log loggingLevel="INFO" message="In camel-interface.." />
+		<idempotentConsumer skipDuplicate="true" messageIdRepositoryRef="idempotentRepoHazel">
+		<header>IdempotentKey</header>
+		<log loggingLevel="INFO" message="Body in camel-interface = ${body}" />
+		<to uri="direct://checkHeader" />
+		<log loggingLevel="INFO" message="validLAU = ${header.validLAU}" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validLAU} == false</simple>
+				<log loggingLevel="INFO" message="Invalid LAU..." />
+				<to uri="direct://updateQueueIdMx" />
+				<to uri="genaudit://route1Audit" />
+				<to uri="aceq://endpointwrite?queueID=ERRORQ&amp;pollStatus=69" />
+				<stop />
+			</when>
+		</choice>
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},checkMsgFamily)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_isXML}</simple>
+				<bean id="xmlParserInterface" ref="xmlParser" />
+				<bean id="jspCheckXMLNSDataAndUpdateQueueID" ref="jspExecute" method="executeWithHazelCastInstance(${exchange}, updateQueueIdMx)" />
+				<log loggingLevel="INFO" message="Going to update to DB" />
+				<!-- <toD uri="aceq://endpointwrite?queueID=${header.PLCN_XMLNS_PARSE_QUEUEID}&amp;pollStatus=69" />	 -->
+				<toD uri="aceq://endpointwrite?queueID=${header.PLCN_XMLNS_PARSE_QUEUEID}&amp;pollStatus=${header.PLCN_XMLNS_PARSE_STATUS}" />					
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Going to update to DB" />
+				<to uri="aceq://endpointwrite?queueID=MQINPIN&amp;pollStatus=69" />
+			</otherwise>
+		</choice>
+		<to uri="genaudit://route1Audit" />
+		<log loggingLevel="INFO" message="Updated to DB from route-1-DB" />
+		<log loggingLevel="INFO" message="Message processed successfully.." />
+		<stop />
+		</idempotentConsumer>
+	</route>
+	
+	<route id="route-1-db-errstr" autoStartup="false" streamCache="true">
+		<from id="readingDBRoute1"
+			uri="aceq://route-1-db-errstr?queueID=PAYERRQ2&amp;pollStatus=69&amp;proThreads=1&amp;configID=config1&amp;whereClause=AND ROWNUM&lt;=1000" />
+		<setHeader headerName="IdempotentKey">
+			<simple>PAYERRQ2:${header.ACEQ_MSGDB_ID}</simple>
+        </setHeader>
+		<idempotentConsumer skipDuplicate="true" messageIdRepositoryRef="idempotentRepoHazel">
+		<header>IdempotentKey</header>
+		<bean method="validateMessage" ref="hashValidation" />
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},dbOperationErrorQ)" />
+		<toD uri="aceq://endpointwrite?queueID=${header.PLCN_queueId}&amp;pollStatus=${header.PLCN_status}" />
+		<to uri="genaudit://route1Audit" />
+		<log loggingLevel="INFO" message="Updated to DB from route-1-db-errstr with queueID=${header.PLCN_queueId} and pollStatus=${header.PLCN_status}" />
+		<log loggingLevel="INFO" message="Message processed successfully.." />
+		<stop />
+		</idempotentConsumer>
+	</route>	
+
+     <route id="dbOperationFedNow">
+		<from uri="direct://dbOperationFedNow" />
+		<log loggingLevel="INFO" message="Body in dbOperation is ${body}!" />
+		<bean id="xmlParserdbOperation" ref="xmlParser" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validFlag} == true</simple>
+				<to uri="direct://headerOperation" />
+			</when>
+		</choice>
+		<bean id="jspPopulateDataCreateResponse1" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},createResponse)" />
+		<bean id="jspPopulateDatadbOperationFedNOw" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},dbOperationFedNow)" />
+	</route> 
+
+	<route id="checkHeader">
+		<from uri="direct://checkHeader" />
+		<bean id="jspPopulateDatacheckHeader" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},checkHeader)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_headerPresent}</simple>
+				<log loggingLevel="INFO" message="Message with header"/>
+				<bean id="jspPopulateDatatruncateHeader1" ref="jspExecute"
+					method="executeWithHazelCastInstance(${exchange},truncateHeader)" />
+				<to uri="direct://validateLAU" />
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Message without header"/>
+				<bean id="jspPopulateDatatruncateHeader2" ref="jspExecute"
+					method="executeWithHazelCastInstance(${exchange},setMsgBlocksData)" />
+			</otherwise>
+		</choice>
+	</route>
+	
+	<route id="validateLAU" >
+		<from uri="direct://validateLAU" />
+		<log loggingLevel="INFO" message="validateLAU started" />
+		<bean id="jspvalidateLAU" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},validateLAU)" />
+	</route>
+
+</routeContext>
+</beans>

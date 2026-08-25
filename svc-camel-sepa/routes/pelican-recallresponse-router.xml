@@ -1,0 +1,90 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <routeContext id="recallResponse" xmlns="http://camel.apache.org/schema/spring">
+
+	<!-- <route id="licensepulse" startupOrder="1" autoStartup="true">
+		<from uri="timer://licensepulseTrigger?fixedRate=true&amp;period=15000" />
+		<log loggingLevel="DEBUG" message="License Check" />
+		<bean ref="licensePulse" method="start" />
+	</route> -->
+	
+	<!-- <route id="_pel_mainRoute" startupOrder="2" autoStartup="true">
+		<from
+			uri="timer://mainRouteTimer2?fixedRate=true&amp;period=30000" />
+		<bean ref="staticDataMaps" method="getCompletedFlag" />
+		<choice>
+			<when>
+				<simple>${header.completedFlag} == true</simple>
+				<bean ref="pelicanController" method="startRoutes" />
+				<log loggingLevel="INFO" message="Startup activity completed.." />
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Hazelcast data not loaded, waiting..." />
+			</otherwise>
+		</choice>
+	</route> -->
+	
+	<route id="recallresponse" autoStartup="true">
+		<from uri="direct://recallresponse" />
+		<log loggingLevel="INFO" message="In recallresponse API" />
+		<log loggingLevel="INFO" message="headers in recallresponse API = ${headers}"/>
+		<log loggingLevel="TRACE" message="Body in recallresponse API = ${body}" />
+		<removeHeaders pattern="CamelHttp*"/>
+		<removeHeaders pattern="CamelNetty*"/>
+		<removeHeaders pattern="Host"/>
+		<setHeader headerName="CamelHttpMethod">
+				<constant>POST</constant>
+		</setHeader>		
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},decodeRequest)" />
+		<log loggingLevel="TRACE" message="body after decodeRequest = ${body}"/>
+		<log loggingLevel="INFO" message="headers after setResponseCds = ${headers}"/>
+		<removeHeaders pattern="ACTIVE_INSTANCE"/>
+		<!-- <toD uri="sql:select t2.MESSAGE FROM MSGDB t1 JOIN MSGBLOCKS t2 ON t1.MSGDB_ID = t2.MSGDB_ID where t1.MESSAGENO = '${header.PLCN_recallId}' and MSGBLOCKTYPE = '2'?outputType=StreamList" /> -->
+		<toD uri="sql:select t1.MSGDB_ID,t1.custom5,t1.CSM,t2.MESSAGE FROM MSGDB t1 JOIN MSGBLOCKS t2 ON t1.MSGDB_ID = t2.MSGDB_ID where t1.MESSAGENO = '${header.PLCN_recallId}' and MSGBLOCKTYPE = '2'?outputType=StreamList"/>
+		<bean id="readMessageDb2" ref="recallUtilities" method="readMsgBlocks"/>
+		<log loggingLevel="INFO" message="body after readMsgBlocks = ${body}"/>
+		<log loggingLevel="INFO" message="headers after readMsgBlocks = ${headers}"/>
+		<!-- <choice>
+			<when>
+				<simple>${header.MATCH} == true</simple> -->
+				<bean id="xmlParserReadMessageDb" ref="xmlParser" />
+				<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},extractRecallData)" />
+				<choice>
+					<when>
+						<simple>${header.PLCN_recallReason}</simple>
+						<bean id="readMessageAddInfo" ref="recallUtilities" method="additionalInfo"/>
+					</when>
+				</choice>
+				<log loggingLevel="INFO" message="headers after recallUtilities = ${headers}"/>
+				<serviceCall 
+					name="translation-service/payments/v1/Translation?headerFilterStrategy=#tranApiFilter"	/>
+				<bean id="xmlParserTranslation" ref="xmlParser" />
+				<log loggingLevel="INFO" message="body after translation service call = ${body}" />
+				<log loggingLevel="INFO" message="CamelHttpResponseCode after translation service call = ${header.CamelHttpResponseCode}"/>
+				<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},enrichTranslationResponseRR)" />
+				<bean ref="generateMsgno" method="getMsgNo(${exchange})" />
+				<bean ref="generateMsgno" method="getMsgDBId(${exchange})" />
+				<log loggingLevel="INFO" message="ACEQ_MSGDBID = ${header.ACEQ_MSGDBID}" />
+				<bean id="xmlParserDbOperationRecallResponse" ref="xmlParser" />
+				<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},dbOperationRecallResponse)" />
+				<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},createJSONResponse)" />
+				<!-- <toD uri="aceq://endpointwrite?queueID=${header.PLCN_oQueueId}&amp;pollStatus=69" />
+				<log loggingLevel="INFO" message="Updated record in DB with QueueID=${header.PLCN_oQueueId} and Status=69" />
+				<to uri="genaudit://route1Audit" />
+				<to uri = "sql:update MSGDB set CUSTOM5 = :#${header.CUSTOM5} where MSGDB_ID =:#${header.MSGDB_ID} " /> -->
+				<removeHeaders pattern="*" excludePattern="ACEQ*"/>
+				<log loggingLevel="INFO" message="headers after removeHeaders = ${headers}"/>
+			<!-- </when>
+			<otherwise>
+				<log loggingLevel="INFO" message="No matching record found" />
+				<removeHeaders pattern="*" excludePattern="ACEQ*"/>
+			</otherwise>
+		</choice> -->
+	</route>
+	
+</routeContext>
+</beans>

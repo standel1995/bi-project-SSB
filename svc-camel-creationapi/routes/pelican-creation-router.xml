@@ -1,0 +1,174 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <routeContext id="creation" xmlns="http://camel.apache.org/schema/spring">
+	
+	<route id="licensepulse" startupOrder="1" autoStartup="true">
+		<from uri="timer://licensepulseTrigger?fixedRate=true&amp;period=15000" />
+		<log loggingLevel="DEBUG" message="License Check" />
+		<bean ref="licensePulse" method="start" />
+	</route>
+	
+	<route id="loggerRoute" startupOrder="2" autoStartup="true">
+		<from uri="timer://loggerRouteTrigger?fixedRate=true&amp;period=86400000" />
+		<log loggingLevel="WARN" message="Camel service is running." />
+	</route>
+	
+	<route id="creation">
+		<from uri="direct://creation" />
+		<log loggingLevel="TRACE" message="Body before setBody = ${body}" />
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},setBody)" />
+		<removeHeaders pattern="CamelHttp*"/>
+		<removeHeaders pattern="CamelNetty*"/>
+		<removeHeaders pattern="Host"/>
+		<setHeader headerName="CamelHttpMethod">
+				<constant>POST</constant>
+		</setHeader>
+		<bean id="xmlParserCreation" ref="xmlParser" />
+		<bean  ref="jspExecute" method="executeWithHazelCastInstance(${exchange},ruleGenerateKbPath)" />
+		<!-- <bean  ref="jspExecute" method="executeWithHazelCastInstance(${exchange},ibanEnrichment)" /> -->
+		<!-- <bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},enrichmentCreationRule)" /> -->
+		<!-- <bean  ref="jspExecute" method="executeWithHazelCastInstance(${exchange},ruleGenerateKbPath)" /> -->
+		<to uri="direct://IBAN-BIC-Enrich" />
+		<removeHeaders pattern="ACTIVE_INSTANCE"/>
+		<log loggingLevel="TRACE" message="headers before validation = ${headers}" />
+		<serviceCall name="validation-service/payments/v1/validation?headerFilterStrategy=#aceqFilter" />
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},setValidationResponse)" />
+		<log loggingLevel="TRACE" message="After Validation ACEDB_responseCdsDoc = ${header.ACEDB_responseCdsDoc}" />
+		<to uri="direct://enrichment" />
+		<removeHeaders pattern="ACTIVE_INSTANCE"/>
+		<log loggingLevel="TRACE" message="headers before duplicate = ${headers}" />
+		<serviceCall name="duplicate-check-service/duplicate?headerFilterStrategy=#aceqFilter" />
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},setDuplicateCheckResponse)" />
+		<log loggingLevel="TRACE" message="After Duplicate Check ACEDB_responseCdsDoc = ${header.ACEDB_responseCdsDoc}" />
+		<!-- <bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},messageRepair)" /> -->
+		<to uri="direct://repair" />
+		<!-- <bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},generateResponse)" />
+		<log loggingLevel="TRACE" message="Body after generateResponse = ${body}" /> -->
+		<removeHeaders pattern="ACTIVE_INSTANCE"/>
+		<serviceCall name="scheduling-service/scheduling?headerFilterStrategy=#aceqFilter" /> 
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},setSchedulingCheckResponse)" />
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},generateResponse)" />
+		<log loggingLevel="TRACE" message="Body after generateResponse = ${body}" />
+		<log loggingLevel="TRACE" message="After generateResponse ACEDB_responseCdsDoc = ${header.ACEDB_responseCdsDoc}" />
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},setResponse)" />
+		<log loggingLevel="TRACE" message="Headers after setResponse = ${headers}" />
+		<log loggingLevel="TRACE" message="Body after setResponse = ${body}" />
+		<removeHeaders pattern="*" excludePattern="status|Audit|audit|MSG_FAMILY|SENDER|RECEIVER|INSTRUCTINGAGENT|INSTRUCTEDAGENT|Content-Type|PaymentType|CHANNEL_ID_SOURCE|PLCN_coresystem|PLCN_purpose"/>
+		<log loggingLevel="TRACE" message="Headers after removeHeaders = ${headers}" />
+		<bean id="xmlParserSetWfHeader" ref="xmlParser" />
+		<log loggingLevel="TRACE" message="Body after xmlParserSetWfHeader = ${body}" />
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},setWfHeader)" />
+		<log loggingLevel="TRACE" message="Body after setWfHeader = ${body}" />
+		<removeHeaders pattern="hazelCastInstance"/>
+		<removeHeaders pattern="ACTIVE_INSTANCE"/>
+	</route>
+	
+	<route id="enrichment">
+		<from uri="direct://enrichment" />
+		<!-- <bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},enrichSttlmMtd)" /> -->
+		<bean id="xmlParserEnrichment" ref="xmlParser" />
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},enrichSttlmMtd)" />
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},enrichBic)" />
+		<to uri="direct://T2Enrichment" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_paymentTypeModified} == true</simple>
+				<bean id="xmlParserEnrichment2" ref="xmlParser" />
+				<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},enrichBic)" />
+				<bean id="xmlParserEnrichment3" ref="xmlParser" />
+				<!-- <bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},enrichmentCreationRule)" /> -->
+			</when>
+		</choice>
+		<choice>
+			<when>
+				<simple>${header.PLCN_validateMessage} == true</simple>
+				<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},removeValidationViolations)" />
+				<log loggingLevel="TRACE" message="headers after removeValidationViolations = ${headers}" />
+				<log loggingLevel="TRACE" message="Body after removeValidationViolations = ${body}" />
+				<removeHeaders pattern="ACTIVE_INSTANCE"/>	
+				<serviceCall name="validation-service/payments/v1/validation?headerFilterStrategy=#aceqFilter" />
+				<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},setValidationResponse)" />
+			</when>
+		</choice>
+	</route>
+	
+	<route id="T2Enrichment">
+		<from uri="direct://T2Enrichment" />
+		<bean id="jspPopulateDataCheckT2EnrichmentFlag" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},checkT2EnrichmentFlag)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_T2EnrichmentFlag} == true</simple>
+				<log loggingLevel="TRACE" message="headers before T2Enrichment = ${headers}" />
+				<removeHeaders pattern="ACTIVE_INSTANCE"/>
+				<serviceCall
+					name="T2Enrichment-service/wfapi/payments/v1/T2Enrichment?headerFilterStrategy=#wfapiFilter" />
+				<log loggingLevel="TRACE" message="headers after T2Enrichment = ${headers}" />
+				<log loggingLevel="TRACE" message="Body after T2Enrichment = ${body}" />
+				<bean id="jspPopulateDataSetT2EnrichmentResponse" ref="jspExecute"
+					method="executeWithHazelCastInstance(${exchange},setT2EnrichmentResponse)" />
+			</when>
+		</choice>	
+	</route>
+
+	<!-- <route id="repair">
+		<from uri="direct://repair" />
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},messageRepair)" />
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},createResponse)" />
+	</route> -->	
+	
+	<route id="repair">
+		<from uri="direct://repair" />
+		<bean ref="xmlParser" />	
+		<bean id="jspPopulationDatarepair1" ref="jspExecute" 
+			method="executeWithHazelCastInstance(${exchange},messageRepair)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_callRepairAPI} == true</simple>
+				<bean id="jspPopulationsetRequestHeader" ref="jspExecute" 
+					method="executeWithHazelCastInstance(${exchange},createRepairRequest)" />
+				<removeHeaders pattern="ACTIVE_INSTANCE"/>
+				<serviceCall
+					name="repair-service/payments/v1/repair/swift-cross-border-payments?headerFilterStrategy=#aceqFilter" />
+				<log loggingLevel="INFO" message="Body after repair-service = ${body}" />
+				<bean id="jspPopulationsetRequestHeader" ref="jspExecute" 
+					method="executeWithHazelCastInstance(${exchange},setRepairApiResponse)" />
+				<bean id="jspPopulationsetRequestHeader" ref="jspExecute" 
+					method="executeWithHazelCastInstance(${exchange},processRepairResponse)" />
+			</when>
+		</choice>
+	</route>
+
+	<route id="IBAN-BIC-Enrich">
+		<from uri="direct://IBAN-BIC-Enrich" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_IbanBicFlag} == true</simple>
+				<!-- <bean id="xmlParserIbanBicEnrich" ref="xmlParser" /> -->
+				<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},tagEnrichment)" />	
+				<removeHeaders pattern="ACTIVE_INSTANCE"/>
+				<choice>
+					<when>
+						<simple>${header.PLCN_bicEnrichmentFlag} == true</simple>
+						<serviceCall name="TRANSLATION-SEPA-service/payments/v1/translation-sepa?headerFilterStrategy=#aceqFilter" />
+						<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},wfapiRequestHeaders)" />
+						<removeHeaders pattern="ACTIVE_INSTANCE"/>
+						<serviceCall name="MXRepair-service/wfapi/payments/v1/MXrepairs?headerFilterStrategy=#wfapiFilter" />
+						<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},ibanBicEnrichment)" />
+					</when>
+					<otherwise>
+						<log loggingLevel="INFO" message="Bic is already present in message..." />
+					</otherwise>
+				</choice>		
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Iban Bic Consistency is not applied for this Institution" />
+			</otherwise>
+		</choice>
+	</route>	
+</routeContext>
+</beans>

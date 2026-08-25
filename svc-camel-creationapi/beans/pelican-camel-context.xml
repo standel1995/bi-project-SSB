@@ -1,0 +1,133 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:camel="http://camel.apache.org/schema/spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd          
+		http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd       
+		http://camel.apache.org/schema/spring 
+		http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<import resource="classpath:/routes/*.xml"/>
+	<import resource="classpath:/rest/*.xml"/>
+	
+	<camelContext id="MyCamel"
+		xmlns="http://camel.apache.org/schema/spring">
+			<propertyPlaceholder  id="routeProperty" location="classpath:/svc-camel-creationapi.properties" />
+
+		<defaultServiceCallConfiguration component="http">
+			<staticServiceDiscovery>
+					<servers>T2Enrichment-service@10.10.11.159:3068</servers>			
+					<servers>validation-service@10.10.11.159:8082,validation-service@10.10.11.159:8052</servers>					
+					<servers>duplicate-check-service@10.10.11.159:8082,duplicate-check-service@10.10.11.159:8052</servers>
+					<servers>scheduling-service@10.10.11.159:8082,scheduling-service@10.10.11.159:8052</servers>	
+					<servers>TRANSLATION-SEPA-service@10.10.11.159:8075,TRANSLATION-SEPA-service@10.10.11.159:8075</servers>	
+					<servers>MXRepair-service@10.10.11.159:3069</servers>
+					<servers>repair-service@10.10.11.159:9095</servers>
+					<!-- <servers>parseField-service@10.10.11.159:3068</servers> -->					
+			</staticServiceDiscovery>
+		</defaultServiceCallConfiguration>			
+			
+		<routeContextRef ref="creation"/>
+
+		<restContextRef ref="restContext" />
+		
+		<onException id="httpException">
+			<exception>org.apache.camel.http.common.HttpOperationFailedException</exception>
+			<exception>java.net.ConnectException</exception>
+			<redeliveryPolicy
+				maximumRedeliveries="2" />
+			<handled>
+				<camel:constant>true</camel:constant>
+			</handled>
+			<log message="HTTP failed..." />
+			<log message="In Exception handler :${exception.stacktrace}" />
+			<setHeader headerName="exception">
+				<simple>${exception.stacktrace}</simple>
+			</setHeader>
+			<setHeader headerName="PLCN_queue">
+				<simple>ERRORQ</simple>
+			</setHeader>			
+			<setHeader headerName="PLCN_validFlag">
+				<simple>false</simple>
+			</setHeader>
+			<setHeader headerName="PLCN_httpException">
+				<simple>true</simple>
+			</setHeader>
+			<bean ref="pelicanController" method="exceptionLogger" />
+			<log message="In httpException onException" />
+			<to uri="direct://dbOperationCamelContext" />
+			<stop/>
+		</onException>
+		
+		<onException id="genericException">
+			<exception>java.lang.Exception</exception>
+			<!--<redeliveryPolicy
+				maximumRedeliveries="0" />-->
+			<handled>
+				<camel:constant>true</camel:constant>
+			</handled>
+			<log loggingLevel="INFO" message="IN Generic Exception exception" />
+			<log loggingLevel="TRACE" message="body in Generic Exception: ${body}" />
+			<setHeader headerName="exception">
+				<simple>${exception.stacktrace}</simple>
+			</setHeader>
+			<setHeader headerName="PLCN_queue">
+				<simple>ERRORQ</simple>
+			</setHeader>
+			<setHeader headerName="PLCN_validFlag">
+				<simple>false</simple>
+			</setHeader>
+			<setHeader headerName="PLCN_genericException">
+				<constant>true</constant>
+			</setHeader>
+			<bean ref="pelicanController" method="exceptionLogger" />
+			<log loggingLevel="TRACE" message="header after Generic Exception : ${headers}" />
+			<to uri="direct://dbOperationCamelContext" />
+			<stop />
+		</onException>	
+		
+		<onException>
+			<exception>ai.pelican.camel.exception.StaticDataNotFoundException</exception>
+			<redeliveryPolicy
+				maximumRedeliveries="7" redeliveryDelay="30000" />
+			<handled>
+			<constant>true</constant>
+			</handled>
+			<log message="In StaticDataNotFoundException, exception occured..." />
+			<setHeader headerName="exception">
+				<simple>${exception.stacktrace}</simple>
+			</setHeader>
+			<bean ref="pelicanController" method="exceptionLogger" />
+			<stop/>
+		</onException>		
+		
+		<onException>
+			<exception>org.apache.camel.ValidationException</exception>
+			<handled>
+				<constant>true</constant>
+			</handled>
+			<log message="XSD Validation failed" />
+		</onException>
+		
+		<restConfiguration component="netty-http" host="10.10.11.159" port="{{restdsl.port}}" />	
+		
+		<route id="dbOperationCamelContext">
+			<from uri="direct://dbOperationCamelContext" />
+			<bean id="jspPopulateDataSetAuthViolation" ref="jspExecute"
+				method="executeWithHazelCastInstance(${exchange},setExceptionViolation)" />
+			<bean id="jspPopulateDataCreateResponseCamelContext" ref="jspExecute"
+				method="executeWithHazelCastInstance(${exchange},createResponse)" />
+			<!-- <bean id="jspPopulateDatadbOperationCamelContext" ref="jspExecute"
+				method="executeWithHazelCastInstance(${exchange},dbOperation)" /> -->
+			<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},setResponse)" />
+			<removeHeaders pattern="*" excludePattern="status|Audit|audit|MSG_FAMILY"/>
+			<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},setWfHeader)" />
+			<removeHeaders pattern="hazelCastInstance"/>
+			<removeHeaders pattern="ACTIVE_INSTANCE"/>
+		</route>
+
+	</camelContext>
+	
+</beans>

@@ -1,0 +1,18 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<restContext id="restRecallResponseContext" xmlns="http://camel.apache.org/schema/spring">
+		<rest path="/payments/v1/recallResponse" bindingMode="auto">
+			<post>
+				<route>
+					<log loggingLevel="INFO" message="headers in recallResponse = ${headers}"/>
+					<log loggingLevel="INFO" message="Body in recallResponse = ${body}" />
+					<to uri="direct://recallresponse" />
+				</route>
+			</post>
+		</rest>
+	</restContext>
+</beans>
