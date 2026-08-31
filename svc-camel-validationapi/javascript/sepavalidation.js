@@ -1,0 +1,13479 @@
+function epcEquensIsoXsdCheck(exchange) {
+	var instPath;
+	var institutionId;
+	var msgFamily;
+	var messageClassType;
+	var messageDirection;
+	var paramname;
+	var xsdCheckKey;
+	var flagValue;
+	
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	logger.info("inside epcEquensIsoXsdCheck");
+	
+	institutionId = getHeader(map, "PLCN_institutionId");
+	logger.info("epcEquensIsoXsdCheck_institutionId = " + institutionId);
+	
+	messageDirection = getHeader(map, "PLCN_msgDirection");
+	logger.info("epcEquensIsoXsdCheck_messageDirection = " + messageDirection);
+	
+	if(messageDirection == "I"){
+		instPath = institutionId.concat(".MESSAGE_PROCESSING.FUNCTIONALITY.VALIDATION.OUTBOUND");
+	}else if(messageDirection == "O"){
+		instPath = institutionId.concat(".MESSAGE_PROCESSING.FUNCTIONALITY.VALIDATION.INBOUND");
+	}
+	logger.info("epcEquensIsoXsdCheck_instPath = " + instPath);
+	
+	msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	if(!msgFamily){
+		msgFamily = getHeader(map, "PLCN_msgFamily");
+	}
+	if(!msgFamily){
+		var paymentType = getHeader(map, "PaymentType");
+		logger.info("epcEquensIsoXsdCheck_paymentType: PaymentType = " + paymentType);
+
+		var tmpStr = paymentType?.slice(-15);
+		msgFamily = removePattern(paymentType, tmpStr);
+		logger.info("epcEquensIsoXsdCheck_msgFamily: msgFamily = " + msgFamily);
+		logger.info("epcEquensIsoXsdCheck_msgFamily = " + msgFamily);
+	}
+	msgFamily = msgFamily?.toUpperCase();
+	logger.info("epcEquensIsoXsdCheck_msgFamily = " + msgFamily);
+	
+	//SEPA_Pacs.008_XSDCHECK
+	 // replacing this with PaymentType to handle outbound pacs.002 generation scenario
+	//messageClassType = getHeader(map, "PLCN_msgType");
+    messageClassType = getHeader(map, "PaymentType").slice(-15);
+	
+	if(!messageClassType) {
+		messageClassType = getHeader(map, "PLCN_msgTypeTrans");
+		logger.info("epcEquensIsoXsdCheck_PLCN_msgTypeTrans = " + messageClassType);
+	}
+	
+	messageClassType = messageClassType?.toLowerCase();
+	logger.info("epcEquensIsoXsdCheck_messageClassType = " + messageClassType);
+	
+	if(isPatternPresent(messageClassType , "pacs.008")) {
+		paramname = msgFamily.concat("_Pacs.008_XSDCHECK");
+	}else if(isPatternPresent(messageClassType , "pacs.004")) {
+
+		var messageClassTypeP4DD = getHeader(map, "RevisedPaymentType");
+		logger.info("epcEquensIsoXsdCheck_messageClassTypeP4DD = " + messageClassTypeP4DD);
+		if(isPatternPresent(messageClassTypeP4DD , "SDD")) {
+			paramname = msgFamily.concat("_Pacs.004SDD_XSDCHECK");
+		}else{
+		paramname = msgFamily.concat("_Pacs.004_XSDCHECK");
+		}
+		
+	}else if(isPatternPresent(messageClassType , "pacs.002")) {
+			
+		var messageClassTypeP2DD = getHeader(map, "RevisedPaymentType");
+		logger.info("epcEquensIsoXsdCheck_messageClassTypeP2DD = " + messageClassTypeP2DD);
+		if(isPatternPresent(messageClassTypeP2DD , "SDD")) {
+			paramname = msgFamily.concat("_Pacs.002SDD_XSDCHECK");
+		}else{
+		paramname = msgFamily.concat("_Pacs.002_XSDCHECK");
+		}
+		
+	}else if(isPatternPresent(messageClassType , "pacs.003")) {
+		paramname = msgFamily.concat("_Pacs.003_XSDCHECK");
+	}else if(isPatternPresent(messageClassType , "pacs.007")) {
+		paramname = msgFamily.concat("_Pacs.007_XSDCHECK");
+	}else if(isPatternPresent(messageClassType , "camt.056")) {
+		
+		var messageClassTypeC56DD = getHeader(map, "RevisedPaymentType");
+		logger.info("epcEquensIsoXsdCheck_messageClassTypeC56DD = " + messageClassTypeC56DD);
+		if(isPatternPresent(messageClassTypeC56DD , "SDD")) {
+			paramname = msgFamily.concat("_Camt.056SDD_XSDCHECK");
+		}else{
+			paramname = msgFamily.concat("_Camt.056_XSDCHECK");
+		}
+		
+	}else if(isPatternPresent(messageClassType , "camt.029")) {
+		paramname = msgFamily.concat("_Camt.029_XSDCHECK");
+	}
+	
+	logger.info("epcEquensIsoXsdCheck_paramname = " + paramname);
+	if(instPath && paramname){
+		xsdCheckKey = instPath.concat(".").concat(paramname);
+	}
+	logger.info("epcEquensIsoXsdCheck_xsdCheckKey = " + xsdCheckKey);
+	
+	if(xsdCheckKey){
+		flagValue = memTblGetTableValue(map, "INST_PARAM",xsdCheckKey);
+	}
+	logger.info("epcEquensIsoXsdCheck_flagValue = " + flagValue);
+	setHeader(map, "PLCN_xsdCheckFlag",flagValue);
+
+	var Date1 = memTblGetTableValue(map, "USER_CONFIG_MAP", "SEPA_LIB2025_DATE");
+	logger.info("epcEquensIsoXsdCheck_Date1 = " + Date1);
+	
+	var sysDate = getDate();
+	logger.info("epcEquensIsoXsdCheck_sysDate = " + sysDate);
+
+	if((flagValue == "EPC") && (sysDate >= Date1)){
+		flagValue = "EPC2025";
+	}
+	
+	if(!flagValue && (sysDate >= Date1)){
+		flagValue = "DEFAULT2025";
+	}
+	
+	if((flagValue == "DBB") && (sysDate >= Date1)){
+		flagValue = "DBB2025";
+	}
+
+	logger.info("epcEquensIsoXsdCheck_flagValue = " + flagValue);
+	
+	if(flagValue == "EQUENS"){
+		setHeader(map, "PLCN_EQUENS_XSDCHECK", true);
+	}else if(flagValue == "EPC"){
+		setHeader(map, "PLCN_EPC_XSDCHECK", true);
+	}else if(flagValue == "ISO"){
+		setHeader(map, "PLCN_ISO_XSDCHECK", true);
+	}else if(flagValue == "DBB"){
+		setHeader(map, "PLCN_DBB_XSDCHECK", true);
+	}else if(flagValue == "EPC2025"){
+		setHeader(map, "PLCN_EPC2025_XSDCHECK", true);
+	}else if(flagValue == "DEFAULT2025"){
+		setHeader(map, "PLCN_DEFAULT2025_XSDCHECK", true);
+	}else if(flagValue == "DBB2025"){
+		setHeader(map, "PLCN_DBB2025_XSDCHECK", true);
+	}
+}
+
+function sepaInstValidationCheck(exchange) {
+	var instPath;
+	var institutionId;
+	var msgFamily;
+	var messageClassType;
+	var messageDirection;
+	var paramname;
+	var xsdCheckKey;
+	var flagValue;
+	var userConfigVal;
+	var sourceChannelId;
+	
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In sepaInstValidationCheck");
+	
+	institutionId = getHeader(map, "PLCN_institutionId");
+	logger.info("sepaInstValidationCheck: institutionId = " + institutionId);
+	
+	messageDirection = getHeader(map, "PLCN_msgDirection");
+	logger.info("sepaInstValidationCheck: messageDirection = " + messageDirection);
+
+	sourceChannelId = getHeader(map, "PLCN_sourceChannelId");
+	userConfigVal = memTblGetTableValue(map, "SEPAINST_CONFIG_MAP", sourceChannelId);
+	clrSysValue = userConfigVal;
+	
+	logger.info("sepaInstValidationCheck: sourceChannelId = " + sourceChannelId);
+	logger.info("sepaInstValidationCheck: userConfigVal = " + userConfigVal);
+
+	csm = getHeader(map, "PLCN_csm");
+	logger.info("sepaInstValidationCheck: CSM = " + csm);
+	
+
+	/* if(!csm) {
+		csm = getHeader(map, "CSM");
+		logger.info("sepaInstValidationCheck: from UI = " + csm);
+	} */
+
+	if(!clrSysValue) {
+		clrSysValue = csm;
+		logger.info("sepaInstValidationCheck: clrSysValue from csm = " + clrSysValue);
+	}
+
+	logger.info("sepaInstValidationCheck: clrSysValue = " + clrSysValue);
+
+	if(!clrSysValue) {
+		clrSysValue = 'RT1'; //default
+		logger.info("sepaInstValidationCheck: default clrSysValue = " + clrSysValue);
+	}
+
+	setHeader(map, "PLCN_csm", clrSysValue);
+
+	if(messageDirection == "I"){
+		instPath = institutionId.concat(".MESSAGE_PROCESSING.FUNCTIONALITY.VALIDATION.OUTBOUND");
+	}else if(messageDirection == "O"){
+		instPath = institutionId.concat(".MESSAGE_PROCESSING.FUNCTIONALITY.VALIDATION.INBOUND");
+	}
+	
+	logger.info("sepaInstValidationCheck: instPath = " + instPath);
+	
+	msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	if(!msgFamily){
+		msgFamily = getHeader(map, "PLCN_msgFamily");
+	}
+
+	if(!msgFamily){
+		var paymentType = getHeader(map, "PaymentType");
+		logger.info("sepaInstValidationCheck: paymentType: PaymentType = " + paymentType);
+
+		var tmpStr = paymentType?.slice(-15);
+		msgFamily = removePattern(paymentType, tmpStr);
+		//logger.info("sepaInstValidationCheck: msgFamily = " + msgFamily);
+		logger.info("sepaInstValidationCheck: msgFamily = " + msgFamily);
+	}
+
+	msgFamily = msgFamily?.toUpperCase();
+	logger.info("sepaInstValidationCheck: msgFamily = " + msgFamily);
+	
+	//SEPA_Pacs.008_XSDCHECK
+	messageClassType = getHeader(map, "PLCN_msgType");
+	logger.info("sepaInstValidationCheck: messageClassType = " + messageClassType);
+	
+	/* if(!messageClassType){
+		messageClassType = getHeader(map, "TGT_PaymentType");
+		logger.info("sepaInstValidationCheck: messageClassType from UI = " + messageClassType);	
+	} */
+	
+	if(isPatternPresent(messageClassType , "pacs.008")) {
+		paramname = msgFamily.concat("_Pacs.008." + clrSysValue + "_XSDCHECK");
+	}else if(isPatternPresent(messageClassType , "pacs.004")) {
+		paramname = msgFamily.concat("_Pacs.004." + clrSysValue + "_XSDCHECK");
+	}else if(isPatternPresent(messageClassType , "camt.056")) {
+		paramname = msgFamily.concat("_Camt.056." + clrSysValue + "_XSDCHECK");
+	}else if(isPatternPresent(messageClassType , "camt.029")) {
+		paramname = msgFamily.concat("_Camt.029." + clrSysValue + "_XSDCHECK");
+	}else if(isPatternPresent(messageClassType , "pacs.028")) {
+		paramname = msgFamily.concat("_Pacs.028." + clrSysValue + "_XSDCHECK");
+	}else if(isPatternPresent(messageClassType , "pacs.002")) {
+		paramname = msgFamily.concat("_Pacs.002." + clrSysValue + "_XSDCHECK");
+	}
+
+	/*if(userConfigVal == "RT1" || instPathCheck == "RT1"){
+
+	}else{
+		if(messageDirection == "I"){
+			instPath = institutionId.concat(".MESSAGE_PROCESSING.FUNCTIONALITY.VALIDATION.OUTBOUND");
+		}else if(messageDirection == "O"){
+			instPath = institutionId.concat(".MESSAGE_PROCESSING.FUNCTIONALITY.VALIDATION.INBOUND");
+		}
+		logger.info("sepaInstValidationCheck: instPath = " + instPath);
+		
+		msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+		if(!msgFamily){
+			msgFamily = getHeader(map, "PLCN_msgFamily");
+		}
+		if(!msgFamily){
+			var paymentType = getHeader(map, "PaymentType");
+			logger.info("sepaInstValidationCheck: paymentType: PaymentType = " + paymentType);
+
+			var tmpStr = paymentType?.slice(-15);
+			msgFamily = removePattern(paymentType, tmpStr);
+			//logger.info("sepaInstValidationCheck: msgFamily = " + msgFamily);
+			logger.info("sepaInstValidationCheck: msgFamily = " + msgFamily);
+		}
+		msgFamily = msgFamily?.toUpperCase();
+		logger.info("sepaInstValidationCheck: msgFamily = " + msgFamily);
+		
+		//SEPA_Pacs.008_XSDCHECK
+		messageClassType = getHeader(map, "PLCN_msgType");
+		logger.info("sepaInstValidationCheck: messageClassType = " + messageClassType);
+		
+		if(isPatternPresent(messageClassType , "pacs.008")) {
+			paramname = msgFamily.concat("_Pacs.008.TIPS_XSDCHECK");
+		}else if(isPatternPresent(messageClassType , "pacs.004")) {
+			paramname = msgFamily.concat("_Pacs.004.TIPS_XSDCHECK");
+		}else if(isPatternPresent(messageClassType , "camt.056")) {
+			paramname = msgFamily.concat("_Camt.056.TIPS_XSDCHECK");
+		}else if(isPatternPresent(messageClassType , "camt.029")) {
+			paramname = msgFamily.concat("_Camt.029.TIPS_XSDCHECK");
+		}else if(isPatternPresent(messageClassType , "pacs.028")) {
+			paramname = msgFamily.concat("_Pacs.028.TIPS_XSDCHECK");
+		}		
+	}*/
+
+	logger.info("sepaInstValidationCheck: paramname = " + paramname);
+
+	if(instPath && paramname){
+		xsdCheckKey = instPath.concat(".").concat(paramname);
+		logger.info("sepaInstValidationCheck: xsdCheckKey = " + xsdCheckKey);
+	}
+	
+	if(xsdCheckKey){
+		flagValue = memTblGetTableValue(map, "INST_PARAM", xsdCheckKey);
+		logger.info("sepaInstValidationCheck: flagValue = " + flagValue);
+	}
+
+	var Date1 = memTblGetTableValue(map, "USER_CONFIG_MAP", "SEPA_LIB2025_DATE");
+	logger.info("sepaInstValidationCheck = " + Date1);
+	
+	var sysDate = getDate();
+	logger.info("sepaInstValidationCheck = " + sysDate);
+	
+	if((flagValue == "EPC") && (sysDate >= Date1)){
+		flagValue = "EPC2025";
+	}
+	
+	if(!flagValue && (sysDate >= Date1)){
+		flagValue = "DEFAULT2025";
+	}
+	
+	if((flagValue == "TIPS") && (sysDate >= Date1)){
+		flagValue = "TIPS2025";
+		logger.info("sepaInstValidationCheck: flagValue = " + flagValue);
+	}
+
+	logger.info("epcEquensIsoXsdCheck_flagValue = " + flagValue);
+	
+	if(flagValue == "EBA"){
+		setHeader(map, "PLCN_EBA_XSDCHECK", true);
+	}else if(flagValue == "TIPS"){
+		setHeader(map, "PLCN_TIPS_XSDCHECK", true);
+	}else if(flagValue == "EPC"){
+		setHeader(map, "PLCN_EPC_XSDCHECK", true);
+	}else if(flagValue == "ISO"){
+		setHeader(map, "PLCN_ISO_XSDCHECK", true);
+	}else if(flagValue == "EPC2025"){
+		setHeader(map, "PLCN_EPC2025_XSDCHECK", true);
+	}else if(flagValue == "DEFAULT2025"){
+		setHeader(map, "PLCN_DEFAULT2025_XSDCHECK", true);
+	}
+	else if(flagValue == "TIPS2025"){
+		setHeader(map, "PLCN_TIPS2025_XSDCHECK", true);
+	}
+
+	if(clrSysValue == 'RT1') {
+		setHeader(map, 'PLCN_clrSysRT1', 'true');
+		//setHeader(map, 'PLCNAPI_clrSysRT1', 'true');
+	}else {
+		setHeader(map, 'PLCN_clrSysRT1', 'false');
+		//setHeader(map, 'PLCNAPI_clrSysRT1', 'true');			
+	}
+}
+
+function msgValidationSepaPacs008(exchange) {
+	var result;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In msgValidationSepaPacs008");
+	logger.info("msgValidationSepaPacs008: exchange = " + exchange);
+	logger.info("msgValidationSepaPacs008: typeof exchange = " + typeof exchange);
+
+	setHeader(map, "PLCN_txnForceStopCounter", 0);
+	setHeader(map, "PLCN_errorCountAdd", "Y"); 
+	setHeader(map, "PLCN_validMessage", true);
+	//setHeader(map, "validFlag", true);
+
+	var plcnInternalcall = getHeader(map,"PLCN_call");
+	logger.info("msgValidationSepaPacs008: plcnInternalcall = " + plcnInternalcall);
+	logger.info("msgValidationSepaPacs008: typeof plcnInternalcall = " + typeof plcnInternalcall);
+	plcnInternalcall = plcnInternalcall.toString();
+
+	var creationCall = getHeader(map,"PLCN_creationCall");
+	logger.info("msgValidationSepaPacs008: creationCall = " + creationCall);
+	logger.info("msgValidationSepaPacs008: typeof creationCall = " + typeof creationCall);
+	creationCall = creationCall.toString();
+
+	var msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	msgFamily = msgFamily?.toUpperCase();
+	//msgFamily = getHeader(map, "PLCN_msgFamily");
+	logger.info("msgValidationSepaPacs008: msgFamily = " + msgFamily);
+
+	var custom13 = getHeader(map, "PLCN_custom13");
+	logger.info("msgValidationSepaPacs008: custom13 = " + custom13);	
+
+	if(isPatternPresent(msgFamily,"SEPA")  && plcnInternalcall == "true"){
+		logger.info("msgValidationSepaPacs008: inside 1st loop");
+		if(isPatternPresent(custom13, "VALIDATE=Y")){
+			wrapperSepaPacs008Mx(exchange);
+			custom13 = replacePattern(custom13, "VALIDATE=Y", "VALIDATE=D");
+			logger.info("msgValidationSepaPacs008: custom13 = " + custom13);
+			setHeader(map, "PLCN_custom13", custom13);
+			setHeader(map, "PLCNAPI_custom13", custom13);
+		}
+	}else{
+		logger.info("msgValidationSepaPacs008: External call");
+		wrapperSepaPacs008Mx(exchange);
+		//wrapperTimelineCheck(exchange);		
+	}
+
+	result = getHeader(map, "PLCN_validMessage");
+	logger.info("msgValidationSepaPacs008: PLCN_validMessage = " + result);
+	logger.info("msgValidationSepaPacs008: typeof PLCN_validMessage = " + typeof result);
+
+	var flag = memTblGetTableValue(map, "FLAG-TABLE", "PROCESS_T2ONLY");
+	logger.info("msgValidationSepaPacs008: flag = " + flag);
+
+	flag = flag?.trim();
+
+	if(result == true) {
+		setHeader(map, "status", "valid");
+	}else {
+		setHeader(map, "status", "error");
+
+		if(flag == "Y"){
+			//SEPA business rule failed
+			setCommentsForTransaction("00", "8183", map);
+		}
+	}
+}
+
+function msgValidationSepaPacs004(exchange) {
+	var result;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In msgValidationSepaPacs004");
+	logger.info("msgValidationSepaPacs004: exchange = " + exchange);
+	logger.info("msgValidationSepaPacs004: typeof exchange = " + typeof exchange);
+
+	setHeader(map, "PLCN_txxnForceStopCounter", 0);
+	setHeader(map, "PLCN_errorCountAdd", "Y"); 
+	setHeader(map, "PLCN_validMessage", true);
+	//setHeader(map, "validFlag", true);
+
+	var plcnInternalcall = getHeader(map,"PLCN_call");
+	logger.info("msgValidationSepaPacs004: plcnInternalcall = " + plcnInternalcall);
+	logger.info("msgValidationSepaPacs004: typeof plcnInternalcall = " + typeof plcnInternalcall);
+	plcnInternalcall = plcnInternalcall.toString();
+
+	var creationCall = getHeader(map,"PLCN_creationCall");
+	logger.info("msgValidationSepaPacs004: creationCall = " + creationCall);
+	logger.info("msgValidationSepaPacs004: typeof creationCall = " + typeof creationCall);
+	creationCall = creationCall.toString();
+
+	var msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	msgFamily = msgFamily?.toUpperCase();
+	//msgFamily = getHeader(map, "PLCN_msgFamily");
+	logger.info("msgValidationSepaPacs008: msgFamily = " + msgFamily);
+
+	var custom13 = getHeader(map, "PLCN_custom13");
+	logger.info("msgValidationSepaPacs004: custom13 = " + custom13);	
+
+	if(isPatternPresent(msgFamily,"SEPA")  && plcnInternalcall == "true"){
+		logger.info("msgValidationSepaPacs004: inside 1st loop");
+		if(isPatternPresent(custom13, "VALIDATE=Y")){
+			wrapperSepaPacs004Mx(exchange);
+			custom13 = replacePattern(custom13, "VALIDATE=Y", "VALIDATE=D");
+			logger.info("msgValidationSepaPacs004: custom13 = " + custom13);
+			setHeader(map, "PLCN_custom13", custom13);
+			setHeader(map, "PLCNAPI_custom13", custom13);
+		}
+	}else{
+		logger.info("msgValidationSepaPacs004: External call");
+		wrapperSepaPacs004Mx(exchange);
+		//wrapperTimelineCheck(exchange);
+	}
+
+	result = getHeader(map, "PLCN_validMessage");
+	logger.info("msgValidationSepaPacs004: PLCN_validMessage = " + result);
+	logger.info("msgValidationSepaPacs004: typeof PLCN_validMessage = " + typeof result);
+
+	var flag = memTblGetTableValue(map, "FLAG-TABLE", "PROCESS_T2ONLY");
+	logger.info("msgValidationSepaPacs004: flag = " + flag);
+
+	flag = flag?.trim();
+
+	if(result == true) {
+		setHeader(map, "status", "valid");
+	}else {
+		setHeader(map, "status", "error");
+
+		if(flag == "Y"){
+			//SEPA business rule failed
+			setCommentsForTransaction("00", "8183", map);
+		}
+	}
+}
+
+function ibanValidationSepaPacs004(exchange) {
+	var val;
+	var retVal = 0;
+
+	logger.info("In ibanValidationSepaPacs004");
+
+	val = validateSttlmAcctIbanSepaPacs004(exchange);
+	if(val) {
+		retVal = val;
+	}
+
+	val = validateOrgnlCdtrAgtAcctIbanSepaPacs004(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+
+	val = validateOrgnlDbtrAcctIbanSepaPacs004(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+
+	val = validateOrgnlDbtrAgtAcctIbanSepaPacs004(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+
+	val = validateDbtrAcctIbanSepaPacs004(exchange);	
+	if(val) {
+		retVal = retVal + val;
+	}
+
+	val = validateDbtrAgtAcctIbanSepaPacs004(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+
+	val = validateCdtrAgtAcctIbanSepaPacs004(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+
+	val = validateCdtrAcctIbanSepaPacs004(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Settlement Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validateSttlmAcctIbanSepaPacs004(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateSttlmAcctIbanSepaPacs004");
+	path = "/Document/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateSttlmAcctIbanSepaPacs004: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateSttlmAcctIbanSepaPacs004: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("135", "5714", map); 
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);
+	}
+
+	path = "/Document/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateSttlmAcctIbanSepaPacs004: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateSttlmAcctIbanSepaPacs004: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("926", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);
+	}
+
+	path = "/Document/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateSttlmAcctIbanSepaPacs004: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateSttlmAcctIbanSepaPacs004: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("975", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);
+	}
+
+	path = "/Document/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateSttlmAcctIbanSepaPacs004: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateSttlmAcctIbanSepaPacs004: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("1023", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);		
+	}
+
+	path = "/Document/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateSttlmAcctIbanSepaPacs004: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateSttlmAcctIbanSepaPacs004: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("1071", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);
+	}
+
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Orginal Creditor Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validateOrgnlCdtrAgtAcctIbanSepaPacs004(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateOrgnlCdtrAgtAcctIbanSepaPacs004");
+	path = "/Document/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateOrgnlCdtrAgtAcctIbanSepaPacs004: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateOrgnlCdtrAgtAcctIbanSepaPacs004: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("1279", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);
+	}
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Original Debtor Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validateOrgnlDbtrAcctIbanSepaPacs004(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateOrgnlDbtrAcctIbanSepaPacs004");
+	path = "/Document/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateOrgnlDbtrAcctIbanSepaPacs004: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateOrgnlDbtrAcctIbanSepaPacs004: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("1376", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);		
+	}
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Original Debtor Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validateOrgnlDbtrAgtAcctIbanSepaPacs004(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateOrgnlDbtrAgtAcctIbanSepaPacs004");
+	path = "/Document/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateOrgnlDbtrAgtAcctIbanSepaPacs004: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateOrgnlDbtrAgtAcctIbanSepaPacs004: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("1471", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);
+	}
+
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Debtor Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validateDbtrAcctIbanSepaPacs004(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateDbtrAcctIbanSepaPacs004");
+	path = "/Document/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateDbtrAcctIbanSepaPacs004: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateDbtrAcctIbanSepaPacs004: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("2077", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);		
+	}
+
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Debtor Agent Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validateDbtrAgtAcctIbanSepaPacs004(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateDbtrAgtAcctIbanSepaPacs004");
+	path = "/Document/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateDbtrAgtAcctIbanSepaPacs004: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateDbtrAgtAcctIbanSepaPacs004: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("2125", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);
+	}
+
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Creditor Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validateCdtrAcctIbanSepaPacs004(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateCdtrAcctIbanSepaPacs004");
+	path = "/Document/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateCdtrAcctIbanSepaPacs004: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateCdtrAcctIbanSepaPacs004: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("2274", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);
+	}
+
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Creditor Agent Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validateCdtrAgtAcctIbanSepaPacs004(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateCdtrAgtAcctIbanSepaPacs004");
+	path = "/Document/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateCdtrAgtAcctIbanSepaPacs004: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateCdtrAgtAcctIbanSepaPacs004: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("2177", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);
+	}
+
+	return retVal;
+}
+
+function msgValidationSepaCamt056(exchange) {
+	var result;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In msgValidationSepaCamt056");
+	logger.info("msgValidationSepaCamt056: exchange = " + exchange);
+	logger.info("msgValidationSepaCamt056: typeof exchange = " + typeof exchange);
+
+	setHeader(map, "PLCN_txnForceStopCounter", 0);
+	setHeader(map, "PLCN_errorCountAdd", "Y"); 
+	setHeader(map, "PLCN_validMessage", true);
+	//setHeader(map, "validFlag", true);
+
+	var plcnInternalcall = getHeader(map,"PLCN_call");
+	logger.info("msgValidationSepaCamt056: plcnInternalcall = " + plcnInternalcall);
+	logger.info("msgValidationSepaCamt056: typeof plcnInternalcall = " + typeof plcnInternalcall);
+	plcnInternalcall = plcnInternalcall.toString();
+
+	var creationCall = getHeader(map,"PLCN_creationCall");
+	logger.info("msgValidationSepaCamt056: creationCall = " + creationCall);
+	logger.info("msgValidationSepaCamt056: typeof creationCall = " + typeof creationCall);
+	creationCall = creationCall.toString();
+
+	var msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	msgFamily = msgFamily?.toUpperCase();
+	//msgFamily = getHeader(map, "PLCN_msgFamily");
+	logger.info("msgValidationSepaPacs008: msgFamily = " + msgFamily);
+
+	var custom13 = getHeader(map, "PLCN_custom13");
+	logger.info("msgValidationSepaCamt056: custom13 = " + custom13);	
+
+	if(isPatternPresent(msgFamily,"SEPA")  && plcnInternalcall == "true"){
+		logger.info("msgValidationSepaCamt056: inside 1st loop");
+		if(isPatternPresent(custom13, "VALIDATE=Y")){
+			wrapperSepaCamt056Mx(exchange);
+			custom13 = replacePattern(custom13, "VALIDATE=Y", "VALIDATE=D");
+			logger.info("msgValidationSepaCamt056: custom13 = " + custom13);
+			setHeader(map, "PLCN_custom13", custom13);
+			setHeader(map, "PLCNAPI_custom13", custom13);
+		}
+	}else{
+		logger.info("msgValidationSepaCamt056: External call");
+		wrapperSepaCamt056Mx(exchange);
+		//wrapperTimelineCheck(exchange);
+	}
+
+	result = getHeader(map, "PLCN_validMessage");
+	//result = true; //for testing
+	logger.info("msgValidationSepaCamt056: PLCN_validMessage = " + result);
+	logger.info("msgValidationSepaCamt056: typeof PLCN_validMessage = " + typeof result);
+
+	var flag = memTblGetTableValue(map, "FLAG-TABLE", "PROCESS_T2ONLY");
+	logger.info("msgValidationSepaCamt056: flag = " + flag);
+
+	flag = flag?.trim();
+
+	if(result == true) {
+		setHeader(map, "status", "valid");
+	}else {
+		setHeader(map, "status", "error");
+
+		if(flag == "Y"){
+			//SEPA business rule failed
+			setCommentsForTransaction("00", "8183", map);
+		}
+	}
+}
+
+function msgValidationSepaCamt029(exchange) {
+	var result;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In msgValidationSepaCamt029");
+	logger.trace("msgValidationSepaCamt029: exchange = " + exchange);
+	logger.info("msgValidationSepaCamt029: typeof exchange = " + typeof exchange);
+
+	setHeader(map, "PLCN_txnForceStopCounter", 0);
+	setHeader(map, "PLCN_errorCountAdd", "Y"); 
+	setHeader(map, "PLCN_validMessage", true);
+	//setHeader(map, "validFlag", true);
+
+	var plcnInternalcall = getHeader(map,"PLCN_call");
+	logger.info("msgValidationSepaCamt029: plcnInternalcall = " + plcnInternalcall);
+	logger.info("msgValidationSepaCamt029: typeof plcnInternalcall = " + typeof plcnInternalcall);
+	plcnInternalcall = plcnInternalcall.toString();
+
+	var creationCall = getHeader(map,"PLCN_creationCall");
+	logger.info("msgValidationSepaCamt029: creationCall = " + creationCall);
+	logger.info("msgValidationSepaCamt029: typeof creationCall = " + typeof creationCall);
+	creationCall = creationCall.toString();
+
+	var msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	msgFamily = msgFamily?.toUpperCase();
+	//msgFamily = getHeader(map, "PLCN_msgFamily");
+	logger.info("msgValidationSepaPacs008: msgFamily = " + msgFamily);
+
+	var custom13 = getHeader(map, "PLCN_custom13");
+	logger.info("msgValidationSepaCamt029: custom13 = " + custom13);	
+
+	if(isPatternPresent(msgFamily,"SEPA")  && plcnInternalcall == "true"){
+		logger.info("msgValidationSepaCamt029: inside 1st loop");
+		if(isPatternPresent(custom13, "VALIDATE=Y")){
+			wrapperSepaCamt029Mx(exchange);
+			custom13 = replacePattern(custom13, "VALIDATE=Y", "VALIDATE=D");
+			logger.info("msgValidationSepaCamt029: custom13 = " + custom13);
+			setHeader(map, "PLCN_custom13", custom13);
+			setHeader(map, "PLCNAPI_custom13", custom13);
+		}
+	}else{
+		logger.info("msgValidationSepaCamt029: External call");
+		wrapperSepaCamt029Mx(exchange);
+		//wrapperTimelineCheck(exchange);
+	}
+
+	result = getHeader(map, "PLCN_validMessage");
+	//result = true; //for testing
+	logger.info("msgValidationSepaCamt029: PLCN_validMessage = " + result);
+	logger.info("msgValidationSepaCamt029: typeof PLCN_validMessage = " + typeof result);
+
+	var flag = memTblGetTableValue(map, "FLAG-TABLE", "PROCESS_T2ONLY");
+	logger.info("msgValidationSepaCamt029: flag = " + flag);
+
+	flag = flag?.trim();
+
+	if(result == true) {
+		setHeader(map, "status", "valid");
+	}else {
+		setHeader(map, "status", "error");
+
+		if(flag == "Y"){
+			//SEPA business rule failed
+			setCommentsForTransaction("00", "8183", map);
+		}
+	}
+}
+
+/*.............................................................................. DPH 9.7 .................................................................*/
+function msgValidationSepaPacs002(exchange) {
+	var result;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In msgValidationSepaPacs002");
+	logger.info("msgValidationSepaPacs002: exchange = " + exchange);
+	logger.info("msgValidationSepaPacs002: typeof exchange = " + typeof exchange);
+
+	setHeader(map, "PLCN_txxnForceStopCounter", 0);
+	setHeader(map, "PLCN_errorCountAdd", "Y"); 
+	setHeader(map, "PLCN_validMessage", true);
+	//setHeader(map, "validFlag", true);
+
+	var plcnInternalcall = getHeader(map,"PLCN_call");
+	logger.info("msgValidationSepaPacs002: plcnInternalcall = " + plcnInternalcall);
+	logger.info("msgValidationSepaPacs002: typeof plcnInternalcall = " + typeof plcnInternalcall);
+	plcnInternalcall = plcnInternalcall.toString();
+
+	var msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	logger.info("msgValidationSepaPacs002: msgFamily = " + msgFamily);
+
+	var custom13 = getHeader(map, "PLCN_custom13");
+	logger.info("msgValidationSepaPacs002: custom13 = " + custom13);	
+
+	if(isPatternPresent(msgFamily,"SEPA")  && plcnInternalcall == "true"){
+		logger.info("msgValidationSepaPacs002: inside 1st loop");
+		if(isPatternPresent(custom13, "VALIDATE=Y")){
+			wrapperSepaPacs002Mx(exchange);
+			custom13 = replacePattern(custom13, "VALIDATE=Y", "VALIDATE=D");
+			logger.info("msgValidationSepaPacs002: custom13 = " + custom13);
+			setHeader(map, "PLCN_custom13", custom13);
+		}
+	}else{
+		wrapperSepaPacs002Mx(exchange);
+	}
+
+	result = getHeader(map, "PLCN_validMessage");
+	logger.info("msgValidationSepaPacs002: PLCN_validMessage = " + result);
+	logger.info("msgValidationSepaPacs002: typeof PLCN_validMessage = " + typeof result);
+
+	var flag = memTblGetTableValue(map, "FLAG-TABLE", "PROCESS_T2ONLY");
+	logger.info("msgValidationSepaPacs002: flag = " + flag);
+
+	flag = flag?.trim();
+
+	if(result == true) {
+		setHeader(map, "status", "valid");
+	}else {
+		setHeader(map, "status", "error");
+
+		if(flag == "Y"){
+			//SEPA business rule failed
+			setCommentsForTransaction("00", "8183", map);
+		}
+	}
+}
+
+function msgValidationSepaPacs003(exchange) {
+	var result;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In msgValidationSepaPacs003");
+	logger.info("msgValidationSepaPacs003: exchange = " + exchange);
+	logger.info("msgValidationSepaPacs003: typeof exchange = " + typeof exchange);
+
+	setHeader(map, "PLCN_txxnForceStopCounter", 0);
+	setHeader(map, "PLCN_errorCountAdd", "Y"); 
+	setHeader(map, "PLCN_validMessage", true);
+	setHeader(map, "validFlag", true);
+
+	//wrapperSepaPacs003Mx(exchange);
+
+	var plcnInternalcall = getHeader(map,"PLCN_call");
+	logger.info("msgValidationSepaPacs003: plcnInternalcall = " + plcnInternalcall);
+	logger.info("msgValidationSepaPacs003: typeof plcnInternalcall = " + typeof plcnInternalcall);
+	plcnInternalcall = plcnInternalcall.toString();
+
+	var creationCall = getHeader(map,"PLCN_creationCall");
+	logger.info("msgValidationSepaPacs003: creationCall = " + creationCall);
+	logger.info("msgValidationSepaPacs003: typeof creationCall = " + typeof creationCall);
+	creationCall = creationCall.toString();
+
+	var msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	msgFamily = msgFamily?.toUpperCase();
+	logger.info("msgValidationSepaPacs003: msgFamily = " + msgFamily);
+
+	var custom13 = getHeader(map, "PLCN_custom13");
+	logger.info("msgValidationSepaPacs003: custom13 = " + custom13);	
+
+	if(isPatternPresent(msgFamily,"SEPA")  && plcnInternalcall == "true"){
+		logger.info("msgValidationSepaPacs003: inside 1st loop");
+		if(isPatternPresent(custom13, "VALIDATE=Y")){
+			wrapperSepaPacs003Mx(exchange);
+			//wrapperTimelineCheck(exchange);
+			custom13 = replacePattern(custom13, "VALIDATE=Y", "VALIDATE=D");
+			logger.info("msgValidationSepaPacs003: custom13 = " + custom13);
+			setHeader(map, "PLCN_custom13", custom13);
+			setHeader(map, "PLCNAPI_custom13", custom13);
+		}
+	}else{
+		wrapperSepaPacs003Mx(exchange);
+		//wrapperTimelineCheck(exchange);	
+	}
+
+	result = getHeader(map, "PLCN_validMessage");
+	logger.info("msgValidationSepaPacs003: PLCN_validMessage = " + result);
+	logger.info("msgValidationSepaPacs003: typeof PLCN_validMessage = " + typeof result);
+
+	resultTimelineCheck = getHeader(map, "PLCN_validTimeline");
+	logger.info("msgValidationSepaPacs003: PLCN_validTimeline = " + resultTimelineCheck);
+	logger.info("msgValidationSepaPacs003: typeof PLCN_validTimeline = " + typeof resultTimelineCheck);
+
+	var flag = memTblGetTableValue(map, "FLAG-TABLE", "PROCESS_T2ONLY");
+	logger.info("msgValidationSepaPacs003: flag = " + flag);
+
+	flag = flag?.trim();
+
+	/*if(result == true && resultTimelineCheck == true) {
+		result = true;
+	}else{
+		result = false;
+	}*/
+
+	logger.info("msgValidationSepaPacs003: result = " + result);
+
+	if(result == true) {
+		setHeader(map, "status", "valid");
+	}else {
+		setHeader(map, "status", "error");
+
+		if(flag == "Y"){
+			//SEPA business rule failed
+			setCommentsForTransaction("00", "8183", map);
+		}
+	}
+}
+
+function msgValidationSepaPacs004SDD(exchange) {
+	var result;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In msgValidationSepaPacs004SDD");
+	logger.info("msgValidationSepaPacs004SDD: exchange = " + exchange);
+	logger.info("msgValidationSepaPacs004SDD: typeof exchange = " + typeof exchange);
+
+	setHeader(map, "PLCN_txxnForceStopCounter", 0);
+	setHeader(map, "PLCN_errorCountAdd", "Y"); 
+	setHeader(map, "PLCN_validMessage", true);
+	//setHeader(map, "validFlag", true);
+
+	var plcnInternalcall = getHeader(map,"PLCN_call");
+	logger.info("msgValidationSepaPacs004SDD: plcnInternalcall = " + plcnInternalcall);
+	logger.info("msgValidationSepaPacs004SDD: typeof plcnInternalcall = " + typeof plcnInternalcall);
+	plcnInternalcall = plcnInternalcall.toString();
+
+	var creationCall = getHeader(map,"PLCN_creationCall");
+	logger.info("msgValidationSepaPacs003: creationCall = " + creationCall);
+	logger.info("msgValidationSepaPacs003: typeof creationCall = " + typeof creationCall);
+	creationCall = creationCall.toString();
+
+	var msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	msgFamily = msgFamily?.toUpperCase();
+	//msgFamily = getHeader(map, "PLCN_msgFamily");
+	logger.info("msgValidationSepaPacs004SDD: msgFamily = " + msgFamily);
+
+	var custom13 = getHeader(map, "PLCN_custom13");
+	logger.info("msgValidationSepaPacs004SDD: custom13 = " + custom13);	
+
+	/*if(isPatternPresent(msgFamily,"SEPA")  && plcnInternalcall == "true"){
+		logger.info("msgValidationSepaPacs004SDD: inside 1st loop");
+		if(isPatternPresent(custom13, "VALIDATE=Y")){
+			wrapperSepaPacs004Mx(exchange);
+			custom13 = replacePattern(custom13, "VALIDATE=Y", "VALIDATE=D");
+			logger.info("msgValidationSepaPacs004SDD: custom13 = " + custom13);
+			setHeader(map, "PLCN_custom13", custom13);
+		}else if(creationCall == "true"){
+			logger.info("msgValidationSepaPacs003: creationCall = true");
+			wrapperSepaPacs003Mx(exchange);
+			wrapperTimelineCheck(exchange);		
+		}
+	}*/
+
+	if(isPatternPresent(msgFamily,"SEPA")  && plcnInternalcall == "true"){
+		logger.info("msgValidationSepaPacs004: inside 1st loop");
+		if(isPatternPresent(custom13, "VALIDATE=Y")){
+			wrapperSepaPacs004SDDMx(exchange);
+			custom13 = replacePattern(custom13, "VALIDATE=Y", "VALIDATE=D");
+			logger.info("msgValidationSepaPacs004: custom13 = " + custom13);
+			setHeader(map, "PLCN_custom13", custom13);
+			setHeader(map, "PLCNAPI_custom13", custom13);
+		}
+	}else{
+		logger.info("msgValidationSepaPacs004: External call");
+		wrapperSepaPacs004SDDMx(exchange);
+		//wrapperTimelineCheck(exchange);
+	}
+	result = getHeader(map, "PLCN_validMessage");
+	logger.info("msgValidationSepaPacs004SDD: PLCN_validMessage = " + result);
+	logger.info("msgValidationSepaPacs004SDD: typeof PLCN_validMessage = " + typeof result);
+
+	var flag = memTblGetTableValue(map, "FLAG-TABLE", "PROCESS_T2ONLY");
+	logger.info("msgValidationSepaPacs004SDD: flag = " + flag);
+
+	flag = flag?.trim();
+
+	if(result == true) {
+		setHeader(map, "status", "valid");
+	}else {
+		setHeader(map, "status", "error");
+
+		if(flag == "Y"){
+			//SEPA business rule failed
+			setCommentsForTransaction("00", "8183", map);
+		}
+	}
+}
+
+function wrapperSepaPacs004SDDMx(exchange) {
+	logger.info("wrapperSepaPacs004SDDMx");
+	var retVal;
+	var commentsB2b;
+	var pacs04ValdFlagMx;
+	var txnComments;
+	var inMsg;
+	var map;
+	var Document;
+	var manualMode;
+	var tenantName;
+
+	logger.info('wrapperSepaPacs004SDDMx: In wrapperSepaPacs004SDDMx');
+	inMsg = exchange.getIn();
+	map = inMsg.getHeaders();
+	Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	pacs04ValdFlagMx = memTblGetTableValue(map, "FLAG-TABLE", "PACS04_VALD_FLAG_MX");
+	pacs04ValdFlagMx = pacs04ValdFlagMx?.trim();
+	logger.info("pacs04ValdFlagMx = " + pacs04ValdFlagMx);
+
+	var institutionId = getHeader(map, "PLCN_institutionId");
+	logger.info("wrapperSepaPacs004SDDMx: institutionId " +institutionId);
+	
+	var institutionIdHDR = getHeader(map, "INSTITUTION_ID");
+	logger.info("wrapperSepaPacs004SDDMx: institutionId from request header = " + institutionIdHDR);
+	
+	manualMode = getHeader(map, "PLCN_manualMode");
+	logger.info("wrapperSepaPacs004SDDMx: manualMode " +manualMode);
+
+	tenantName = getHeader(map, "PLCN_tenantName");
+	logger.info("wrapperSepaPacs004SDDMx: tenantName = " + tenantName);
+
+	if(!tenantName){
+		var tenantNamePath = institutionId + ".INSTITUTION_DETAILS.TENANT_NAME";
+		logger.info("wrapperSepaPacs004SDDMx: tenantName = " + tenantNamePath);
+		tenantName = memTblGetTableValue(map, "INST_PARAM",tenantNamePath);
+		logger.info("wrapperSepaPacs004SDDMx: tenantName = " + tenantName);
+	}
+
+	var dbbFlag = getHeader(map, "PLCN_xsdCheckFlag");
+	logger.info("wrapperSepaPacs004SDDMx: dbbFlag = " + dbbFlag);
+
+	if(pacs04ValdFlagMx == 'ERROR') {
+
+		logger.info("wrapperSepaPacs004SDDMx: Calling sepaValidationRulesPacs004SDD");
+		retVal = sepaValidationRulesPacs004SDD(pacs04ValdFlagMx, exchange);
+		logger.info("wrapperSepaPacs004SDDMx: retVal from sepaValidationRulesPacs004SDD = " + retVal);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaPacs004SDDMx: txnComments = " + txnComments);
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaPacs004SDDMx: Calling externalCodelistValidationSepaPacs004");
+			//retVal = externalCodelistValidationSepaPacs004(Document, map);		
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaPacs004SDDMx: txnComments from externalCodelistValidationSepaPacs004 = " + txnComments);			
+		}
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaPacs004SDDMx: Calling ibanValidationSepaPacs004");
+			retVal = ibanValidationSepaPacs004(exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaPacs004SDDMx: txnComments from ibanValidationSepaPacs004 = " + txnComments);
+		}
+		
+		/* if(retVal == 0) {
+			logger.info("wrapperSepaPacs004SDDMx: Calling constraintsISORulesSEPAPacs004");
+			//constraintsISORulesSEPAPacs004(pacs04ValdFlagMx,exchange);
+			retVal = constraintsISORulesSEPAPacs004(pacs04ValdFlagMx, exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaPacs004SDDMx: txnComments from constraintsISORulesSEPAPacs004 = " + txnComments);
+		}
+		if(retVal == 0 && manualMode == "REPAIR" && (tenantName == "SNTDBK")) {
+		logger.info("wrapperSepaPacs004SDDMx: Calling sepaCustomValidationsPacs004");
+		sepaCustomValidationsPacs004(pacs04ValdFlagMx,exchange);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaPacs004SDDMx: txnComments from sepaCustomValidationsPacs004 = " + txnComments);
+		} */
+
+		if(dbbFlag == "DBB") {
+			logger.info("wrapperSepaPacs004SDDMx: Calling sepaValidationDBBRulesPacs004SDD");
+			retVal = sepaValidationDBBRulesPacs004SDD(pacs04ValdFlagMx, exchange);
+			logger.info("wrapperSepaPacs004SDDMx: retVal from sepaValidationDBBRulesPacs004SDD = " + retVal);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaPacs004SDDMx: txnComments = " + txnComments);
+		}
+	}
+
+	if(pacs04ValdFlagMx == 'WARNING') {
+
+		logger.info("wrapperSepaPacs004SDDMx: Calling sepaValidationRulesPacs004SDD");
+		retVal = sepaValidationRulesPacs004SDD(pacs04ValdFlagMx, exchange);
+		logger.info("wrapperSepaPacs004SDDMx: retVal from sepaValidationRulesPacs004SDD = " + retVal);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaPacs004SDDMx: txnComments = " + txnComments);
+
+		logger.info("wrapperSepaPacs004SDDMx: Calling externalCodelistValidationSepaPacs004");
+		retVal = externalCodelistValidationSepaPacs004(Document, map);		
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaPacs004SDDMx: txnComments from externalCodelistValidationSepaPacs004 = " + txnComments);			
+		
+		logger.info("wrapperSepaPacs004SDDMx: Calling ibanValidationSepaPacs004");
+		ibanValidationSepaPacs004(exchange);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaPacs004SDDMx: txnComments from ibanValidationSepaPacs004 = " + txnComments);
+		
+		/* logger.info("wrapperSepaPacs004SDDMx: Calling constraintsISORulesSEPAPacs004");
+		constraintsISORulesSEPAPacs004(pacs04ValdFlagMx,exchange);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaPacs004SDDMx: txnComments from constraintsISORulesSEPAPacs004 = " + txnComments);
+ */
+		if(dbbFlag == "DBB") {
+			logger.info("wrapperSepaPacs004SDDMx: Calling sepaValidationDBBRulesPacs004SDD");
+			retVal = sepaValidationDBBRulesPacs004SDD(pacs04ValdFlagMx, exchange);
+			logger.info("wrapperSepaPacs004SDDMx: retVal from sepaValidationDBBRulesPacs004SDD = " + retVal);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaPacs004SDDMx: txnComments = " + txnComments);
+		}
+	}
+}
+
+function sepaValidationRulesPacs004SDD(pacs04ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaValidationRulesPacs004SDD");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(pacs04ValdFlagMx == "ERROR") {
+
+		retVal = originalMsgNameIdRulePacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = compstnAmtRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = rsnCodeRulePacs004(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+
+	if(pacs04ValdFlagMx == "WARNING") {
+
+		retVal = originalMsgNameIdRulePacs004(Document, map);
+		retVal = compstnAmtRule(exchange);
+		retVal = rsnCodeRulePacs004(exchange);
+	}
+	return retVal;
+}
+
+function sepaValidationDBBRulesPacs004SDD(pacs04ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaValidationDBBRulesPacs004SDD");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(pacs04ValdFlagMx == "ERROR") {
+
+		retVal = nbOfTxsDBBRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = noOfTxnRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = rtrdIntrbnkSttlmtAmtRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = chrgsInfoAndRtrInstdAmtCheckRulePacs004SDD(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = rtrRsnInfOrgtrRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = orgnlTxRefGrpHdrDateCheckPacs004(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = orgnlTxIntrBkSttlmDtRulePacs004(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+
+	if(pacs04ValdFlagMx == "WARNING") {
+		retVal = nbOfTxsDBBRule(exchange);
+		retVal = noOfTxnRule(exchange);
+		retVal = rtrdIntrbnkSttlmtAmtRule(exchange);
+		retVal = chrgsInfoAndRtrInstdAmtCheckRulePacs004SDD(exchange);
+		retVal = rtrRsnInfOrgtrRule(exchange);
+		retVal = orgnlTxRefGrpHdrDateCheckPacs004(exchange);
+		retVal = orgnlTxIntrBkSttlmDtRulePacs004(exchange);
+	}
+	return retVal;
+}
+
+function msgValidationSepaPacs007(exchange) {
+	var result;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In msgValidationSepaPacs007");
+	logger.info("msgValidationSepaPacs007: exchange = " + exchange);
+	logger.info("msgValidationSepaPacs007: typeof exchange = " + typeof exchange);
+
+	setHeader(map, "PLCN_txxnForceStopCounter", 0);
+	setHeader(map, "PLCN_errorCountAdd", "Y"); 
+	setHeader(map, "PLCN_validMessage", true);
+	//setHeader(map, "validFlag", true);
+
+	var plcnInternalcall = getHeader(map,"PLCN_call");
+	logger.info("msgValidationSepaPacs007: plcnInternalcall = " + plcnInternalcall);
+	logger.info("msgValidationSepaPacs007: typeof plcnInternalcall = " + typeof plcnInternalcall);
+	plcnInternalcall = plcnInternalcall.toString();
+
+	var creationCall = getHeader(map,"PLCN_creationCall");
+	logger.info("msgValidationSepaPacs003: creationCall = " + creationCall);
+	logger.info("msgValidationSepaPacs003: typeof creationCall = " + typeof creationCall);
+	creationCall = creationCall.toString();
+
+	var msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	msgFamily = msgFamily?.toUpperCase();
+	//msgFamily = getHeader(map, "PLCN_msgFamily");
+	logger.info("msgValidationSepaPacs008: msgFamily = " + msgFamily);
+
+	var custom13 = getHeader(map, "PLCN_custom13");
+	logger.info("msgValidationSepaPacs007: custom13 = " + custom13);	
+
+	if(isPatternPresent(msgFamily,"SEPA")  && plcnInternalcall == "true"){
+		logger.info("msgValidationSepaPacs007: inside 1st loop");
+		if(isPatternPresent(custom13, "VALIDATE=Y")){
+			wrapperSepaPacs007Mx(exchange);
+			custom13 = replacePattern(custom13, "VALIDATE=Y", "VALIDATE=D");
+			logger.info("msgValidationSepaPacs007: custom13 = " + custom13);
+			setHeader(map, "PLCN_custom13", custom13);
+			setHeader(map, "PLCNAPI_custom13", custom13);
+		}
+	}else{
+		wrapperSepaPacs007Mx(exchange);
+	}
+
+	result = getHeader(map, "PLCN_validMessage");
+	logger.info("msgValidationSepaPacs007: PLCN_validMessage = " + result);
+	logger.info("msgValidationSepaPacs007: typeof PLCN_validMessage = " + typeof result);
+
+	var flag = memTblGetTableValue(map, "FLAG-TABLE", "PROCESS_T2ONLY");
+	logger.info("msgValidationSepaPacs007: flag = " + flag);
+
+	flag = flag?.trim();
+
+	if(result == true) {
+		setHeader(map, "status", "valid");
+	}else {
+		setHeader(map, "status", "error");
+
+		if(flag == "Y"){
+			//SEPA business rule failed
+			setCommentsForTransaction("00", "8183", map);
+		}
+	}
+}
+
+
+/*.............................................................................. DPH 9.7 .................................................................*/
+
+function wrapperTimelineCheck(exchange) {
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In wrapperTimelineCheck");
+
+	setHeader(map, "PLCN_validTimeline", true); //for testing
+	//setCommentsForTransaction("00", "8962", map);
+	logger.info("wrapperTimelineCheck: PLCN_validTimeline = " + getHeader(map, "PLCN_validTimeline"));
+}
+
+function wrapperSepaPacs008Mx(exchange) {
+	logger.info("wrapperSepaPacs008Mx");
+	var retVal;
+	var commentsB2b;
+	var pacs08ValdFlagMx;
+	var txnComments;
+	var inMsg;
+	var map;
+	var Document;
+	var tenantName;
+	var tenantNamePath;
+	var manualMode;
+
+	logger.info('wrapperSepaPacs008Mx:In wrapperSepaPacs008Mx');
+	inMsg = exchange.getIn();
+	map = inMsg.getHeaders();
+	Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	pacs08ValdFlagMx = memTblGetTableValue(map, "FLAG-TABLE", "PACS08_VALD_FLAG_MX");
+	pacs08ValdFlagMx = pacs08ValdFlagMx?.trim();
+	logger.info("pacs08ValdFlagMx = " + pacs08ValdFlagMx);
+	var institutionId = getHeader(map, "PLCN_institutionId");
+	tenantName = getHeader(map, "PLCN_tenantName");
+	logger.info("wrapperSepaPacs008Mx: tenantName = " + tenantName);
+	if(!tenantName){
+		var tenantNamePath = institutionId + ".INSTITUTION_DETAILS.TENANT_NAME";
+		logger.info("wrapperSepaPacs008Mx: tenantName = " + tenantNamePath);
+		tenantName = memTblGetTableValue(map, "INST_PARAM",tenantNamePath);
+		logger.info("wrapperSepaPacs008Mx: tenantName = " + tenantName);
+	}
+	manualMode = getHeader(map, "PLCN_manualMode");
+	logger.info("wrapperSepaPacs008Mx: manualMode " +manualMode);
+
+	if(pacs08ValdFlagMx == 'ERROR') {
+
+		logger.info("wrapperSepaPacs008Mx: Calling sepaValidationRulesPacs008");
+		retVal = sepaValidationRulesPacs008(pacs08ValdFlagMx, exchange);
+		logger.info("wrapperSepaPacs008Mx: retVal from sepaValidationRulesPacs008 = " + retVal);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaPacs008Mx: txnComments = " + txnComments);
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaPacs008Mx: Calling externalCodelistValidationSepaPacs008");
+			//retVal = externalCodelistValidationSepaPacs008(Document, map);		
+			txnComments = getHeader(map, "PLCN_txnComments");
+			logger.info("txnComments from externalCodelistValidationSepaPacs008 = " + txnComments);			
+		}
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaPacs008Mx: Calling ibanValidationSepaPacs008");
+			retVal = ibanValidationSepaPacs008(exchange);
+			txnComments = getHeader(map, "PLCN_txnComments");
+			logger.info("wrapperSepaPacs008Mx: txnComments from ibanValidationSepaPacs008 = " + txnComments);
+		}
+		
+		if(retVal == 0) {
+		logger.info("wrapperSepaPacs008Mx: Calling constraintsISORulesSEPAPacs008");
+		constraintsISORulesSEPAPacs008(pacs08ValdFlagMx,exchange);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaPacs008Mx: txnComments from constraintsISORulesSEPAPacs008 = " + txnComments);
+		}
+		
+		if(retVal == 0 && manualMode == "REPAIR" && (tenantName == "SNTDBK")) {
+		logger.info("wrapperSepaPacs008Mx: Calling sepaCustomValidationsPacs008");
+		sepaCustomValidationsPacs008(pacs08ValdFlagMx,exchange);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaPacs008Mx: txnComments from sepaCustomValidationsPacs008 = " + txnComments);
+		}
+		
+		if(retVal == 0) {
+			var dbbFlag = getHeader(map, "PLCN_xsdCheckFlag");
+			logger.info("wrapperSepaPacs008Mx: dbbFlag = " + dbbFlag);
+			
+			if(dbbFlag == "DBB") {
+				logger.info("wrapperSepaPacs008Mx: Calling sepaValidationDBBRulesPacs008");
+				retVal = sepaValidationDBBRulesPacs008(pacs08ValdFlagMx, exchange);
+				logger.info("wrapperSepaPacs008Mx: retVal from sepaValidationDBBRulesPacs008 = " + retVal);
+				txnComments = getHeader(map, 'PLCN_txnComments');
+				logger.info("wrapperSepaPacs008Mx: txnComments = " + txnComments);
+			}		
+		}
+	}
+
+	if(pacs08ValdFlagMx == 'WARNING') {
+
+		logger.info("wrapperSepaPacs008Mx: Calling sepaValidationRulesPacs008");
+		retVal = sepaValidationRulesPacs008(pacs08ValdFlagMx, exchange);
+		logger.info("wrapperSepaPacs008Mx: retVal from sepaValidationRulesPacs008 = " + retVal);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaPacs008Mx: txnComments = " + txnComments);
+
+		logger.info("wrapperSepaPacs008Mx: Calling externalCodelistValidationSepaPacs008");
+		retVal = externalCodelistValidationSepaPacs008(Document, map);		
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("txnComments from externalCodelistValidationSepaPacs008 = " + txnComments);			
+		
+		logger.info("wrapperSepaPacs008Mx: Calling ibanValidationSepaPacs008");
+		ibanValidationSepaPacs008(exchange);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaPacs008Mx: txnComments from ibanValidationSepaPacs008 = " + txnComments);
+		
+		logger.info("wrapperSepaPacs008Mx: Calling constraintsISORulesSEPAPacs008");
+		constraintsISORulesSEPAPacs008(pacs08ValdFlagMx,exchange);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaPacs008Mx: txnComments from constraintsISORulesSEPAPacs008 = " + txnComments);
+		
+		var dbbFlag = getHeader(map, "PLCN_xsdCheckFlag");
+		logger.info("wrapperSepaPacs008Mx: dbbFlag = " + dbbFlag);
+		
+		if(dbbFlag == "DBB") {
+			logger.info("wrapperSepaPacs008Mx: Calling sepaValidationDBBRulesPacs008");
+			retVal = sepaValidationDBBRulesPacs008(pacs08ValdFlagMx, exchange);
+			logger.info("wrapperSepaPacs008Mx: retVal from sepaValidationDBBRulesPacs008 = " + retVal);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaPacs008Mx: txnComments = " + txnComments);
+		}
+	}
+}
+
+function sepaValidationRulesPacs008(pacs08ValdFlagMx, exchange){
+	logger.info("sepaValidationRulesPacs008");
+	var retVal;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(pacs08ValdFlagMx == "ERROR") {
+
+		retVal = inclusionCdPrtryRuleSepaPacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = townNameAndCountryRuleSepaPacs8(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = adrLineOptinalElementRuleSepaPacs8(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = hybridAddressRuleSepaPacs8(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = adrLineCtryAllowedRuleSepaPacs8(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = adrTpNotAllowedRuleSepaPacs8(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = orgIdRuleSepaPacs8(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = prvtIdRuleSepaPacs8(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		/*retVal = dbtrAcctPrxyCheckRulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = cdtrAcctPrxyCheckRulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}*/
+
+		retVal = sepaPacs008BicValDebtor(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs008BicValDebtorAgent(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs008BicValInstrgRmbrsmntAgt(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs008BicValInstdRmbrsmntAgt(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs008BicValThrdRmbrsmntAgt(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs008BicValIntrmyAgt1(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs008BicValCdtrAgt(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs008BicValCdtr(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		/*retVal = sepaPacs008Vr00660Mx(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}*/
+
+		retVal = sepaPacs008BicValInstgAgt(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs008BicValInstdAgt(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = sepaPacs008BicValAgt(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+	if(pacs08ValdFlagMx == "WARNING") {
+
+		//retVal = amtMinMaxLengthCheckPacs008(exchange);
+		retVal = inclusionCdPrtryRuleSepaPacs008(Document, map);
+		retVal = townNameAndCountryRuleSepaPacs8(exchange);
+		retVal = adrLineOptinalElementRuleSepaPacs8(exchange);
+		retVal = hybridAddressRuleSepaPacs8(exchange);
+		retVal = adrLineCtryAllowedRuleSepaPacs8(exchange);
+		retVal = adrTpNotAllowedRuleSepaPacs8(exchange);
+		retVal = orgIdRuleSepaPacs8(exchange);
+		retVal = prvtIdRuleSepaPacs8(exchange);
+		//retVal = dbtrAcctPrxyCheckRulePacs008(Document, map);
+		//retVal = cdtrAcctPrxyCheckRulePacs008(Document, map);
+		retVal = sepaPacs008BicValDebtor(exchange);
+		retVal = sepaPacs008BicValDebtorAgent(exchange);
+		retVal = sepaPacs008BicValInstrgRmbrsmntAgt(exchange);
+		retVal = sepaPacs008BicValInstdRmbrsmntAgt(exchange);
+		retVal = sepaPacs008BicValThrdRmbrsmntAgt(exchange);
+		retVal = sepaPacs008BicValIntrmyAgt1(exchange);
+		retVal = sepaPacs008BicValCdtrAgt(exchange);
+		retVal = sepaPacs008BicValCdtr(exchange);
+		retVal = sepaPacs008BicValInstgAgt(exchange);
+		retVal = sepaPacs008BicValInstdAgt(exchange);
+		retVal = sepaPacs008BicValAgt(exchange);
+	}
+	return retVal;
+}
+
+function ibanValidationSepaPacs008(exchange) {
+	var val;
+	var retVal = 0;
+
+	logger.info("In ibanValidationSepaPacs008");
+	logger.info("ibanValidationSepaPacs008: exchange = " + exchange);
+	logger.info("ibanValidationSepaPacs008: typeof exchange = " + typeof exchange);
+
+	val = validatePrvsInstgAgt1AcctIbanSepaPacs008(exchange);
+	if(val) {
+		retVal = val;
+	}
+
+	val = validatePrvsInstgAgt2AcctIbanSepaPacs008(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+
+	val = validatePrvsInstgAgt3AcctIbanSepaPacs008(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+
+	val = validateIntrmyAgt1AcctIbanSepaPacs008(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+
+	val = validateIntrmyAgt2AcctIbanSepaPacs008(exchange);	
+	if(val) {
+		retVal = retVal + val;
+	}
+
+	val = validateIntrmyAgt3AcctIbanSepaPacs008(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+
+	val = validateDbtrAcctIbanSepaPacs008(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+
+	val = validateDbtrAgtAcctIbanSepaPacs008(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+
+	val = validateCdtrAgtAcctIbanSepaPacs008(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+
+	val = validateCdtrAcctIbanSepaPacs008(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+	return retVal;
+}
+
+/**
+* This function validates "Debtor" BIC
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+* @returns {String} return 0 for valid message otherwise returns violation raised for invalid message.
+*/
+function sepaPacs008BicValDebtor(exchange) {
+	var temp;
+	var bic;
+	var len;
+	var bicCheck;
+	var retVal;
+	var bicfiPath;
+	var bicfiVar;
+	var upperBic;
+
+	logger.info('In sepaPacs008BicValDebtor');
+	bicfiPath = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/Id/OrgId/AnyBIC";
+	retVal = validateBicFromPath(exchange, bicfiPath, "Dbtr", "798");
+
+	return retVal;
+}
+
+/**
+* This function validates "Debtor Agent" BIC
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+* @returns {String} return 0 for valid message otherwise returns violation raised for invalid message.
+*/
+function sepaPacs008BicValDebtorAgent(exchange) {
+	var temp;
+	var bic;
+	var len;
+	var bicCheck;
+	var retVal;
+	var bicfiPath;
+	var bicfiVar;
+	var retVal;
+	var upperBic;
+
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info('In sepaPacs008BicValDebtorAgent');
+	bicfiPath = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAgt/FinInstnId/BICFI";
+	var bicfi = getValueFromPath(Document,bicfiPath);
+	logger.info("sepaPacs008BicValDebtorAgent: bicfi= " +bicfi);
+	retVal = validateBicFromPath(exchange, bicfiPath, "DbtrAgt", "841");
+
+	return retVal;
+}
+
+/**
+* This function validates "Instructing Reimbursement Agent" BIC
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+* @returns {String} return 0 for valid message otherwise returns violation raised for invalid message.
+*/
+function sepaPacs008BicValInstrgRmbrsmntAgt(exchange) {
+	var temp;
+	var bic;
+	var len;
+	var bicCheck;
+	var retVal;
+	var bicfiPath;
+	var bicfiVar;
+	var retVal;
+	var upperBic;
+
+	logger.info('In sepaPacs008BicValInstrgRmbrsmntAgt');
+	bicfiPath = '/Document/FIToFICstmrCdtTrf/GrpHdr/SttlmInf/InstgRmbrsmntAgt/FinInstnId/BICFI';
+	retVal = validateBicFromPath(exchange, bicfiPath, "InstgRmbrsmntAgt", "150");
+
+	return retVal;
+}
+
+/**
+* This function validates "Instructed Reimbursement Agent" BIC
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+* @returns {String} return 0 for valid message otherwise returns violation raised for invalid message.
+*/
+function sepaPacs008BicValInstdRmbrsmntAgt(exchange) {
+	var temp;
+	var bic;
+	var len;
+	var bicCheck;
+	var retVal; 
+	var bicfiPath;
+	var bicfiVar;
+	
+	logger.info('In sepaPacs008BicValInstdRmbrsmntAgt');
+	bicfiPath = '/Document/FIToFICstmrCdtTrf/GrpHdr/SttlmInf/InstdRmbrsmntAgt/FinInstnId/BICFI';
+	retVal = validateBicFromPath(exchange, bicfiPath, "InstdRmbrsmntAgt", "198");
+
+	return retVal;
+}
+
+/**
+* This function validates "Third Reimbursement Agent" BIC
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+* @returns {String} return 0 for valid message otherwise returns violation raised for invalid message.
+*/
+function sepaPacs008BicValThrdRmbrsmntAgt(exchange) {
+	var temp;
+	var bic;
+	var len;
+	var bicCheck;
+	var retVal;
+	var bicfiPath;
+	var bicfiVar;
+	
+	logger.info('In sepaPacs008BicValThrdRmbrsmntAgt');
+	bicfiPath = '/Document/GrpHdr/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/BICFI';
+	retVal = validateBicFromPath(exchange, bicfiPath, "ThrdRmbrsmntAgt", "246");
+
+	return retVal;	
+}
+
+/**
+* This function validates "Intermediary Agent1" BIC
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+* @returns {String} return 0 for valid message otherwise returns violation raised for invalid message.
+*/
+function sepaPacs008BicValIntrmyAgt1(exchange) {
+	var temp;
+	var bic;
+	var len;
+	var bicCheck;
+	var retVal;
+	var bicfiPath;
+	var bicfiVar;
+	
+	logger.info('In sepaPacs008BicValIntrmyAgt1');
+	bicfiPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/IntrmyAgt1/FinInstnId/BICFI';
+	retVal = validateBicFromPath(exchange, bicfiPath, "IntrmyAgt1", "549");
+
+	return retVal;
+}
+
+/**
+* This function validates "Creditor Agent" BIC
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+* @returns {String} return 0 for valid message otherwise returns violation raised for invalid message.
+*/
+function sepaPacs008BicValCdtrAgt(exchange) {
+	var temp;
+	var bic;
+	var len;
+	var bicCheck;
+	var retVal;
+	var bicfiPath;
+	var bicfiVar;
+	var streamDetails;
+
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	logger.info('In sepaPacs008BicValCdtrAgt');
+	bicfiPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/CdtrAgt/FinInstnId/BICFI';
+	var bicfi = getValueFromPath(Document,bicfiPath);
+	logger.info("sepaPacs008BicValDebtorAgent: bicfi= " +bicfi);
+	retVal = validateBicFromPath(exchange, bicfiPath, "CdtrAgt", "889");
+
+	return retVal;
+}
+
+/**
+* This function validates "Creditor" BIC
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+* @returns {String} return 0 for valid message otherwise returns violation raised for invalid message.
+*/
+function sepaPacs008BicValCdtr(exchange) {
+	var temp;
+	var bic;
+	var len;
+	var bicCheck;
+	var retVal;
+	var bicfiPath;
+	var bicfiVar;
+	
+	logger.info('In sepaPacs008BicValCdtr');
+	bicfiPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/Id/OrgId/AnyBIC';
+	retVal = validateBicFromPath(exchange, bicfiPath, "Cdtr", "964");
+
+	return retVal;
+}
+
+/**
+* This function validates "InstgAgt" BIC
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+* @returns {String} return 0 for valid message otherwise returns violation raised for invalid message.
+*/
+function sepaPacs008BicValInstgAgt(exchange) {
+	var temp;
+	var bic;
+	var len;
+	var bicCheck;
+	var retVal;
+	var bicfiPath;
+	var bicfiVar;
+	
+	logger.info('In sepaPacs008BicValInstgAgt');
+	bicfiPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/InstgAgt/FinInstnId/BICFI';
+	retVal = validateBicFromPath(exchange, bicfiPath, "InstgAgt", "523");
+
+	return retVal;
+}
+
+/**
+* This function validates "InstdAgt" BIC
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+* @returns {String} return 0 for valid message otherwise returns violation raised for invalid message.
+*/
+function sepaPacs008BicValInstdAgt(exchange) {
+	var temp;
+	var bic;
+	var len;
+	var bicCheck;
+	var retVal;
+	var bicfiPath;
+	var bicfiVar;
+	
+	logger.info('In sepaPacs008BicValInstdAgt');
+	bicfiPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/InstdAgt/FinInstnId/BICFI';
+	retVal = validateBicFromPath(exchange, bicfiPath, "InstdAgt", "536");
+
+	return retVal;
+}
+
+/**
+* This function validates "InstdAgt" BIC
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+* @returns {String} return 0 for valid message otherwise returns violation raised for invalid message.
+*/
+function sepaPacs008BicValAgt(exchange) {
+	var temp;
+	var bic;
+	var len;
+	var bicCheck;
+	var retVal;
+	var bicfiPath;
+	var bicfiVar;
+	
+	logger.info('In sepaPacs008BicValAgt');
+	bicfiPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/ChrgsInf/Agt/FinInstnId/BICFI';
+	retVal = validateBicFromPath(exchange, bicfiPath, "ChrgsInf", "350");
+
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Previous Instructing Agent 1 Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validatePrvsInstgAgt1AcctIbanSepaPacs008(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	logger.info("In validatePrvsInstgAgt1AcctIbanSepaPacs008");
+	logger.info("validatePrvsInstgAgt1AcctIbanSepaPacs008: exchange = " + exchange);
+	logger.info("validatePrvsInstgAgt1AcctIbanSepaPacs008: typeof exchange = " + typeof exchange);
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	path = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/PrvsInstgAgt1Acct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validatePrvsInstgAgt1AcctIbanSepaPacs008: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validatePrvsInstgAgt1AcctIbanSepaPacs008: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("408", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);	
+	}
+
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Previous Instructing Agent 2 Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validatePrvsInstgAgt2AcctIbanSepaPacs008(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validatePrvsInstgAgt2AcctIbanSepaPacs008");
+	path = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/PrvsInstgAgt2Acct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validatePrvsInstgAgt2AcctIbanSepaPacs008: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validatePrvsInstgAgt2AcctIbanSepaPacs008: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("456", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);
+	}
+
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Previous Instructing Agent 3 Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validatePrvsInstgAgt3AcctIbanSepaPacs008(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);	
+
+	logger.info("In validatePrvsInstgAgt3AcctIbanSepaPacs008");
+	path = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/PrvsInstgAgt3Acct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validatePrvsInstgAgt3AcctIbanSepaPacs008: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validatePrvsInstgAgt3AcctIbanSepaPacs008: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("504", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);
+	}
+
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Intermediary Agent 1 Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validateIntrmyAgt1AcctIbanSepaPacs008(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateIntrmyAgt1AcctIbanSepaPacs008");
+	path = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/IntrmyAgt1Acct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateIntrmyAgt1AcctIbanSepaPacs008: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateIntrmyAgt1AcctIbanSepaPacs008: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("578", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);		
+	}
+
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Intermediary Agent 2 Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validateIntrmyAgt2AcctIbanSepaPacs008(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateIntrmyAgt2AcctIbanSepaPacs008");
+	path = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/IntrmyAgt2Acct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateIntrmyAgt2AcctIbanSepaPacs008: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateIntrmyAgt2AcctIbanSepaPacs008: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("626", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);
+	}
+
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Intermediary Agent 3 Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validateIntrmyAgt3AcctIbanSepaPacs008(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateIntrmyAgt3AcctIbanSepaPacs008");
+	path = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/IntrmyAgt3Acct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateIntrmyAgt3AcctIbanSepaPacs008: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("674", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);	
+	}
+
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Debtor Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validateDbtrAcctIbanSepaPacs008(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateDbtrAcctIbanSepaPacs008");
+	path = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateDbtrAcctIbanSepaPacs008: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateDbtrAcctIbanSepaPacs008: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("822", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);
+	}
+
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Debtor Agent Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validateDbtrAgtAcctIbanSepaPacs008(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateDbtrAgtAcctIbanSepaPacs008");
+	path = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAgtAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateDbtrAgtAcctIbanSepaPacs008: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateDbtrAgtAcctIbanSepaPacs008: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("870", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);
+	}
+
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Creditor Agent Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validateCdtrAgtAcctIbanSepaPacs008(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateCdtrAgtAcctIbanSepaPacs008");
+	path = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/CdtrAgtAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateCdtrAgtAcctIbanSepaPacs008: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateCdtrAgtAcctIbanSepaPacs008: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("926", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);
+	}
+
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Creditor Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validateCdtrAcctIbanSepaPacs008(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateCdtrAcctIbanSepaPacs008");
+	path = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/CdtrAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateCdtrAcctIbanSepaPacs008: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateCdtrAcctIbanSepaPacs008: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("988", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);
+	}
+
+	return retVal;
+}
+//SEPA_Pacs008ValidationRules
+
+function inclusionCdPrtryRuleSepaPacs008(Document, map) {
+	var retVal ; 
+
+	logger.info("In inclusionCdPrtryRuleSepaPacs008");
+	retVal = 0;
+
+	var clrSysCheck = isXmlNodePresent(Document, "GrpHdr", "SttlmInf", "ClrSys");
+	logger.info("inclusionCdPrtryRuleSepaPacs008: clrSysCheck = " + clrSysCheck);
+
+	var ctgyPurpGrpHdrCheck = isXmlNodePresent(Document, "GrpHdr", "PmtTpInf", "<CtgyPurp>");
+	logger.info("inclusionCdPrtryRuleSepaPacs008: ctgyPurpGrpHdrCheck = " + ctgyPurpGrpHdrCheck);
+	
+	var ctgyPurpCdtTrfTxInfCheck = isXmlNodePresent(Document, "CdtTrfTxInf", "PmtTpInf", "<CtgyPurp>");
+	logger.info("inclusionCdPrtryRuleSepaPacs008: ctgyPurpCdtTrfTxInfCheck = " + ctgyPurpCdtTrfTxInfCheck); 
+
+	if(clrSysCheck)
+	{
+		var clrSysCd = isXmlNodePresent3(Document, "GrpHdr", "SttlmInf", "ClrSys", "<Cd>");
+		logger.info("inclusionCdPrtryRuleSepaPacs008: clrSysCd = " + clrSysCd);
+		
+		var clrSysPrtry = isXmlNodePresent3(Document, "GrpHdr", "SttlmInf", "ClrSys", "<Prtry>");
+		logger.info("inclusionCdPrtryRuleSepaPacs008: clrSysPrtry = " + clrSysPrtry);
+
+		if(!clrSysCd && !clrSysPrtry){
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("149", "7130", map);
+			logger.info("clrSysCheck: Inclusion of sub-elements ‘Code’ and ‘Proprietary’.");
+			return retVal;
+		}
+	} 
+
+	if(ctgyPurpGrpHdrCheck)
+	{
+		var ctgyPurpGrpHdrCd = isXmlNodePresent3(Document, "GrpHdr", "PmtTpInf", "CtgyPurp", "<Cd>");
+		logger.info("inclusionCdPrtryRuleSepaPacs008: ctgyPurpGrpHdrCd = " + ctgyPurpGrpHdrCd);
+		
+		var ctgyPurpGrpHdrPrtry = isXmlNodePresent3(Document, "GrpHdr", "PmtTpInf", "CtgyPurp", "<Prtry>");
+		logger.info("inclusionCdPrtryRuleSepaPacs008: ctgyPurpGrpHdrPrtry = " + ctgyPurpGrpHdrPrtry);
+
+		if(!ctgyPurpGrpHdrCd && !ctgyPurpGrpHdrPrtry)
+		{
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("294", "7130", map);
+			logger.info("ctgyPurpGrpHdrCheck: Inclusion of sub-elements ‘Code’ and ‘Proprietary’.");
+			return retVal;
+		}
+	}
+
+	if(ctgyPurpCdtTrfTxInfCheck)
+	{
+		var ctgyPurpCdtTrfTxInfCd = isXmlNodePresent3(Document, "CdtTrfTxInf", "PmtTpInf", "CtgyPurp", "<Cd>");
+		logger.info("inclusionCdPrtryRuleSepaPacs008: ctgyPurpCdtTrfTxInfCd = " + ctgyPurpCdtTrfTxInfCd);
+		
+		var ctgyPurpCdtTrfTxInfPrtry = isXmlNodePresent3(Document, "CdtTrfTxInf", "PmtTpInf", "CtgyPurp", "<Prtry>");
+		logger.info("inclusionCdPrtryRuleSepaPacs008: ctgyPurpCdtTrfTxInfPrtry = " + ctgyPurpCdtTrfTxInfPrtry);
+
+		if(!ctgyPurpCdtTrfTxInfCd && !ctgyPurpCdtTrfTxInfPrtry)
+		{
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("319", "7130", map);
+			logger.info("ctgyPurpCdtTrfTxInfCheck: Inclusion of sub-elements ‘Code’ and ‘Proprietary’.");
+			return retVal;
+		}
+	}
+	return retVal;
+}
+
+function adrTpNotAllowedRuleSepaPacs8(exchange) {  //DONE 
+	logger.info("adrTpNotAllowedRuleSepaPacs8");
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	//CREDITOR
+	var cdtrPstlAdr = isXmlNodePresent(Document, "CdtTrfTxInf" , "<Cdtr>", "<PstlAdr>");
+	logger.info("adrTpNotAllowedRuleSepaPacs8:cdtrPstlAdr = " + cdtrPstlAdr);
+
+	var cdtrAdrTpPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/AdrTp';
+	var cdtrAdrTp = getValueFromPath(Document, cdtrAdrTpPath);
+	logger.info("adrTpNotAllowedRuleSepaPacs8:cdtrAddrLine = " + cdtrAdrTp);
+
+	if(isPatternPresent(Document1, "<Cdtr>")){
+		if(cdtrPstlAdr){
+			if(cdtrAdrTp){
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("Cdtr-If PostalAddress is used & if AddressLine is absent then Country and Town name must be present");
+				retVal = setCommentsForTransaction("945", "7926", map);
+				return retVal;
+			}
+		}
+	}
+
+	//DEBTOR
+	var dbtrPstlAdr = isXmlNodePresent(Document, "CdtTrfTxInf" , "<Dbtr>", "<PstlAdr>");
+	logger.info("adrTpNotAllowedRuleSepaPacs8:dbtrPstlAdr = " + dbtrPstlAdr);
+
+	var dbtrAdrTpPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/AdrTp';
+	var dbtrAdrTp = getValueFromPath(Document, dbtrAdrTpPath);
+	logger.info("adrTpNotAllowedRuleSepaPacs8:dbtrAddrLine = " + dbtrAdrTp);
+
+	if(isPatternPresent(Document1, "<Dbtr>")){
+		if(dbtrPstlAdr){
+			if(dbtrAdrTp){
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("DBTR-If PostalAddress is used & if AddressLine is absent then Country and Town name must be present");
+				retVal = setCommentsForTransaction("779", "7926", map);
+				return retVal;
+			}
+		}
+	}		
+	return retVal;
+}
+
+function townNameAndCountryRuleSepaPacs8(exchange) {  //DONE 
+	logger.info("townNameAndCountryRuleSepaPacs8");
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	//CREDITOR
+	var cdtrPstlAdr = isXmlNodePresent(Document, "CdtTrfTxInf" , "Cdtr", "<PstlAdr>");
+	logger.info("townNameAndCountryRuleSepaPacs8:cdtrPstlAdr = " + cdtrPstlAdr);
+
+	var cdtrAddrLinePath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/AdrLine';
+	var cdtrAddrLine = getValueFromPath(Document, cdtrAddrLinePath);
+	logger.info("townNameAndCountryRuleSepaPacs8:cdtrAddrLine = " + cdtrAddrLine);
+
+	var cdtrTwnNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/TwnNm';
+	var cdtrTwnNm = getValueFromPath(Document, cdtrTwnNmPath);
+	logger.info("townNameAndCountryRuleSepaPacs8:cdtrTwnNm = " + cdtrTwnNm);
+
+	var cdtrCtryPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/Ctry';
+	var cdtrCtry = getValueFromPath(Document, cdtrCtryPath);
+	logger.info("townNameAndCountryRuleSepaPacs8:cdtrCtry = " + cdtrCtry);
+
+	if(isPatternPresent(Document1, "<Cdtr>")){
+		if(cdtrPstlAdr){
+			if(!cdtrAddrLine && (!cdtrTwnNm || !cdtrCtry)){
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("Cdtr-If PostalAddress is used & if AddressLine is absent then Country and Town name must be present");
+				retVal = setCommentsForTransaction("945", "7926", map);
+				return retVal;
+			}
+		}
+	}
+
+	//DEBTOR
+	var dbtrPstlAdr = isXmlNodePresent(Document, "CdtTrfTxInf" , "Dbtr", "<PstlAdr>");
+	logger.info("townNameAndCountryRuleSepaPacs8:dbtrPstlAdr = " + dbtrPstlAdr);
+
+	var dbtrAddrLinePath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/AdrLine';
+	var dbtrAddrLine = getValueFromPath(Document, dbtrAddrLinePath);
+	logger.info("townNameAndCountryRuleSepaPacs8:dbtrAddrLine = " + dbtrAddrLine);
+
+	var dbtrTwnNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/TwnNm';
+	var dbtrTwnNm = getValueFromPath(Document, dbtrTwnNmPath);
+	logger.info("townNameAndCountryRuleSepaPacs8:dbtrTwnNm = " + dbtrTwnNm);
+
+	var dbtrCtryPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/Ctry';
+	var dbtrCtry = getValueFromPath(Document, dbtrCtryPath);
+	logger.info("townNameAndCountryRuleSepaPacs8:dbtrCtry = " + dbtrCtry);
+
+	if(isPatternPresent(Document1, "<Dbtr>")){
+		if(dbtrPstlAdr){
+			if(!dbtrAddrLine && (!dbtrTwnNm || !dbtrCtry)){
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("DBTR-If PostalAddress is used & if AddressLine is absent then Country and Town name must be present");
+				retVal = setCommentsForTransaction("779", "7926", map);
+				return retVal;
+			}
+		}
+	}		
+	return retVal;
+}
+function adrLineOptinalElementRuleSepaPacs8(exchange){ 
+	logger.info("adrLineOptinalElementRuleSepaPacs8");
+
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+
+	var Date1 = memTblGetTableValue(map, "USER_CONFIG_MAP", "SEPA_LIB2025_DATE");
+	logger.info("adrLineOptinalElementRuleSepaPacs8: Date1 = " + Date1);
+
+	var Date2 = memTblGetTableValue(map, "USER_CONFIG_MAP", "SEPA_LIB2026_DATE");
+	logger.info("adrLineOptinalElementRuleSepaPacs8: Date2 = " + Date2);
+	
+	var sysDate = getDate();
+	logger.info("adrLineOptinalElementRuleSepaPacs8: sysDate = " + sysDate);
+
+	//CREDITOR
+	var cdtrPstlAdr =  isXmlNodePresent(Document, "CdtTrfTxInf", "Cdtr", "<PstlAdr>");
+	logger.info("adrLineOptinalElementRuleSepaPacs8 cdtrPstlAdr = " + cdtrPstlAdr);
+
+	var cdtrAddrLinePath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/AdrLine';
+	var cdtrAddrLine = getValueFromPath(Document, cdtrAddrLinePath);
+	logger.info("adrLineOptinalElementRuleSepaPacs8 cdtrAddrLine = " + cdtrAddrLine);
+
+	var cdtrTwnNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/TwnNm';
+	var cdtrTwnNm = getValueFromPath(Document, cdtrTwnNmPath);
+	logger.info("adrLineOptinalElementRuleSepaPacs8 cdtrTwnNm = " + cdtrTwnNm);
+
+	var cdtrCtryPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/Ctry';
+	var cdtrCtry = getValueFromPath(Document, cdtrCtryPath);
+	logger.info("adrLineOptinalElementRuleSepaPacs8 cdtrCtry = " + cdtrCtry);
+
+	var cdtrDeptPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/Dept';
+	var cdtrDept = getValueFromPath(Document, cdtrDeptPath);
+	logger.info("adrLineOptinalElementRuleSepaPacs8 cdtrDept = " + cdtrDept);
+
+	var cdtrSubDeptPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/SubDept';
+	var cdtrSubDept = getValueFromPath(Document, cdtrSubDeptPath);
+	logger.info("adrLineOptinalElementRuleSepaPacs8 cdtrSubDept = " + cdtrSubDept);
+
+	var cdtrStrtNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/StrtNm';
+	var cdtrStrtNm = getValueFromPath(Document, cdtrStrtNmPath);
+
+	var cdtrBldgNbPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/BldgNb';
+	var cdtrBldgNb = getValueFromPath(Document, cdtrBldgNbPath);
+
+	var cdtrBldgNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/BldgNm';
+	var cdtrBldgNm = getValueFromPath(Document, cdtrBldgNmPath);
+
+	var cdtrFlrPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/Flr';
+	var cdtrFlr = getValueFromPath(Document, cdtrFlrPath);
+
+	var cdtrPstBxPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/PstBx';
+	var cdtrPstBx = getValueFromPath(Document, cdtrPstBxPath);
+
+	var cdtrRoomPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/Room';
+	var cdtrRoom = getValueFromPath(Document, cdtrRoomPath);
+
+	var cdtrPstCdPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/PstCd';
+	var cdtrPstCd = getValueFromPath(Document, cdtrPstCdPath);
+
+	var cdtrTwnLctnNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/TwnLctnNm';
+	var cdtrTwnLctnNm = getValueFromPath(Document, cdtrTwnLctnNmPath);
+
+	var cdtrDstrctNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/DstrctNm';
+	var cdtrDstrctNm = getValueFromPath(Document, cdtrDstrctNmPath);
+
+	var cdtrCtrySubDvsnPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/CtrySubDvsn';
+	var cdtrCtrySubDvsn = getValueFromPath(Document, cdtrCtrySubDvsnPath);
+
+	if(sysDate < Date1){
+	if(isPatternPresent(Document1, "<Cdtr>")){
+		if(cdtrPstlAdr){
+			if(cdtrAddrLine && (cdtrDept || cdtrSubDept || cdtrStrtNm || cdtrBldgNb || cdtrBldgNm || cdtrFlr|| cdtrPstBx|| cdtrRoom|| cdtrPstCd|| cdtrTwnNm|| cdtrTwnLctnNm || cdtrDstrctNm|| cdtrCtrySubDvsn)){
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("Cdtr-If ‘Address Line’ is used, then ‘Postal Address’ sub elements other than ‘Country’ are forbidden. ");
+				retVal = setCommentsForTransaction("945", "7928", map);
+				return retVal;
+			}
+		}
+	}	
+	}else if(sysDate >= Date1){
+		var cdtrAgtPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/CdtrAgt/FinInstnId/BICFI';
+		var cdtrAgt = getValueFromPath(Document, cdtrAgtPath);
+		logger.info("adrLineOptinalElementRuleSepaPacs8: cdtrAgt = " + cdtrAgt);
+		
+		var cdtrCtryCd = cdtrAgt?.slice(4, 6);
+		logger.info("adrLineOptinalElementRuleSepaPacs8: cdtrCtryCd = " + cdtrCtryCd);
+		
+		var cdtrCtryDb = memTblGetTableValue(map, "EUEEA_CNTRY_LST_MAP", cdtrCtryCd);
+		logger.info("adrLineOptinalElementRuleSepaPacs8: cdtrCtryDb = " + cdtrCtryDb);
+
+        msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+        if(!msgFamily){
+            msgFamily = getHeader(map, "PLCN_msgFamily");
+        }
+
+		if(isPatternPresent(Document1, "<Cdtr>")){
+			if(cdtrPstlAdr){
+                if(cdtrAddrLine && (!cdtrDept && !cdtrSubDept && !cdtrStrtNm && !cdtrBldgNb && !cdtrBldgNm && !cdtrFlr && !cdtrPstBx && !cdtrRoom && !cdtrPstCd && !cdtrTwnLctnNm  && !cdtrDstrctNm && !cdtrCtrySubDvsn) && !cdtrTwnNm){
+                    if(sysDate < Date2){
+						logger.info("adrLineOptinalElementRuleSepaPacs8:Cdtr-valid unstructure address");
+						/* if(cdtrTwnNm && !cdtrCtry){
+						setHeader(map, "PLCN_validMessage", false);
+						logger.info("adrLineOptinalElementRuleSepaPacs8:Cdtr-If PstlAddr is used & if Adrline is present then all other optional elements except Country in PostalAddress must be absent");
+                        retVal = setCommentsForTransaction("945", "7928", map);
+						return retVal;
+						} */
+					}else{
+						setHeader(map, "PLCN_validMessage", false);
+						logger.info("adrLineOptinalElementRuleSepaPacs8:Cdtr-Unstructured address is not allowed");
+						retVal = setCommentsForTransaction("945", "7513", map);
+						return retVal;
+					}
+				}
+			}
+		}	
+	}
+
+	//DEBTOR
+	var dbtrPstlAdr =  isXmlNodePresent(Document, "CdtTrfTxInf", "Dbtr", "<PstlAdr>");
+
+	var dbtrAddrLinePath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/AdrLine';
+	var dbtrAddrLine = getValueFromPath(Document, dbtrAddrLinePath);
+	logger.info("dbtrAddrLine = " + dbtrAddrLine);
+
+	var dbtrTwnNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/TwnNm';
+	var dbtrTwnNm = getValueFromPath(Document, dbtrTwnNmPath);
+	logger.info("dbtrTwnNm = " + dbtrTwnNm);
+
+	var dbtrCtryPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/Ctry';
+	var dbtrCtry = getValueFromPath(Document, dbtrCtryPath);
+	logger.info("dbtrCtry = " + dbtrCtry);
+
+	var dbtrDeptPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/Dept';
+	var dbtrDept = getValueFromPath(Document, dbtrDeptPath);
+	logger.info("dbtrDept = " + dbtrDept);
+
+	var dbtrSubDeptPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/SubDept';
+	var dbtrSubDept = getValueFromPath(Document, dbtrSubDeptPath);
+	logger.info("dbtrSubDept = " + dbtrSubDept);
+
+	var dbtrStrtNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/StrtNm';
+	var dbtrStrNm = getValueFromPath(Document, dbtrStrtNmPath);
+	logger.info("dbtrStrNm = " + dbtrStrNm);
+
+	var dbtrBldgNbPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/BldgNb';
+	var dbtrBldgNb = getValueFromPath(Document, dbtrBldgNbPath);
+	logger.info("dbtrBldgNb = " + dbtrBldgNb);
+
+	var dbtrBldgNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/BldgNm';
+	var dbtrBldgNm = getValueFromPath(Document, dbtrBldgNmPath);
+	logger.info("dbtrBldgNm = " + dbtrBldgNm);
+
+	var dbtrFlrPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/Flr';
+	var dbtrFlr = getValueFromPath(Document, dbtrFlrPath);
+	logger.info("dbtrFlr = " + dbtrFlr);
+
+	var dbtrPstBxPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/PstBx';
+	var dbtrPstBx = getValueFromPath(Document, dbtrPstBxPath);
+	logger.info("dbtrPstBx = " + dbtrPstBx);
+
+	var dbtrRoomPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/Room';
+	var dbtrRoom = getValueFromPath(Document, dbtrRoomPath);
+	logger.info("dbtrRoom = " + dbtrRoom);
+
+	var dbtrPstCdPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/PstCd';
+	var dbtrPstCd = getValueFromPath(Document, dbtrPstCdPath);
+	logger.info("dbtrPstCd = " + dbtrPstCd);
+
+	var dbtrTwnLctnNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/TwnLctnNm';
+	var dbtrTwnLctnNm = getValueFromPath(Document, dbtrTwnLctnNmPath);
+	logger.info("dbtrTwnLctnNm = " + dbtrTwnLctnNm);
+
+	var dbtrDstrctNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/DstrctNm';
+	var dbtrDstrctNm = getValueFromPath(Document, dbtrDstrctNmPath);
+	logger.info("dbtrDstrctNm = " + dbtrDstrctNm);
+
+	var dbtrCtrySubDvsnPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/CtrySubDvsn';
+	var dbtrCtrySubDvsn = getValueFromPath(Document, dbtrCtrySubDvsnPath);
+	logger.info("dbtrCtrySubDvsn = " + dbtrCtrySubDvsn);
+
+	if(sysDate < Date1){
+	if(isPatternPresent(Document1, "<Dbtr>")){
+		if(dbtrPstlAdr){
+			if(dbtrAddrLine && (dbtrDept||dbtrSubDept||dbtrStrNm||dbtrBldgNb||dbtrBldgNm||dbtrFlr||dbtrPstBx||dbtrRoom||dbtrPstCd||dbtrTwnLctnNm||dbtrDstrctNm||dbtrCtrySubDvsn||dbtrTwnNm)){
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("Dbtr-If ‘Address Line’ is used, then ‘Postal Address’ sub elements other than ‘Country’ are forbidden. ");
+				retVal = setCommentsForTransaction("779", "7928", map);
+				return retVal;
+			}
+		}
+	}
+	}else if(sysDate >= Date1){
+		var dbtrAgtPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAgt/FinInstnId/BICFI';
+		var dbtrAgt = getValueFromPath(Document, dbtrAgtPath);
+		logger.info("adrLineOptinalElementRuleSepaPacs8: dbtrAgt = " + dbtrAgt);
+		
+		var dbtrCtryCd = dbtrAgt?.slice(4, 6);
+		logger.info("adrLineOptinalElementRuleSepaPacs8: dbtrCtryCd = " + dbtrCtryCd);
+		
+		var dbtrCtryDb = memTblGetTableValue(map, "EUEEA_CNTRY_LST_MAP", dbtrCtryCd);
+		logger.info("adrLineOptinalElementRuleSepaPacs8: dbtrCtryDb = " + dbtrCtryDb);
+		
+		if(isPatternPresent(Document1, "<Dbtr>")){
+			if(dbtrPstlAdr){
+                if(dbtrAddrLine && (!dbtrDept && !dbtrSubDept && !dbtrStrNm && !dbtrBldgNb && !dbtrBldgNm && !dbtrFlr && !dbtrPstBx && !dbtrRoom && !dbtrPstCd && !dbtrTwnLctnNm  && !dbtrDstrctNm && !dbtrCtrySubDvsn) && !dbtrTwnNm){
+                    if(sysDate < Date2){
+						/* if(dbtrTwnNm && !dbtrCtry){
+						setHeader(map, "PLCN_validMessage", false);
+							logger.info("adrLineOptinalElementRuleSepaPacs8:Dbtr-If PstlAddr is used & if Adrline is present then all other optional elements except Country in PostalAddress must be absent");
+                        retVal = setCommentsForTransaction("779", "7928", map);
+						return retVal;
+						} */
+                    if((!dbtrCtryDb || !cdtrCtryDb) && !dbtrCtry){
+						setHeader(map, "PLCN_validMessage", false);
+                            logger.info("adrLineOptinalElementRuleSepaPacs8:Dbtr - CdtrAgt/DbtrAgt is non EEA then country is mandatory and all other optional elements except Country in PostalAddress must be absent");
+                            retVal = setCommentsForTransaction("779", "7621", map);
+						return retVal;
+					}
+					}else {
+						setHeader(map, "PLCN_validMessage", false);
+						logger.info("adrLineOptinalElementRuleSepaPacs8:Dbtr-Unstructured Address is not allowed");
+						retVal = setCommentsForTransaction("779", "7513", map);
+						return retVal;
+					}
+				}
+			}
+		}
+	}
+    
+	return retVal;	
+}
+function adrLineCtryAllowedRuleSepaPacs8(exchange){ 
+	logger.info("adrLineCtryAllowedRuleSepaPacs8");
+
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+
+	//CreditorAgent	
+	var cdtrAgtPstlAdr = isXmlNodePresent(Document, "CdtTrfTxInf", "CdtrAgt", "<PstlAdr>");
+
+	var cdtrAgtAddrLinePath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/CdtrAgt/FinInstnId/PstlAdr/AdrLine';
+	var cdtrAgtAddrLine = getValueFromPath(Document, cdtrAgtAddrLinePath);
+	logger.info("cdtrAgtAddrLine:" + cdtrAgtAddrLine);
+
+	var cdtrAgtCtryPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/CdtrAgt/FinInstnId/PstlAdr/Ctry';
+	var cdtrAgtCtry = getValueFromPath(Document, cdtrAgtCtryPath);
+
+	if(isPatternPresent(Document1, "<CdtrAgt>")){
+		if(cdtrAgtPstlAdr){
+			if(cdtrAgtAddrLine){
+				if(cdtrAgtCtry == false)
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("CreditorAgent: A combination of ‘Address Line’ and 'Country’ is allowed");
+				retVal = setCommentsForTransaction("889", "7928", map);
+				return retVal;
+			}
+		}
+	}
+
+	//DebtorAgent
+	var dbtrAgtPstlAdr = isXmlNodePresent(Document, "CdtTrfTxInf", "DbtrAgt", "<PstlAdr>");
+
+	var dbtrAgtAddrLinePath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAgt/FinInstnId/PstlAdr/AdrLine';
+	var dbtrAgtAddrLine = getValueFromPath(Document, dbtrAgtAddrLinePath);
+
+	var dbtrAgtCtryPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAgt/FinInstnId/PstlAdr/Ctry';
+	var dbtrAgtCtry = getValueFromPath(Document, dbtrAgtCtryPath);
+
+	if(isPatternPresent(Document1, "<DbtrAgt>")){
+		if(dbtrAgtPstlAdr){
+			if(dbtrAgtAddrLine){
+				if(dbtrAgtCtry == false)
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("DebtorAgent: A combination of ‘Address Line’ and 'Country’ is allowed");
+				retVal = setCommentsForTransaction("841", "7928", map);
+				return retVal;
+			}
+		}
+	}
+	return retVal;	
+}
+
+function orgIdRuleSepaPacs8(exchange){ 
+	logger.info("orgIdRuleSepaPacs8");
+
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+
+	var Date1 = memTblGetTableValue(map, "USER_CONFIG_MAP", "SEPA_LIB2025_DATE");
+	logger.info("orgIdRuleSepaPacs8: Date1 = " + Date1);
+
+	var sysDate = getDate();
+	logger.info("orgIdRuleSepaPacs8: sysDate = " + sysDate);
+	
+	//CREDITOR
+	var cdtrOrgId =  isXmlNodePresent(Document, "CdtTrfTxInf", "Cdtr", "<OrgId>");
+
+	var cdtrOrgIdAnyBICPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/Id/OrgId/AnyBIC';
+	var cdtrOrgIdAnyBIC = getValueFromPath(Document, cdtrOrgIdAnyBICPath);
+
+	var cdtrOrgIdLEIPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/Id/OrgId/LEI';
+	var cdtrOrgIdLEI = getValueFromPath(Document, cdtrOrgIdLEIPath);
+
+	var cdtrOrgIdOthrPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/Id/OrgId/Othr';
+	var cdtrOrgIdOthr = getValueFromPath(Document, cdtrOrgIdOthrPath);
+
+	if(isPatternPresent(Document1, "<Cdtr>")){
+		if(cdtrOrgId){
+			if(sysDate < Date1){
+			if(cdtrOrgIdAnyBIC && cdtrOrgIdLEI && cdtrOrgIdOthr){
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("Cdtr-If PstlAddr is used & if OrgId is present then Either ‘AnyBIC', 'LEI’ or one occurrence of ‘Other’ is allowed");
+				retVal = setCommentsForTransaction("945", "7135", map);
+				return retVal;
+			}
+			}else {
+				if((cdtrOrgIdAnyBIC && cdtrOrgIdLEI && cdtrOrgIdOthr) || (cdtrOrgIdAnyBIC && cdtrOrgIdLEI) || (cdtrOrgIdLEI && cdtrOrgIdOthr) || (cdtrOrgIdAnyBIC && cdtrOrgIdOthr)){
+					setHeader(map, "PLCN_validMessage", false);
+					logger.info("Cdtr-If PstlAddr is used & if OrgId is present then Either ‘AnyBIC', 'LEI’ or one occurrence of ‘Other’ is allowed");
+					retVal = setCommentsForTransaction("945", "7135", map);
+					return retVal;
+				}
+			}
+		}
+	}	
+
+	//DEBTOR
+	var dbtrOrgId =  isXmlNodePresent(Document, "CdtTrfTxInf", "Dbtr", "<OrgId>");
+
+	var dbtrOrgIdAnyBICPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/Id/OrgId/AnyBIC';
+	var dbtrOrgIdAnyBIC = getValueFromPath(Document, dbtrOrgIdAnyBICPath);
+
+	var dbtrOrgIdLEIPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/Id/OrgId/LEI';
+	var dbtrOrgIdLEI = getValueFromPath(Document, dbtrOrgIdLEIPath);
+
+	var dbtrOrgIdOthrPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/Id/OrgId/Othr';
+	var dbtrOrgIdOthr = getValueFromPath(Document, dbtrOrgIdOthrPath);
+
+	//ADDED BY SNEHA FOR LIB2025
+	if(sysDate < Date1){
+	if(isPatternPresent(Document1, "<Dbtr>")){
+		if(dbtrOrgId){
+			if(dbtrOrgIdAnyBIC && dbtrOrgIdLEI && dbtrOrgIdOthr){
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("Dbtr-If PstlAddr is used & if OrgId is present then Either ‘AnyBIC', 'LEI’ or one occurrence of ‘Other’ is allowed");
+				retVal = setCommentsForTransaction("779", "7135", map);
+				return retVal;
+			}
+		}
+	}
+	}
+	
+	//ULTIMATEDEBTOR
+	var ultmtDbtrOrgId =  isXmlNodePresent(Document, "CdtTrfTxInf", "UltmtDbtr", "<OrgId>");
+
+	var ultmtDbtrOrgIdAnyBICPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtDbtr/Id/OrgId/AnyBIC';
+	var ultmtDbtrOrgIdAnyBIC = getValueFromPath(Document, ultmtDbtrOrgIdAnyBICPath);
+
+	var ultmtDbtrOrgIdLEIPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtDbtr/Id/OrgId/LEI';
+	var ultmtDbtrOrgIdLEI = getValueFromPath(Document, ultmtDbtrOrgIdLEIPath);
+
+	var ultmtDbtrOrgIdOthrPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtDbtr/Id/OrgId/Othr';
+	var ultmtDbtrOrgIdOthr = getValueFromPath(Document, ultmtDbtrOrgIdOthrPath);
+
+	//ADDED BY SNEHA FOR LIB2025
+	if(sysDate < Date1){
+	if(isPatternPresent(Document1, "<UltmtDbtr>")){
+		if(ultmtDbtrOrgId){
+			if(ultmtDbtrOrgIdAnyBIC && ultmtDbtrOrgIdLEI && ultmtDbtrOrgIdOthr){
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("UltmtDbtr-If PstlAddr is used & if OrgId is present then Either ‘AnyBIC', 'LEI’ or one occurrence of ‘Other’ is allowed");
+				retVal = setCommentsForTransaction("693", "7135", map);
+				return retVal;
+			}
+		}
+	}
+	}
+	
+	//ULTIMATECREDITOR
+	var ultmtCdtrOrgId =  isXmlNodePresent(Document, "CdtTrfTxInf", "UltmtCdtr", "<OrgId>");
+
+	var ultmtCdtrOrgIdAnyBICPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtCdtr/Id/OrgId/AnyBIC';
+	var ultmtCdtrOrgIdAnyBIC = getValueFromPath(Document, ultmtCdtrOrgIdAnyBICPath);
+
+	var ultmtCdtrOrgIdLEIPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtCdtr/Id/OrgId/LEI';
+	var ultmtCdtrOrgIdLEI = getValueFromPath(Document, ultmtCdtrOrgIdLEIPath);
+
+	var ultmtCdtrOrgIdOthrPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtCdtr/Id/OrgId/Othr';
+	var ultmtCdtrOrgIdOthr = getValueFromPath(Document, ultmtCdtrOrgIdOthrPath);
+
+	if(isPatternPresent(Document1, "<UltmtCdtr>")){
+		if(ultmtCdtrOrgId){
+			if(sysDate < Date1){
+			if(ultmtCdtrOrgIdAnyBIC && ultmtCdtrOrgIdLEI && ultmtCdtrOrgIdOthr){
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("UltmtCdtr-If PstlAddr is used & if OrgId is present then Either ‘AnyBIC', 'LEI’ or one occurrence of ‘Other’ is allowed");
+				retVal = setCommentsForTransaction("1007", "7135", map);
+				return retVal;
+			}
+			}else {
+				if((ultmtCdtrOrgIdAnyBIC && ultmtCdtrOrgIdLEI && ultmtCdtrOrgIdOthr) || (ultmtCdtrOrgIdAnyBIC && ultmtCdtrOrgIdLEI) || (ultmtCdtrOrgIdLEI && ultmtCdtrOrgIdOthr) || (ultmtCdtrOrgIdAnyBIC && ultmtCdtrOrgIdOthr)){
+					setHeader(map, "PLCN_validMessage", false);
+					logger.info("UltmtCdtr-If PstlAddr is used & if OrgId is present then Either ‘AnyBIC', 'LEI’ or one occurrence of ‘Other’ is allowed");
+					retVal = setCommentsForTransaction("1007", "7135", map);
+					return retVal;
+				}
+			}
+		}
+	}
+	return retVal;	
+}
+
+function prvtIdRuleSepaPacs8(exchange){ 
+	logger.info("prvtIdRuleSepaPacs8");
+
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+
+	//CREDITOR
+	var cdtrPrvtId =  isXmlNodePresent(Document, "CdtTrfTxInf", "Cdtr", "<PrvtId>");
+
+	var cdtrPrvtIdAnyBICPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/Id/PrvtId/DtAndPlcOfBirth';
+	var cdtrPrvtIdDtAndPlcOfBirth = getValueFromPath(Document, cdtrPrvtIdAnyBICPath);
+	logger.info("prvtIdRuleSepaPacs8: cdtrPrvtIdDtAndPlcOfBirth = " + cdtrPrvtIdDtAndPlcOfBirth);
+
+	var cdtrPrvtIdOthrPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/Id/PrvtId/Othr';
+	var cdtrPrvtIdOthr = getValueFromPath(Document, cdtrPrvtIdOthrPath);
+	logger.info("prvtIdRuleSepaPacs8: cdtrPrvtIdOthr = " + cdtrPrvtIdOthr);
+
+	if(isPatternPresent(Document1, "<Cdtr>")){
+		if(cdtrPrvtId){
+			if(cdtrPrvtIdDtAndPlcOfBirth && cdtrPrvtIdOthr){
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("Cdtr-If PstlAddr is used & if PrvtId is present then Either ‘DtAndPlcOfBirth', 'LEI’ or one occurrence of ‘Other’ is allowed");
+				retVal = setCommentsForTransaction("945", "7136", map);
+				return retVal;
+			}
+		}
+	}	
+
+	//DEBTOR
+	var dbtrPrvtId =  isXmlNodePresent(Document, "CdtTrfTxInf", "Dbtr", "<PrvtId>");
+
+	var dbtrPrvtIdDtAndPlcOfBirthPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/Id/PrvtId/DtAndPlcOfBirth';
+	var dbtrPrvtIdDtAndPlcOfBirth = getValueFromPath(Document, dbtrPrvtIdDtAndPlcOfBirthPath);
+
+	var dbtrPrvtIdOthrPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/Id/PrvtId/Othr';
+	var dbtrPrvtIdOthr = getValueFromPath(Document, dbtrPrvtIdOthrPath); 
+
+	if(isPatternPresent(Document1, "<Dbtr>")){
+		if(dbtrPrvtId){
+			if(dbtrPrvtIdDtAndPlcOfBirth && dbtrPrvtIdOthr){
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("Dbtr-If PstlAddr is used & if PrvtId is present then Either ‘DtAndPlcOfBirth', 'LEI’ or one occurrence of ‘Other’ is allowed");
+				retVal = setCommentsForTransaction("779", "7136", map);
+				return retVal;
+			}
+		}
+	}
+	
+	//ULTIMATEDEBTOR
+	var ultmtDbtrPrvtId =  isXmlNodePresent(Document, "CdtTrfTxInf", "UltmtDbtr", "<PrvtId>");
+
+	var ultmtDbtrPrvtIdDtAndPlcOfBirthPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtDbtr/Id/PrvtId/DtAndPlcOfBirth';
+	var ultmtDbtrPrvtIdDtAndPlcOfBirth = getValueFromPath(Document, ultmtDbtrPrvtIdDtAndPlcOfBirthPath);
+
+	var ultmtDbtrPrvtIdOthrPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtDbtr/Id/PrvtId/Othr';
+	var ultmtDbtrPrvtIdOthr = getValueFromPath(Document, ultmtDbtrPrvtIdOthrPath);
+
+	if(isPatternPresent(Document1, "<UltmtDbtr>")){
+		if(ultmtDbtrPrvtId){
+			if(ultmtDbtrPrvtIdDtAndPlcOfBirth && ultmtDbtrPrvtIdOthr){
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("UltmtDbtr-If PstlAddr is used & if PrvtId is present then Either ‘DtAndPlcOfBirth', 'LEI’ or one occurrence of ‘Other’ is allowed");
+				retVal = setCommentsForTransaction("693", "7136", map);
+				return retVal;
+			}
+		}
+	}
+	
+	//ULTIMATECREDITOR
+	var ultmtCdtrPrvtId =  isXmlNodePresent(Document, "CdtTrfTxInf", "UltmtCdtr", "<PrvtId>");
+
+	var ultmtCdtrPrvtIdAnyBICPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtCdtr/Id/PrvtId/DtAndPlcOfBirth';
+	var ultmtCdtrPrvtIdDtAndPlcOfBirth = getValueFromPath(Document, ultmtCdtrPrvtIdAnyBICPath);
+
+	var ultmtCdtrPrvtIdOthrPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtCdtr/Id/PrvtId/Othr';
+	var ultmtCdtrPrvtIdOthr = getValueFromPath(Document, ultmtCdtrPrvtIdOthrPath);
+
+	if(isPatternPresent(Document1, "<UltmtCdtr>")){
+		if(ultmtCdtrPrvtId){
+			if(ultmtCdtrPrvtIdDtAndPlcOfBirth && ultmtCdtrPrvtIdOthr){
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("UltmtCdtr-If PstlAddr is used & if PrvtId is present then Either ‘DtAndPlcOfBirth', 'LEI’ or one occurrence of ‘Other’ is allowed");
+				retVal = setCommentsForTransaction("1007", "7136", map);
+				return retVal;
+			}
+		}
+	}	
+
+	return retVal;	
+}
+
+/*function dbtrAcctPrxyCheckRulePacs008(Document, map) {
+	var retVal ; 
+
+	logger.info("In dbtrAcctPrxyCheckRulePacs008");
+	retVal = 0;
+
+	var dbtrAcctCheck = isXmlNodePresent4(Document, "CdtTrfTxInf", "DbtrAcct");
+	logger.info("dbtrAcctPrxyCheckRulePacs008: dbtrAcctCheck = " + dbtrAcctCheck); 
+
+	if(dbtrAcctCheck)
+	{
+		var dbtrAcctPrxyCheck = isXmlNodePresent(Document, "CdtTrfTxInf", "DbtrAcct", "<Prxy>");
+		logger.info("dbtrAcctPrxyCheckRulePacs008: dbtrAcctPrxyCheck = " + dbtrAcctPrxyCheck);
+
+		if(!dbtrAcctPrxyCheck)
+		{
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("04", "7004", map);
+			logger.info("DbtrAcct: Inclusion of sub-elements ‘Prxy’.");
+			return retVal;
+		}
+	}
+	return retVal;
+}
+
+function cdtrAcctPrxyCheckRulePacs008(Document, map) {
+	var retVal ; 
+
+	logger.info("In cdtrAcctPrxyCheckRulePacs008");
+	retVal = 0;
+
+	var cdtrAcctCheck = isXmlNodePresent(Document, "CdtTrfTxInf", "CdtrAcct");
+	logger.info("cdtrAcctPrxyCheckRulePacs008: cdtrAcctCheck = " + cdtrAcctCheck); 
+
+	if(cdtrAcctCheck)
+	{
+		var cdtrAcctPrxyCheck = isXmlNodePresent(Document, "CdtTrfTxInf", "CdtrAcct", "<Prxy>");
+		logger.info("cdtrAcctPrxyCheckRulePacs008: cdtrAcctPrxyCheck = " + cdtrAcctPrxyCheck);
+
+		if(!cdtrAcctPrxyCheck)
+		{
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("341", "7907", map);
+			logger.info("CdtrAcct: Inclusion of sub-elements ‘Prxy’.");
+			return retVal;
+		}
+	}
+	return retVal;
+}*/
+
+function constraintsISORulesSEPAPacs008(pacs08ValdFlagMx, exchange) {
+	var retVal;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In constraintsISORulesSEPAPacs008");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	retVal = 0;
+
+	if(pacs08ValdFlagMx == "ERROR") {
+		
+		retVal = b2bIntrBnkSttltDate(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = b2bTtlIntrBkSttlmAmtCcy(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = grpHdr_CdtTrfTxInf_FldCompRulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = instructedAmountAndExchangeRate2RulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = instructedAmountAndExchangeRate1RulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = b2bInstAmtExchRate(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = InstructionForCreditorAgentRule(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = instructingReimbursementAgentAccountRulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = instructedReimbursementAgentAccountRulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = intermediaryAgent1AccountRulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = intermediaryAgent2AccountRulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = intermediaryAgent3AccountRulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = intermediaryAgent2RulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = intermediaryAgent3RulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = previousInstructingAgent1AccountRulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = previousInstructingAgent2AccountRulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = previousInstructingAgent3AccountRulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = previousInstructionAgent2RulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = previousInstructionAgent3RulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = thirdReimbursementAgentAccountRulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = thirdReimbursementAgentRulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = settlementMethodAgentRulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = settlementMethodCoverRulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = settlementMethodCoverAgentRulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = settlementMethodClearingRulePacs008(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = b2bChargesAmountCurrency(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = cbprCredRulePacs8(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+	}
+	if(pacs08ValdFlagMx == "WARNING") {
+		
+		retVal = b2bIntrBnkSttltDate(Document, map);
+		retVal = b2bTtlIntrBkSttlmAmtCcy(Document, map);
+		retVal = grpHdr_CdtTrfTxInf_FldCompRulePacs008(Document, map);
+		retVal = instructedAmountAndExchangeRate2RulePacs008(Document, map);
+		retVal = instructedAmountAndExchangeRate1RulePacs008(Document, map);
+		retVal = b2bInstAmtExchRate(Document, map);
+		retVal = InstructionForCreditorAgentRule(Document, map);
+		retVal = instructingReimbursementAgentAccountRulePacs008(Document, map);
+		retVal = instructedReimbursementAgentAccountRulePacs008(Document, map);
+		retVal = intermediaryAgent1AccountRulePacs008(Document, map);
+		retVal = intermediaryAgent2AccountRulePacs008(Document, map);
+		retVal = intermediaryAgent3AccountRulePacs008(Document, map);
+		retVal = intermediaryAgent2RulePacs008(Document, map);
+		retVal = intermediaryAgent3RulePacs008(Document, map);
+		retVal = previousInstructingAgent1AccountRulePacs008(Document, map);
+		retVal = previousInstructingAgent2AccountRulePacs008(Document, map);
+		retVal = previousInstructingAgent3AccountRulePacs008(Document, map);
+		retVal = previousInstructionAgent2RulePacs008(Document, map);
+		retVal = previousInstructionAgent3RulePacs008(Document, map);
+		retVal = thirdReimbursementAgentAccountRulePacs008(Document, map);
+		retVal = thirdReimbursementAgentRulePacs008(Document, map);
+		retVal = settlementMethodAgentRulePacs008(Document, map);
+		retVal = settlementMethodCoverRulePacs008(Document, map);
+		retVal = settlementMethodCoverAgentRulePacs008(Document, map);
+		retVal = settlementMethodClearingRulePacs008(Document, map);
+		retVal = b2bChargesAmountCurrency(Document, map);
+		retVal = cbprCredRulePacs8(Document, map);
+	}
+	return retVal;
+}
+
+function sepaCustomValidationsPacs008(pacs08ValdFlagMx, exchange) {
+	var retVal;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+  	body = inMsg.getBody(java.lang.String.class);
+  	logger.info("sepaCustomValidationsPacs008: body = " + body);
+  	setHeader(map, "PLCN_originalMsgBody", body);
+
+	logger.info("In sepaCustomValidationsPacs008");
+
+	var institutionId = getHeader(map, "PLCN_institutionId");
+	logger.info("sepaCustomValidationsPacs008: institutionId = " + institutionId);
+	
+	var bicValidCheckPath = institutionId + "." + "MESSAGE_PROCESSING.FUNCTIONALITY.BICLOOKUP" + "." + "BICCHECK"
+	logger.info("sepaCustomValidationsPacs008: bicValidCheckPath = " + bicValidCheckPath);
+	var bicValidCheck = memTblGetTableValue(map, "INST_PARAM",bicValidCheckPath);
+	logger.info("sepaCustomValidationsPacs008: bicValidCheck = " + bicValidCheck);
+
+	retVal = 0;
+
+	if(pacs08ValdFlagMx == "ERROR") {
+		
+		retVal = sntdManualBackofficeCheck(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = sntdCompanyCodeValidations(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = pcsPacs008Validation(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = dineroPacs008Validation(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		if(bicValidCheck == "Y") {
+		    retVal = bicPacs008Validation(exchange);
+			    if(retVal != 0) {
+                    return retVal;
+			}
+		}
+	}
+	return retVal;
+}
+
+function sepaCustomValidationsPacs003(pacs03ValdFlagMx, exchange) {
+	var retVal;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+  	body = inMsg.getBody(java.lang.String.class);
+  	logger.info("sepaCustomValidationsPacs003: body = " + body);
+  	setHeader(map, "PLCN_originalMsgBody", body);
+
+	logger.info("In sepaCustomValidationsPacs003");
+
+	var institutionId = getHeader(map, "PLCN_institutionId");
+	logger.info("sepaCustomValidationsPacs008: institutionId = " + institutionId);
+    
+	var bicValidCheckPath = institutionId + "." + "MESSAGE_PROCESSING.FUNCTIONALITY.BICLOOKUP" + "." + "BICCHECK"
+	logger.info("sepaCustomValidationsPacs008: bicValidCheckPath = " + bicValidCheckPath);
+	var bicValidCheck = memTblGetTableValue(map, "INST_PARAM",bicValidCheckPath);
+	logger.info("sepaCustomValidationsPacs008: bicValidCheck = " + bicValidCheck);
+
+    
+	retVal = 0;
+
+	if(pacs03ValdFlagMx == "ERROR") {
+		
+		retVal = sntdManualBackofficeCheck(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		if(bicValidCheck == "Y") {
+		    retVal = bicPacs003Validation(exchange);
+			    if(retVal != 0) {
+                    return retVal;
+			}
+		}
+	}
+	return retVal;
+}
+
+function sepaCustomValidationsPacs004(pacs04ValdFlagMx, exchange) {
+	var retVal;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+  	body = inMsg.getBody(java.lang.String.class);
+  	logger.info("sepaCustomValidationsPacs004: body = " + body);
+  	setHeader(map, "PLCN_originalMsgBody", body);
+
+	logger.info("In sepaCustomValidationsPacs004");
+
+	retVal = 0;
+
+	if(pacs04ValdFlagMx == "ERROR") {
+		
+		retVal = sntdManualBackofficeCheck(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = pcsValidationRulePacs004(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = dineroValidationRulePacs004(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+	return retVal;
+}
+//SEPA Pacs004
+
+
+function wrapperSepaPacs004Mx(exchange) {
+	logger.info("wrapperSepaPacs004Mx");
+	var retVal;
+	var commentsB2b;
+	var pacs04ValdFlagMx;
+	var txnComments;
+	var inMsg;
+	var map;
+	var Document;
+	var manualMode;
+	var tenantName;
+
+	logger.info('wrapperSepaPacs004Mx: In wrapperSepaPacs004Mx');
+	inMsg = exchange.getIn();
+	map = inMsg.getHeaders();
+	Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	pacs04ValdFlagMx = memTblGetTableValue(map, "FLAG-TABLE", "PACS04_VALD_FLAG_MX");
+	pacs04ValdFlagMx = pacs04ValdFlagMx?.trim();
+	logger.info("pacs04ValdFlagMx = " + pacs04ValdFlagMx);
+
+	var institutionId = getHeader(map, "PLCN_institutionId");
+	logger.info("wrapperSepaPacs003Mx: institutionId " +institutionId);
+	
+	var institutionIdHDR = getHeader(map, "INSTITUTION_ID");
+	logger.info("wrapperSepaPacs003Mx: institutionId from request header = " + institutionIdHDR);
+	
+	manualMode = getHeader(map, "PLCN_manualMode");
+	logger.info("wrapperSepaPacs004Mx: manualMode " +manualMode);
+
+	tenantName = getHeader(map, "PLCN_tenantName");
+	logger.info("wrapperSepaPacs004Mx: tenantName = " + tenantName);
+
+	if(!tenantName){
+		var tenantNamePath = institutionId + ".INSTITUTION_DETAILS.TENANT_NAME";
+		logger.info("wrapperSepaPacs004Mx: tenantName = " + tenantNamePath);
+		tenantName = memTblGetTableValue(map, "INST_PARAM",tenantNamePath);
+		logger.info("wrapperSepaPacs004Mx: tenantName = " + tenantName);
+	}
+
+	var dbbFlag = getHeader(map, "PLCN_xsdCheckFlag");
+	logger.info("wrapperSepaPacs004Mx: dbbFlag = " + dbbFlag);
+
+	if(pacs04ValdFlagMx == 'ERROR') {
+
+		logger.info("wrapperSepaPacs004Mx: Calling sepaValidationRulesPacs004");
+		retVal = sepaValidationRulesPacs004(pacs04ValdFlagMx, exchange);
+		logger.info("wrapperSepaPacs004Mx: retVal from sepaValidationRulesPacs004 = " + retVal);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaPacs004Mx: txnComments = " + txnComments);
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaPacs004Mx: Calling externalCodelistValidationSepaPacs004");
+			//retVal = externalCodelistValidationSepaPacs004(Document, map);		
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaPacs004Mx: txnComments from externalCodelistValidationSepaPacs004 = " + txnComments);			
+		}
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaPacs004Mx: Calling ibanValidationSepaPacs004");
+			retVal = ibanValidationSepaPacs004(exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaPacs004Mx: txnComments from ibanValidationSepaPacs004 = " + txnComments);
+		}
+		
+		if(retVal == 0) {
+			logger.info("wrapperSepaPacs004Mx: Calling constraintsISORulesSEPAPacs004");
+			//constraintsISORulesSEPAPacs004(pacs04ValdFlagMx,exchange);
+			retVal = constraintsISORulesSEPAPacs004(pacs04ValdFlagMx, exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaPacs004Mx: txnComments from constraintsISORulesSEPAPacs004 = " + txnComments);
+		}
+		if(retVal == 0 && manualMode == "REPAIR" && (tenantName == "SNTDBK")) {
+		logger.info("wrapperSepaPacs004Mx: Calling sepaCustomValidationsPacs004");
+		sepaCustomValidationsPacs004(pacs04ValdFlagMx,exchange);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaPacs004Mx: txnComments from sepaCustomValidationsPacs004 = " + txnComments);
+		}
+
+		if(dbbFlag == "DBB") {
+			logger.info("wrapperSepaPacs004Mx: Calling sepaValidationDBBRulesPacs004");
+			retVal = sepaValidationDBBRulesPacs004(pacs04ValdFlagMx, exchange);
+			logger.info("wrapperSepaPacs004Mx: retVal from sepaValidationDBBRulesPacs004 = " + retVal);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaPacs004Mx: txnComments = " + txnComments);
+		}
+	}
+
+	if(pacs04ValdFlagMx == 'WARNING') {
+
+		logger.info("wrapperSepaPacs004Mx: Calling sepaValidationRulesPacs004");
+		retVal = sepaValidationRulesPacs004(pacs04ValdFlagMx, exchange);
+		logger.info("wrapperSepaPacs004Mx: retVal from sepaValidationRulesPacs004 = " + retVal);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaPacs004Mx: txnComments = " + txnComments);
+
+		logger.info("wrapperSepaPacs004Mx: Calling externalCodelistValidationSepaPacs004");
+		retVal = externalCodelistValidationSepaPacs004(Document, map);		
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaPacs004Mx: txnComments from externalCodelistValidationSepaPacs004 = " + txnComments);			
+		
+		logger.info("wrapperSepaPacs004Mx: Calling ibanValidationSepaPacs004");
+		ibanValidationSepaPacs004(exchange);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaPacs004Mx: txnComments from ibanValidationSepaPacs004 = " + txnComments);
+		
+		logger.info("wrapperSepaPacs004Mx: Calling constraintsISORulesSEPAPacs004");
+		constraintsISORulesSEPAPacs004(pacs04ValdFlagMx,exchange);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaPacs004Mx: txnComments from constraintsISORulesSEPAPacs004 = " + txnComments);
+
+		if(dbbFlag == "DBB") {
+			logger.info("wrapperSepaPacs004Mx: Calling sepaValidationDBBRulesPacs004");
+			retVal = sepaValidationDBBRulesPacs004(pacs04ValdFlagMx, exchange);
+			logger.info("wrapperSepaPacs004Mx: retVal from sepaValidationDBBRulesPacs004 = " + retVal);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaPacs004Mx: txnComments = " + txnComments);
+		}
+	}
+}
+
+function sepaValidationRulesPacs004(pacs04ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaValidationRulesPacs004");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(pacs04ValdFlagMx == "ERROR") {
+
+		retVal = inclusionOfElementsclrSysPacs004Rule(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = originalMsgNameIdRulePacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+/*		retVal = sepaPacs004ValChrgsInfAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs004ValDbtrBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs004ValInitgPtyAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs004ValDbtrAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs004ValPrvsInstgAgt1Bic(exchange);
+
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs004ValPrvsInstgAgt2Bic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs004ValPrvsInstgAgt3Bic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs004ValIntrmyAgt1Bic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs004ValIntrmyAgt2Bic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs004ValIntrmyAgt3Bic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs004ValCdtrAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs004ValinstgAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs004ValinstdAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}*/
+
+		retVal = pacs004TimelineCheck(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+	}
+
+	if(pacs04ValdFlagMx == "WARNING") {
+
+		retVal = inclusionOfElementsclrSysPacs004Rule(Document, map);
+		sepaPacs004ValChrgsInfAgtBic(exchange);
+		sepaPacs004ValDbtrBic(exchange);
+		sepaPacs004ValInitgPtyAgtBic(exchange);
+		sepaPacs004ValDbtrAgtBic(exchange);
+		sepaPacs004ValPrvsInstgAgt1Bic(exchange);
+		sepaPacs004ValPrvsInstgAgt2Bic(exchange);
+		sepaPacs004ValPrvsInstgAgt3Bic(exchange);
+		sepaPacs004ValIntrmyAgt1Bic(exchange);
+		sepaPacs004ValIntrmyAgt2Bic(exchange);
+		sepaPacs004ValIntrmyAgt3Bic(exchange);
+		sepaPacs004ValCdtrAgtBic(exchange);
+		sepaPacs004ValinstgAgtBic(exchange);
+		sepaPacs004ValinstdAgtBic(exchange);
+		pacs004TimelineCheck(exchange);
+		
+	}
+	return retVal;
+}
+
+//SEPA_Pacs004ValidationRules
+
+function inclusionOfElementsclrSysPacs004Rule(Document, map) {
+	
+	var retVal ; 
+
+	logger.info("In inclusionOfElementsclrSysPacs004Rule");
+	retVal = 0;
+
+	var clrSysCheck = isXmlNodePresent(Document, "GrpHdr", "SttlmInf", "ClrSys");
+	logger.info("inclusionOfElementsclrSysPacs004Rule: clrSysCheck = " + clrSysCheck); 
+
+	if(clrSysCheck)
+	{
+		var clrSysCd = isXmlNodePresent3(Document, "GrpHdr", "SttlmInf", "ClrSys", "<Cd>");
+		logger.info("inclusionOfElementsclrSysPacs004Rule: clrSysCd = " + clrSysCd);
+		
+		var clrSysPrtry = isXmlNodePresent3(Document, "GrpHdr", "SttlmInf", "ClrSys", "<Prtry>");
+		logger.info("inclusionOfElementsclrSysPacs004Rule: clrSysPrtry = " + clrSysPrtry);
+
+		if(!clrSysCd && !clrSysPrtry)
+		{
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("152", "7130", map);
+			logger.info("inclusionOfElementsclrSysPacs004Rule: Inclusion of sub-elements ‘Code’ and ‘Proprietary’.");
+			return retVal;
+		}
+	} 
+	return retVal;
+}
+
+function sepaPacs004ValChrgsInfAgtBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaPacs004ValChrgsInfAgtBic');
+	bicfiPath = "/Document/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "ChrgsInf", "203");
+
+	return retVal;
+}
+
+function sepaPacs004ValDbtrBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaPacs004ValDbtrBic');
+	bicfiPath = "/Document/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "Dbtr", "8");
+
+	return retVal;
+}
+
+function sepaPacs004ValInitgPtyAgtBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaPacs004ValInitgPtyAgtBic');
+	bicfiPath = "/Document/PmtRtr/TxInf/RtrChain/InitgPty/Agt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "InitgPty", "377");
+
+	return retVal;
+}
+
+function sepaPacs004ValDbtrAgtBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaPacs004ValDbtrAgtBic');
+	bicfiPath = "/Document/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "DbtrAgt", "424");
+
+	return retVal;
+}
+
+function sepaPacs004ValPrvsInstgAgt1Bic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaPacs004ValPrvsInstgAgt1Bic');
+	bicfiPath = "/Document/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "PrvsInstgAgt1", "453");
+
+	return retVal;
+}
+
+function sepaPacs004ValPrvsInstgAgt2Bic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaPacs004ValPrvsInstgAgt2Bic');
+	bicfiPath = "/Document/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "PrvsInstgAgt2", "482");
+
+	return retVal;
+}
+
+function sepaPacs004ValPrvsInstgAgt3Bic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaPacs004ValPrvsInstgAgt3Bic');
+	bicfiPath = "/Document/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "PrvsInstgAgt3", "511");
+
+	return retVal;
+}
+
+function sepaPacs004ValIntrmyAgt1Bic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaPacs004ValIntrmyAgt1Bic');
+	bicfiPath = "/Document/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "IntrmyAgt1", "1");
+
+	return retVal;
+}
+
+function sepaPacs004ValIntrmyAgt2Bic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaPacs004ValIntrmyAgt2Bic');
+	bicfiPath = "/Document/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "IntrmyAgt2", "2");
+
+	return retVal;
+}
+
+function sepaPacs004ValIntrmyAgt3Bic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaPacs004ValIntrmyAgt3Bic');
+	bicfiPath = "/Document/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "IntrmyAgt3", "3");
+
+	return retVal;
+}
+
+function sepaPacs004ValCdtrAgtBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaPacs004ValCdtrAgtBic');
+	bicfiPath = "/Document/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "CdtrAgt", "4");
+
+	return retVal;
+}
+
+function sepaPacs004ValinstgAgtBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaPacs004ValinstgAgtBic');
+	bicfiPath = "/Document/PmtRtr/TxInf/InstgAgt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "InstgAgt", "6");
+
+	return retVal;
+}
+
+function sepaPacs004ValinstdAgtBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaPacs004ValinstdAgtBic');
+	bicfiPath = "/Document/PmtRtr/TxInf/InstdAgt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "InstdAgt", "7");
+
+	return retVal;
+}
+
+function sepaValidationDBBRulesPacs004(pacs04ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaValidationDBBRulesPacs004");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(pacs04ValdFlagMx == "ERROR") {
+
+		retVal = nbOfTxsDBBRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = noOfTxnRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = amountCheckSumRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = chrgsInfoRuleSepaPacs004(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = chrgsInfoAndRtrInstdAmtCheckRulePacs004(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		// retVal = returnInstdAmountCheckRule(exchange);
+		// if(retVal != 0) {
+		// 	return retVal;
+		// }
+
+		retVal = addtnlInfoCheckRulePacs004(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+        retVal = instgAndInstdAgtDBBPacs004Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+	}
+
+	if(pacs04ValdFlagMx == "WARNING") {
+		retVal = nbOfTxsDBBRule(exchange);
+		retVal = noOfTxnRule(exchange);
+		retVal = amountCheckSumRule(exchange);
+		retVal = chrgsInfoRuleSepaPacs004(exchange);
+		retVal = chrgsInfoAndRtrInstdAmtCheckRulePacs004(exchange);
+		//retVal = returnInstdAmountCheckRule(exchange);
+		retVal = addtnlInfoCheckRulePacs004(exchange);
+        retVal = instgAndInstdAgtDBBPacs004Rule(exchange);
+	}
+	return retVal;
+}
+
+function noOfTxnRule(exchange) {
+	
+	var inMsg = exchange.getIn();
+	
+	var map = inMsg.getHeaders();
+	//msgdbMap = new HashMap();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var messageString = inMsg.getBody(java.lang.String.class);
+
+	var noOfTxnPath;
+	var noOfTxn;
+	var elements;
+	var count;
+	
+	var retVal = 0;
+	logger.info("In noOfTxnRule");
+	
+	if(isPatternPresent(messageString,"</PmtRtr>")) {
+		noOfTxnPath = '/Document/PmtRtr/GrpHdr/NbOfTxs';
+		noOfTxn = getValueFromPath(Document, noOfTxnPath);
+	
+		logger.info("noOfTxnRule: noOfTxn = " + noOfTxn );
+		logger.info("noOfTxnRule: type of noOfTxn = " + typeof noOfTxn );
+
+		elements = Document.getElementsByTagName("TxInf");
+		logger.info("noOfTxnRule: elements = " + elements);
+
+		count = elements.length;
+		logger.info("noOfTxnRule: count = " + count);
+
+
+		if(noOfTxn != count) {
+			setHeader(map, "PLCN_validMessage",false);
+			logger.info("noOfTxnRule: noOfTxn is not equal to total number of individual transactions");
+			retVal = setCommentsForTransaction("122", "7200", map);
+			//return retVal;			
+		}
+	}
+
+	if(isPatternPresent(messageString,"</FIToFIPmtCxlReq>")) {
+		noOfTxnPath = '/Document/FIToFIPmtCxlReq/CtrlData/NbOfTxs';
+		noOfTxn = getValueFromPath(Document, noOfTxnPath);
+		logger.info("noOfTxnRule: noOfTxn = " + noOfTxn );
+		logger.info("noOfTxnRule: type of noOfTxn = " + typeof noOfTxn );
+
+		elements = Document.getElementsByTagName("TxInf");
+		logger.info("noOfTxnRule: elements = " + elements);
+
+		count = elements.length;
+		logger.info("noOfTxnRule: count = " + count);
+		
+		if(noOfTxn != count) {
+			setHeader(map, "PLCN_validMessage",false);
+			logger.info("noOfTxnRule: noOfTxn is not equal to total number of individual transactions");
+			retVal = setCommentsForTransaction("155", "7200", map);
+			return retVal;			
+		}
+	}
+	
+	if(isPatternPresent(messageString,"</FIToFICstmrCdtTrf>")) {
+		noOfTxnPath = '/Document/FIToFICstmrCdtTrf/GrpHdr/NbOfTxs';
+		noOfTxn = getValueFromPath(Document, noOfTxnPath);
+		logger.info("noOfTxnRule: noOfTxn = " + noOfTxn );
+		logger.info("noOfTxnRule: type of noOfTxn = " + typeof noOfTxn );
+
+		elements = Document.getElementsByTagName("CdtTrfTxInf");
+		logger.info("noOfTxnRule: elements = " + elements);
+
+		count = elements.length;
+		logger.info("noOfTxnRule: count = " + count);
+		
+		if(noOfTxn != count) {
+			setHeader(map, "PLCN_validMessage",false);
+			logger.info("noOfTxnRule: noOfTxn is not equal to total number of individual transactions");
+			retVal = setCommentsForTransaction("120", "7200", map);
+			return retVal;			
+		}
+	}
+
+	return retVal;
+}
+
+function amountCheckSumRule(exchange) {
+	
+	var inMsg = exchange.getIn();
+	
+	var map = inMsg.getHeaders();
+	//msgdbMap = new HashMap();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var messageString = inMsg.getBody(java.lang.String.class);
+
+	var totalAmountPath;
+	var totalAmount;
+	var numbOfTxnPath;
+	var numbOfTxn;
+	var i;
+	var totalAmountOfTxn = 0;
+	var IntrBkSttlmAmtPath;
+	var IntrBkSttlmAmt;
+	
+	var retVal = 0;
+	logger.info("In amountCheckSumRule");
+	
+	totalAmountPath = '/Document/PmtRtr/GrpHdr/TtlRtrdIntrBkSttlmAmt';
+	totalAmount = getValueFromPath(Document, totalAmountPath);
+	
+	logger.info("amountCheckSumRule: totalAmount = " + totalAmount );
+	totalAmount = Number(totalAmount);
+	logger.info("amountCheckSumRule: type of totalAmount = " + typeof totalAmount );
+
+	numbOfTxnPath = '/Document/PmtRtr/GrpHdr/NbOfTxs';
+	numbOfTxn = getValueFromPath(Document, numbOfTxnPath);
+	logger.info("amountCheckSumRule: numbOfTxn = " + numbOfTxn);
+
+	numbOfTxn = Number(numbOfTxn);
+	logger.info("amountCheckSumRule: typeof numbOfTxn = " + typeof numbOfTxn);
+
+	for(i = 0; i < numbOfTxn; i++) {
+		IntrBkSttlmAmtPath = '/Document/PmtRtr/TxInf/RtrdIntrBkSttlmAmt';
+		IntrBkSttlmAmt = getValueFromPath(Document, IntrBkSttlmAmtPath);
+		IntrBkSttlmAmt = Number(IntrBkSttlmAmt);
+		logger.info("amountCheckSumRule: IntrBkSttlmAmt = " + IntrBkSttlmAmt);
+		totalAmountOfTxn = totalAmountOfTxn + IntrBkSttlmAmt;
+		totalAmountOfTxn = Number(totalAmountOfTxn);
+		logger.info("amountCheckSumRule: totalAmountOfTxn = " + totalAmountOfTxn);
+	}
+
+	if(totalAmount != totalAmountOfTxn) {
+		setHeader(map, "PLCN_validMessage",false);
+		logger.info("amountCheckSumRule: GroupHeader/TotalReturnedInterbankSettlementAmount must equal the sum of all occurrences of TransactionInformation/ReturnedInterbankSettlementAmount when present.");
+		retVal = setCommentsForTransaction("125","7201", map);
+	}
+	return retVal;
+}
+
+function chrgsInfoRuleSepaPacs004(exchange) {
+	
+	var inMsg = exchange.getIn();
+	
+	var map = inMsg.getHeaders();
+	//msgdbMap = new HashMap();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var messageString = inMsg.getBody(java.lang.String.class);
+
+	var orgnlIntrBkAmtPath;
+	var orgnlIntrBkAmt;
+	var rtrnIntrBkAmtPath;
+	var rtrnIntrBkAmt;
+	var chrgsInfAmtPath;
+	var chrgsInfAmt;
+	var reasonCdPath;
+	var reasonCd;
+	var totalAmount;
+	
+	var retVal = 0;
+	logger.info("In chrgsInfoRuleSepaPacs004");
+	
+	orgnlIntrBkAmtPath = '/Document/PmtRtr/TxInf/OrgnlIntrBkSttlmAmt';
+	orgnlIntrBkAmt = getValueFromPath(Document, orgnlIntrBkAmtPath);
+	logger.info("chrgsInfoRuleSepaPacs004: orgnlIntrBkAmt = " + orgnlIntrBkAmt );
+	orgnlIntrBkAmt = Number(orgnlIntrBkAmt);
+	logger.info("chrgsInfoRuleSepaPacs004: type of orgnlIntrBkAmt = " + typeof orgnlIntrBkAmt );
+
+	rtrnIntrBkAmtPath = '/Document/PmtRtr/TxInf/RtrdIntrBkSttlmAmt';
+	rtrnIntrBkAmt = getValueFromPath(Document, rtrnIntrBkAmtPath);
+	logger.info("chrgsInfoRuleSepaPacs004: rtrnIntrBkAmt = " + rtrnIntrBkAmt );
+	rtrnIntrBkAmt = Number(rtrnIntrBkAmt);
+	logger.info("chrgsInfoRuleSepaPacs004: type of rtrnIntrBkAmt = " + typeof rtrnIntrBkAmt );
+
+	chrgsInfAmtPath = '/Document/PmtRtr/TxInf/ChrgsInf/Amt';
+	chrgsInfAmt = getValueFromPath(Document, chrgsInfAmtPath);
+	logger.info("chrgsInfoRuleSepaPacs004: chrgsInfAmt = " + chrgsInfAmt );
+	chrgsInfAmt = Number(chrgsInfAmt);
+	logger.info("chrgsInfoRuleSepaPacs004: type of chrgsInfAmt = " + typeof chrgsInfAmt );
+	
+	totalAmount = orgnlIntrBkAmt - chrgsInfAmt;
+	logger.info("chrgsInfoRuleSepaPacs004: totalAmount = " + totalAmount );
+
+	reasonCdPath = '/Document/PmtRtr/TxInf/RtrRsnInf/Rsn/Cd';
+	reasonCd = getValueFromPath(Document, reasonCdPath);
+	logger.info("chrgsInfoRuleSepaPacs004: reasonCd = " + reasonCd );
+
+	if(reasonCd == "FOCR") {
+		if(totalAmount != rtrnIntrBkAmt) {
+			setHeader(map, "PLCN_validMessage",false);
+			logger.info("chrgsInfoRuleSepaPacs004: if reaosn code is FOCR then rtrnIntrBkAmt must be equal to sum of orgnlIntrBkAmt and ChrgsInf");
+			retVal = setCommentsForTransaction("125", "8055", map);
+			//return retVal;			
+		}
+	}else {
+		if(rtrnIntrBkAmt != orgnlIntrBkAmt) {
+			setHeader(map, "PLCN_validMessage",false);
+			logger.info("chrgsInfoRuleSepaPacs004: if reaosn code is not FOCR then orgnlIntrBkAmt must be equal to rtrnIntrBkAmt");
+			retVal = setCommentsForTransaction("179", "7202", map);
+			//return retVal;	
+		}	
+	}
+	return retVal;
+}
+
+function chrgsInfoAndRtrInstdAmtCheckRulePacs004(exchange) {
+	
+	var inMsg = exchange.getIn();
+	
+	var map = inMsg.getHeaders();
+	//msgdbMap = new HashMap();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var messageString = inMsg.getBody(java.lang.String.class);
+
+	var retVal = 0;
+	logger.info("In chrgsInfoAndRtrInstdAmtCheckRulePacs004");
+	
+		
+	var res = isXmlNodePresent(Document,"PmtRtr","TxnInf","ChrgsInf");
+	logger.info("chrgsInfoAndRtrInstdAmtCheckRulePacs004: res = " + res);
+
+	var res1 = isXmlNodePresent(Document,"PmtRtr","TxnInf", "RtrdInstdAmt");
+	logger.info("chrgsInfoAndRtrInstdAmtCheckRulePacs004: res1 = " + res1);
+
+	var reasonCdPath = '/Document/PmtRtr/TxInf/RtrRsnInf/Rsn/Cd';
+	var reasonCd = getValueFromPath(Document, reasonCdPath);
+	logger.info("chrgsInfoRuleSepaPacs004: reasonCd = " + reasonCd );
+
+	if(res == true) {
+		if(reasonCd != "FOCR") {
+			setHeader(map, "PLCN_validMessage",false);
+			logger.info("chrgsInfoAndRtrInstdAmtCheckRulePacs004:if reasonCd is 'FOCR' then ChrgsInf mandatory.");
+			retVal = setCommentsForTransaction("198", "7203", map);
+			//return retVal;			
+		}else if(res == true){
+			if(res1 == false){
+				setHeader(map, "PLCN_validMessage",false);
+				logger.info("chrgsInfoAndRtrInstdAmtCheckRulePacs004:if ChrgsInf is present and reasonCd is 'FOCR' then RtrdInstdAmt is mandatory.");
+				retVal = setCommentsForTransaction("189", "7177", map);
+			}
+		}
+	}
+	return retVal;
+}
+
+function returnInstdAmountCheckRule(exchange) {
+	
+	var inMsg = exchange.getIn();
+	
+	var map = inMsg.getHeaders();
+	//msgdbMap = new HashMap();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var messageString = inMsg.getBody(java.lang.String.class);
+
+	var retVal = 0;
+	logger.info("In returnInstdAmountCheckRule");
+	
+	var res = isXmlNodePresent(Document,"PmtRtr","TxnInf","ChrgsInf");
+	logger.info("returnInstdAmountCheckRule: res = " + res);
+
+	var res1 = isXmlNodePresent(Document,"PmtRtr","TxnInf", "RtrdInstdAmt");
+	logger.info("returnInstdAmountCheckRule: res1 = " + res1);
+
+	var reasonCdPath = '/Document/PmtRtr/TxInf/RtrRsnInf/Rsn/Cd';
+	var reasonCd = getValueFromPath(Document, reasonCdPath);
+	logger.info("chrgsInfoRuleSepaPacs004: reasonCd = " + reasonCd );
+	
+	if(res == true) {
+		if(res1 ==  false) {
+			setHeader(map, "PLCN_validMessage",false);
+			logger.info("returnInstdAmountCheckRule: if ChrgsInf is used then RtrdInstdAmt is mandatory.");
+			retVal = setCommentsForTransaction("189", "7178", map);
+			//return retVal;			
+		}
+		if(reasonCd != 'FOCR') {
+			setHeader(map, "PLCN_validMessage",false);
+			logger.info("returnInstdAmountCheckRule: if ChrgsInf is used when reason code must be 'FOCR'.");
+			retVal = setCommentsForTransaction("822", "7204", map);
+		}
+	}
+	return retVal;
+}
+
+function addtnlInfoCheckRulePacs004(exchange) {
+	
+	var inMsg = exchange.getIn();
+	
+	var map = inMsg.getHeaders();
+	//msgdbMap = new HashMap();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var messageString = inMsg.getBody(java.lang.String.class);
+
+	var retVal = 0;
+	logger.info("In addtnlInfoCheckRulePacs004");
+	
+	var res = isXmlNodePresent(Document,"TxInf","RtrRsnInf","AddtlInf");
+	logger.info("addtnlInfoCheckRulePacs004: res = " + res);
+
+	var reasonCdPath = '/Document/PmtRtr/TxInf/RtrRsnInf/Rsn/Cd';
+	var reasonCd = getValueFromPath(Document, reasonCdPath);
+	logger.info("chrgsInfoRuleSepaPacs004: reasonCd = " + reasonCd );
+
+	if(reasonCd != "FOCR") {
+		if(res == true) {
+			setHeader(map, "PLCN_validMessage",false);
+			logger.info("addtnlInfoCheckRulePacs004: AddtlInf is only allowed when reasonCd is 'FOCR'");
+			retVal = setCommentsForTransaction("824", "7179", map);
+			//return retVal;			
+		}
+	}
+	return retVal;
+}
+
+function constraintsISORulesSEPAPacs004(pacs04ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In constraintsISORulesSEPAPacs004");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	retVal = 0;
+
+	if(pacs04ValdFlagMx == "ERROR") {
+
+/*		retVal = b2bIntrBnkSttltDateRulePacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}*/
+		
+		retVal = genericMustPresentRulePacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = grpHdrsttlmtMtdRulePacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = returnedInstructedAmountAndExchangeRate1RulePacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		//TBSEETHTY-10309
+		/* retVal = returnReasonRulePacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		} */
+		
+		retVal = settlementMethodAgentRulePacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = groupReturnAndNumberOfTransactionsTrueFalseRulePacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = genericNotAllowedRulePacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = groupReturnAndReturnReasonRulePacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = returnedInstructedAmountAndExchangeRate2RulePacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = settlementMethodClearingRulePacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = settlementMethodCoverAgentRulePacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = groupHeaderGroupReturnFalseRulePacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = settlementMethodCoverRulePacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+        /*retVal = grpHdr_CdtTrfTxInf_FldCompRulePacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}*/
+		
+		// retVal = grpHdrTtlRtrIntrBkSttlmAmtRulePacs004(Document, map);
+		// if(retVal != 0) {
+		// 	return retVal;
+		// }
+	}
+
+	if(pacs04ValdFlagMx == "WARNING") {
+
+		retVal = b2bIntrBnkSttltDateRulePacs004(Document, map);
+		retVal = genericMustPresentRulePacs004(Document, map);
+		retVal = grpHdrsttlmtMtdRulePacs004(Document, map);
+		retVal = returnedInstructedAmountAndExchangeRate1RulePacs004(Document, map);
+		//retVal = returnReasonRulePacs004(Document, map);
+		retVal = settlementMethodAgentRulePacs004(Document, map);
+		retVal = groupReturnAndNumberOfTransactionsTrueFalseRulePacs004(Document, map);
+		retVal = genericNotAllowedRulePacs004(Document, map);
+		retVal = groupReturnAndReturnReasonRulePacs004(Document, map);
+		retVal = returnedInstructedAmountAndExchangeRate2RulePacs004(Document, map);
+		retVal = settlementMethodClearingRulePacs004(Document, map);
+		retVal = settlementMethodCoverAgentRulePacs004(Document, map);
+		retVal = groupHeaderGroupReturnFalseRulePacs004(Document, map);
+		retVal = settlementMethodCoverRulePacs004(Document, map);
+		retVal = grpHdr_CdtTrfTxInf_FldCompRulePacs004(Document, map);
+		//retVal = grpHdrTtlRtrIntrBkSttlmAmtRulePacs004(Document, map);
+	}
+
+	return retVal;
+}
+
+
+function wrapperSepaCamt056Mx(exchange) {	
+	var retVal = 0;
+	var commentsB2b;
+	var camt056ValdFlagMx;
+	var txnComments;
+	var inMsg;
+	var map;
+	var Document;
+
+	logger.info('wrapperSepaCamt056Mx: In wrapperSepaCamt056Mx');
+	inMsg = exchange.getIn();
+	map = inMsg.getHeaders();
+	Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	camt056ValdFlagMx = memTblGetTableValue(map, "FLAG-TABLE", "CAMT056_VALD_FLAG_MX");
+	camt056ValdFlagMx = camt056ValdFlagMx.trim();
+	logger.info("wrapperSepaCamt056Mx: camt056ValdFlagMx = " + camt056ValdFlagMx);
+
+	var dbbFlag = getHeader(map, "PLCN_xsdCheckFlag");
+	logger.info("wrapperSepaPacs004Mx: dbbFlag = " + dbbFlag);
+
+	if(camt056ValdFlagMx == 'ERROR') {
+
+		logger.info("wrapperSepaCamt056Mx: Calling sepaValidationRulescamt056");
+		retVal = sepaValidationRulescamt056(camt056ValdFlagMx, exchange);
+		logger.info("wrapperSepaCamt056Mx: retVal from sepaValidationRulescamt056 = " + retVal);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaCamt056Mx: txnComments = " + txnComments);
+
+		if(retVal == 0) {
+		logger.info("wrapperSepaCamt056Mx: Calling constraintsISORulesSEPACamt056");
+		retVal = constraintsISORulesSEPACamt056(camt056ValdFlagMx, exchange);
+		logger.info("wrapperSepaCamt056Mx: retVal from constraintsISORulesSEPACamt056 = " + retVal);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaCamt056Mx: txnComments = " + txnComments);
+		}
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaCamt056Mx: Calling externalCodelistValidationSepaCamt056");
+			//retVal = externalCodelistValidationSepaCamt056(Document, map);		
+			txnComments = getHeader(map, "PLCN_txnComments");
+			logger.info("txnComments from externalCodelistValidationSepaCamt056 = " + txnComments);			
+		}
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaCamt056Mx: Calling ibanValidationSepaCamt056");
+			retVal = ibanValidationSepaCamt056(exchange);
+			txnComments = getHeader(map, "PLCN_txnComments");
+			logger.info("wrapperSepaCamt056Mx: txnComments from ibanValidationSepaCamt056 = " + txnComments);
+		}
+
+		if(dbbFlag == "DBB") {
+			logger.info("wrapperSepaCamt056Mx: Calling sepaValidationDBBRulescamt056");
+			retVal = sepaValidationDBBRulescamt056(camt056ValdFlagMx, exchange);
+			logger.info("wrapperSepaCamt056Mx: retVal from sepaValidationDBBRulescamt056 = " + retVal);
+			txnComments = getHeader(map, "PLCN_txnComments");
+			logger.info("wrapperSepaCamt056Mx: txnComments = " + txnComments);
+		}
+	}
+
+	if(camt056ValdFlagMx == 'WARNING') {
+
+
+		retVal = sepaValidationRulescamt056(camt056ValdFlagMx, exchange);
+
+		logger.info("wrapperSepaCamt056Mx: Calling constraintsISORulesSEPACamt056");
+		retVal = constraintsISORulesSEPACamt056(camt056ValdFlagMx, exchange);
+		logger.info("wrapperSepaCamt056Mx: retVal from constraintsISORulesSEPACamt056 = " + retVal);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaCamt056Mx: txnComments = " + txnComments);
+
+		logger.info("wrapperSepaCamt056Mx: Calling externalCodelistValidationSepaCamt056");
+		//retVal = externalCodelistValidationSepaCamt056(Document, map);		
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("txnComments from externalCodelistValidationSepaCamt056 = " + txnComments);			
+		
+
+		logger.info("wrapperSepaCamt056Mx: Calling ibanValidationSepaCamt056");
+		ibanValidationSepaCamt056(exchange);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaCamt056Mx: txnComments from ibanValidationSepaCamt056 = " + txnComments);
+
+		if(dbbFlag == "DBB") {
+			logger.info("wrapperSepaCamt056Mx: Calling sepaValidationDBBRulescamt056");
+			retVal = sepaValidationDBBRulescamt056(camt056ValdFlagMx, exchange);
+			logger.info("wrapperSepaCamt056Mx: retVal from sepaValidationDBBRulescamt056 = " + retVal);
+			txnComments = getHeader(map, "PLCN_txnComments");
+			logger.info("wrapperSepaCamt056Mx: txnComments = " + txnComments);
+		}
+	}
+}
+
+function wrapperSepaCamt056MxSDD(exchange) {	
+	var retVal = 0;
+	var commentsB2b;
+	var camt056ValdFlagMx;
+	var txnComments;
+	var inMsg;
+	var map;
+	var Document;
+
+	logger.info('wrapperSepaCamt056MxSDD: In wrapperSepaCamt056MxSDD');
+	inMsg = exchange.getIn();
+	map = inMsg.getHeaders();
+	Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	camt056ValdFlagMx = memTblGetTableValue(map, "FLAG-TABLE", "CAMT056_VALD_FLAG_MX");
+	camt056ValdFlagMx = camt056ValdFlagMx.trim();
+	logger.info("wrapperSepaCamt056MxSDD: camt056ValdFlagMx = " + camt056ValdFlagMx);
+
+	var dbbFlag = getHeader(map, "PLCN_xsdCheckFlag");
+	logger.info("wrapperSepaCamt056MxSDD: dbbFlag = " + dbbFlag);
+
+	if(camt056ValdFlagMx == 'ERROR') {
+
+		/* logger.info("wrapperSepaCamt056Mx: Calling sepaValidationRulescamt056");
+		retVal = sepaValidationRulescamt056(camt056ValdFlagMx, exchange);
+		logger.info("wrapperSepaCamt056Mx: retVal from sepaValidationRulescamt056 = " + retVal);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaCamt056Mx: txnComments = " + txnComments);
+
+		if(retVal == 0) {
+		logger.info("wrapperSepaCamt056Mx: Calling constraintsISORulesSEPACamt056");
+		retVal = constraintsISORulesSEPACamt056(camt056ValdFlagMx, exchange);
+		logger.info("wrapperSepaCamt056Mx: retVal from constraintsISORulesSEPACamt056 = " + retVal);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaCamt056Mx: txnComments = " + txnComments);
+		}
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaCamt056Mx: Calling externalCodelistValidationSepaCamt056");
+			//retVal = externalCodelistValidationSepaCamt056(Document, map);		
+			txnComments = getHeader(map, "PLCN_txnComments");
+			logger.info("txnComments from externalCodelistValidationSepaCamt056 = " + txnComments);			
+		}
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaCamt056Mx: Calling ibanValidationSepaCamt056");
+			retVal = ibanValidationSepaCamt056(exchange);
+			txnComments = getHeader(map, "PLCN_txnComments");
+			logger.info("wrapperSepaCamt056Mx: txnComments from ibanValidationSepaCamt056 = " + txnComments);
+		}
+ */
+		if(dbbFlag == "DBB") {
+			logger.info("wrapperSepaCamt056MxSDD: Calling sepaValidationDBBRulescamt056SDD");
+			retVal = sepaValidationDBBRulescamt056SDD(camt056ValdFlagMx, exchange);
+			logger.info("wrapperSepaCamt056MxSDD: retVal from sepaValidationDBBRulescamt056SDD = " + retVal);
+			txnComments = getHeader(map, "PLCN_txnComments");
+			logger.info("wrapperSepaCamt056MxSDD: txnComments = " + txnComments);
+		}
+	}
+
+	if(camt056ValdFlagMx == 'WARNING') {
+
+
+		/* retVal = sepaValidationRulescamt056(camt056ValdFlagMx, exchange);
+
+		logger.info("wrapperSepaCamt056Mx: Calling constraintsISORulesSEPACamt056");
+		retVal = constraintsISORulesSEPACamt056(camt056ValdFlagMx, exchange);
+		logger.info("wrapperSepaCamt056Mx: retVal from constraintsISORulesSEPACamt056 = " + retVal);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaCamt056Mx: txnComments = " + txnComments);
+
+		logger.info("wrapperSepaCamt056Mx: Calling externalCodelistValidationSepaCamt056");
+		//retVal = externalCodelistValidationSepaCamt056(Document, map);		
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("txnComments from externalCodelistValidationSepaCamt056 = " + txnComments);			
+		
+
+		logger.info("wrapperSepaCamt056Mx: Calling ibanValidationSepaCamt056");
+		ibanValidationSepaCamt056(exchange);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaCamt056Mx: txnComments from ibanValidationSepaCamt056 = " + txnComments);
+ */
+		if(dbbFlag == "DBB") {
+			logger.info("wrapperSepaCamt056MxSDD: Calling sepaValidationDBBRulescamt056SDD");
+			retVal = sepaValidationDBBRulescamt056SDD(camt056ValdFlagMx, exchange);
+			logger.info("wrapperSepaCamt056MxSDD: retVal from sepaValidationDBBRulescamt056SDD = " + retVal);
+			txnComments = getHeader(map, "PLCN_txnComments");
+			logger.info("wrapperSepaCamt056MxSDD: txnComments = " + txnComments);
+		}
+	}
+}
+
+function sepaValidationDBBRulescamt056SDD(camt056ValdFlagMx, exchange){
+	logger.info("sepaValidationDBBRulescamt056SDD");
+	var retVal;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(camt056ValdFlagMx == "ERROR") {
+
+		retVal = nbOfTxsRuleCamt056(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = orgnlIntrBkSttlmDtRuleCamt056(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		/*retVal = orgnlIntrBkSttlmDtIdentityRuleCamt056(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = cxlRsnCdRuleCamt056(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = pmtTpInfRuleCamt056(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}*/
+	}
+	if(camt056ValdFlagMx == "WARNING") {
+		retVal = nbOfTxsRuleCamt056(exchange);
+		retVal = orgnlIntrBkSttlmDtRuleCamt056(exchange);
+		/*retVal = orgnlIntrBkSttlmDtIdentityRuleCamt056(exchange);
+		retVal = cxlRsnCdRuleCamt056(exchange);
+		retVal = pmtTpInfRuleCamt056(exchange);*/
+	}
+	return retVal;
+}
+
+function sepaValidationRulescamt056(camt056ValdFlagMx, exchange){
+	logger.info("sepaValidationRulescamt056");
+	var retVal;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(camt056ValdFlagMx == "ERROR") {
+
+		retVal = sepacamt056ValAssgnrBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepacamt056ValAssgneBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepacamt056ValDbtrAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepacamt056ValCdtrAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = sepacamt056OriginalMsgNameIdRule(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = Camt056TimelineCheck(exchange); //for testing 
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+	if(camt056ValdFlagMx == "WARNING") {
+		retVal = sepacamt056ValAssgnrBic(exchange);
+		retVal = sepacamt056ValAssgneBic(exchange);
+		retVal = sepacamt056ValDbtrAgtBic(exchange);
+		retVal = sepacamt056ValCdtrAgtBic(exchange);
+		retVal = sepacamt056OriginalMsgNameIdRule(Document, map);
+		retVal = Camt056TimelineCheck(exchange);
+	}
+	return retVal;
+}
+
+function ibanValidationSepaCamt056(exchange) {
+	var val;
+	var retVal = 0;
+
+	logger.info("In ibanValidationSepaCamt056");
+
+	val = validateDbtrAcctIbanSepaCamt056(exchange);
+	if(val) {
+		retVal = val;
+	}
+
+	val = validateCdtrAcctIbanSepaCamt056(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+
+	return retVal;
+}
+
+function validateDbtrAcctIbanSepaCamt056(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateDbtrAcctIbanSepaCamt056");
+	path = "/Document/FIToFIPmtCxlReq/Undrlyg/TxInf/OrgnlTxRef/DbtrAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateDbtrAcctIbanSepaCamt056: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateDbtrAcctIbanSepaCamt056: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("00", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);		
+	}
+	return retVal;
+}
+
+function validateCdtrAcctIbanSepaCamt056(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateCdtrAcctIbanSepaCamt056");
+	path = "/Document/FIToFIPmtCxlReq/Undrlyg/TxInf/OrgnlTxRef/CdtrAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateCdtrAcctIbanSepaCamt056: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateCdtrAcctIbanSepaCamt056: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("00", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);		
+	}
+	return retVal;
+}
+
+function sepacamt056ValAssgnrBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepacamt056ValChrgsInfAgtBic');
+	bicfiPath = "/Document/FIToFIPmtCxlReq/Assgnmt/Assgnr/Agt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "Assgnr", "126");
+
+	return retVal;
+}
+
+function sepacamt056ValAssgneBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepacamt056ValDbtrBic');
+	bicfiPath = "/Document/FIToFIPmtCxlReq/Assgnmt/Assgne/Agt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "Assgne", "119");
+
+	return retVal;
+}
+
+function sepacamt056ValDbtrAgtBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepacamt056ValDbtrAgtBic');
+	bicfiPath = "/Document/FIToFIPmtCxlReq/Undrlyg/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "DbtrAgt", "00");
+
+	return retVal;
+}
+
+function sepacamt056ValCdtrAgtBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepacamt056ValCdtrAgtBic');
+	bicfiPath = "/Document/FIToFIPmtCxlReq/Undrlyg/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "CdtrAgt", "00");
+
+	return retVal;
+}
+
+function sepaValidationDBBRulescamt056(camt056ValdFlagMx, exchange){
+	logger.info("sepaValidationDBBRulescamt056");
+	var retVal;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(camt056ValdFlagMx == "ERROR") {
+
+		retVal = nbOfTxsDBBRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = noOfTxnRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		//retVal = sepacamt056ValAssgneBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = reasonCdSepaCamt056Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = addntlInfoSepaCamt056Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = genericCountryCheckRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+	if(camt056ValdFlagMx == "WARNING") {
+		retVal = nbOfTxsDBBRule(exchange);
+		retVal = noOfTxnRule(exchange);
+		//retVal = sepacamt056ValAssgneBic(exchange);
+		retVal = reasonCdSepaCamt056Rule(exchange);
+		retVal = addntlInfoSepaCamt056Rule(exchange);
+		retVal = genericCountryCheckRule(exchange);
+	}
+	return retVal;
+}
+
+function reasonCdSepaCamt056Rule(exchange) {
+
+	var retVal = 0;
+ 
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	logger.info("In rsnPrtrySepaInstCamt056Rule");
+	
+	var rsnCdPath = "/Document/FIToFIPmtCxlReq/Undrlyg/TxInf/CxlRsnInf/Rsn/Cd";
+	var rsnCd = getValueFromPath(Document, rsnCdPath);
+	logger.info("rsnCd = "+ rsnCd);
+	logger.info("type of rsnCd = "+ typeof rsnCd);
+	
+	var nmCheck = isXmlNodePresent3(Document, "TxInf", "CxlRsnInf", "Orgtr", "<Nm>");
+	logger.info("reasonCdSepaCamt056Rule  NmCheck = "+ nmCheck);
+	
+	const rsnCdValues = ["CUST","AM09","AC03"];
+
+	if(rsnCdValues.includes(rsnCd)){
+		if(!nmCheck){
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("reasonCdSepaCamt056Rule: NM is allowe only if Reason codes are from 'CUST','AM09','AC03'.");
+			retVal = setCommentsForTransaction("163", "7180", map);	//NEW violations to be defined..
+			//return retVal;
+		}
+	}
+	return retVal;
+}
+
+function addntlInfoSepaCamt056Rule(exchange) {
+
+	var retVal = 0;
+ 
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	logger.info("In addntlInfoSepaCamt056Rule");
+	
+	var addtnlInfo = isXmlNodePresent(Document, "TxInf","CxlRsnInf","AddtlInf");
+	logger.info("addntlInfoSepaCamt056Rule  addtnlInfo = "+ addtnlInfo);
+
+	var rsnCdPath = "/Document/FIToFIPmtCxlReq/Undrlyg/TxInf/CxlRsnInf/Rsn/Cd";
+	var rsnCd = getValueFromPath(Document, rsnCdPath);
+	logger.info("rsnCd = "+ rsnCd);
+	logger.info("type of rsnCd = "+ typeof rsnCd);
+	
+	// var rsnCdCheck = isXmlNodePresent3(Document, "TxInf", "CxlRsnInf", "Rsn", "<Cd>");
+	// logger.info("addntlInfoSepaCamt056Rule  rsnCdCheck = "+ rsnCdCheck);
+	
+	const rsnCdValues = ["DUPL","TECH"];
+
+	
+	if(rsnCdValues.includes(rsnCd)){
+		if(addtnlInfo){
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("addntlInfoSepaCamt056Rule: Addtional Information is only allowed when FRAD, CUST, AM09 or AC03 is used as a Recall reason code");
+			retVal = setCommentsForTransaction("157", "7156", map);
+			//return retVal;
+		}
+	}
+	
+	return retVal;
+}
+
+function genericCountryCheckRule(exchange) {
+
+	var retVal = 0;
+ 
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	logger.info("In genericCountryCheckRule");
+
+	var countryPath;
+	var country;
+	var value;
+	var value1;
+	var key;
+
+	if(isPatternPresent(Document1, "</FIToFIPmtCxlReq>")){
+	
+		countryPath = "/Document/FIToFIPmtCxlReq/Undrlyg/TxInf/OrgnlTxRef/Dbtr/Pty/PstlAdr/Ctry";
+		country = getValueFromPath(Document, countryPath);
+		logger.info("country = "+ country);
+
+		if(country) {
+			value = isValidCountry(exchange,country);
+		}
+
+		if(value == false){
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("genericCountryCheckRule: Payer country is not valid");
+			retVal = setCommentsForTransaction("779", "8006", map);
+		}
+	}	
+
+	if(isPatternPresent(Document1, "</RsltnOfInvstgtn>")){
+	
+		countryPath = "/Document/RsltnOfInvstgtn/CxlDtls/TxInfAndSts/OrgnlTxRef/Dbtr/Pty/PstlAdr/Ctry";
+		country = getValueFromPath(Document, countryPath);
+		logger.info("country = "+ country);
+
+		if(country) {
+			value = isValidCountry(exchange,country);
+		}
+		
+		if(value == false){
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("genericCountryCheckRule: Payer country is not valid");
+			retVal = setCommentsForTransaction("322", "8006", map);
+		}
+
+		countryPath = "/Document/RsltnOfInvstgtn/CxlDtls/TxInfAndSts/OrgnlTxRef/Cdtr/Pty/PstlAdr/Ctry";
+		country = getValueFromPath(Document, countryPath);
+		logger.info("country = "+ country);
+
+		if(country) {
+			value1 = isValidCountry(exchange,country);
+		}
+		
+		if(value1 == false){
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("genericCountryCheckRule: Payee country is not valid");
+			retVal = setCommentsForTransaction("676", "8006", map);
+		}
+	}
+	
+	
+	if(isPatternPresent(Document1, "</FIToFICstmrCdtTrf>")){
+	
+		countryPath = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/Ctry";
+		country = getValueFromPath(Document, countryPath);
+		logger.info("country = "+ country);
+
+		if(country) {
+			value = isValidCountry(exchange,country);
+		}
+		
+		if(value == false){
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("genericCountryCheckRule: Payer country is not valid");
+			retVal = setCommentsForTransaction("157", "8006", map);
+		}
+		
+
+		countryPath = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/Ctry";
+		country = getValueFromPath(Document, countryPath);
+		logger.info("country = "+ country);
+
+		if(country) {
+			value1 = isValidCountry(exchange,country);
+		}
+		
+		if(value1 == false){
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("genericCountryCheckRule: Payee country is not valid");
+			retVal = setCommentsForTransaction("157", "8006", map);
+		}
+	}
+
+	return retVal;
+}
+
+function isValidCountry(exchange, country) {
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	var value = memTblGetTableValue(map, "COUNTRY_TABLE",country);
+	logger.info("genericCountryCheckRule  value = "+ value);
+			
+	if(value){
+		return true;
+	}else {
+		return false;
+	}		
+}
+
+function constraintsISORulesSEPACamt056(camt056ValdFlagMx, exchange) {
+	var retVal;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In constraintsISORulesSEPACamt056");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	retVal = 0;
+
+	if(camt056ValdFlagMx == "ERROR") {
+		
+		retVal = reimbursementAgentRuleCamt056(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = sttlmMtdRuleCamt056(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = grpCxlAndRsnRuleCamt056(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		// retVal = messageOrGroupCaseRuleCamt056(Document, map);
+		// if(retVal != 0) {
+		// 	return retVal;
+		// }
+		
+	}
+	if(camt056ValdFlagMx == "WARNING") {
+		
+		retVal = reimbursementAgentRuleCamt056(Document, map);
+		retVal = sttlmMtdRuleCamt056(Document, map);
+		retVal = grpCxlAndRsnRuleCamt056(Document, map);
+		// retVal = messageOrGroupCaseRuleCamt056(Document, map);
+	}	
+	return retVal;
+}
+
+//Camt029
+
+function wrapperSepaCamt029Mx(exchange) {	
+	var retVal = 0;
+	var commentsB2b;
+	var camt029ValdFlagMx;
+	var txnComments;
+	var inMsg;
+	var map;
+	var Document;
+
+	logger.info('wrapperSepaCamt029Mx: In wrapperSepaCamt029Mx');
+	inMsg = exchange.getIn();
+	map = inMsg.getHeaders();
+	Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	camt029ValdFlagMx = memTblGetTableValue(map, "FLAG-TABLE", "CAMT029_VALD_FLAG_MX");
+	camt029ValdFlagMx = camt029ValdFlagMx?.trim();
+	logger.info("wrapperSepaCamt029Mx: camt029ValdFlagMx = " + camt029ValdFlagMx);
+
+	var dbbFlag = getHeader(map, "PLCN_xsdCheckFlag");
+	logger.info("wrapperSepaPacs004Mx: dbbFlag = " + dbbFlag);
+
+	if(camt029ValdFlagMx == 'ERROR') {
+
+		logger.info("wrapperSepaCamt029Mx: Calling sepaValidationRulesCamt029");
+		retVal = sepaValidationRulesCamt029(camt029ValdFlagMx, exchange);
+		logger.info("wrapperSepaCamt029Mx: retVal from sepaValidationRulesCamt029 = " + retVal);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaCamt029Mx: txnComments = " + txnComments);
+		
+		if(retVal == 0) {
+		logger.info("wrapperSepaCamt029Mx: Calling constraintsISORulesSEPACamt029");
+		retVal = constraintsISORulesSEPACamt029(camt029ValdFlagMx, exchange);
+		logger.info("wrapperSepaCamt029Mx: retVal from constraintsISORulesSEPACamt029 = " + retVal);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaCamt029Mx: txnComments = " + txnComments);
+		}
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaCamt029Mx: Calling externalCodelistValidationSepaCamt029");
+			//retVal = externalCodelistValidationSepaCamt029(Document, map);		
+			txnComments = getHeader(map, "PLCN_txnComments");
+			logger.info("txnComments from externalCodelistValidationSepaCamt029 = " + txnComments);			
+		}
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaCamt029Mx: Calling ibanValidationSepaCamt029");
+			retVal = ibanValidationSepaCamt029(exchange);
+			txnComments = getHeader(map, "PLCN_txnComments");
+			logger.info("wrapperSepaCamt029Mx: txnComments from ibanValidationSepaCamt029 = " + txnComments);
+		}
+
+		if(dbbFlag == "DBB") {
+			logger.info("wrapperSepaCamt029Mx: Calling sepaValidationRulesCamt029");
+			retVal = sepaValidationDBBRulesCamt029(camt029ValdFlagMx, exchange);
+			logger.info("wrapperSepaCamt029Mx: retVal from sepaValidationRulesCamt029 = " + retVal);
+			txnComments = getHeader(map, "PLCN_txnComments");
+			logger.info("wrapperSepaCamt029Mx: txnComments = " + txnComments);
+		}
+	}
+
+	if(camt029ValdFlagMx == 'WARNING') {
+		
+		retVal = sepaValidationRulesCamt029(camt029ValdFlagMx, exchange);
+
+		logger.info("wrapperSepaCamt029Mx: Calling constraintsISORulesSEPACamt029");
+		retVal = constraintsISORulesSEPACamt029(camt029ValdFlagMx, exchange);
+		logger.info("wrapperSepaCamt029Mx: retVal from constraintsISORulesSEPACamt029 = " + retVal);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaCamt029Mx: txnComments = " + txnComments);
+
+		logger.info("wrapperSepaCamt029Mx: Calling externalCodelistValidationSepaCamt029");
+		//retVal = externalCodelistValidationSepaCamt029(Document, map);		
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("txnComments from externalCodelistValidationSepaCamt029 = " + txnComments);			
+		
+
+		logger.info("wrapperSepaCamt029Mx: Calling ibanValidationSepaCamt029");
+		ibanValidationSepaCamt029(exchange);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaCamt029Mx: txnComments from ibanValidationSepaCamt029 = " + txnComments);
+
+		if(dbbFlag == "DBB") {
+			logger.info("wrapperSepaCamt029Mx: Calling sepaValidationRulesCamt029");
+			retVal = sepaValidationDBBRulesCamt029(camt029ValdFlagMx, exchange);
+			logger.info("wrapperSepaCamt029Mx: retVal from sepaValidationRulesCamt029 = " + retVal);
+			txnComments = getHeader(map, "PLCN_txnComments");
+			logger.info("wrapperSepaCamt029Mx: txnComments = " + txnComments);
+		}
+	}
+}
+
+function sepaValidationRulesCamt029(camt029ValdFlagMx, exchange){
+	logger.info("sepaValidationRulesCamt029");
+	var retVal;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(camt029ValdFlagMx == "ERROR") {
+
+		retVal = sepaCamt029ValAssgnrBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaCamt029ValAssgneBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaCamt029ValDbtrAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaCamt029ValCdtrAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = sepaCamt029OriginalMsgNameIdRule(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+	if(camt029ValdFlagMx == "WARNING") {
+		retVal = sepaCamt029ValAssgnrBic(exchange);
+		retVal = sepaCamt029ValAssgneBic(exchange);
+		retVal = sepaCamt029ValDbtrAgtBic(exchange);
+		retVal = sepaCamt029ValCdtrAgtBic(exchange);
+		retVal = sepaCamt029OriginalMsgNameIdRule(Document, map);
+	}
+	return retVal;
+}
+
+function sepaCamt029ValAssgnrBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaCamt029ValChrgsInfAgtBic');
+	bicfiPath = "/Document/RsltnOfInvstgtn/Assgnmt/Assgnr/Agt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "Assgnr", "126");
+
+	return retVal;
+}
+
+function sepaCamt029ValAssgneBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaCamt029ValDbtrBic');
+	bicfiPath = "/Document/RsltnOfInvstgtn/Assgnmt/Assgne/Agt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "Assgne", "119");
+
+	return retVal;
+}
+
+function sepaCamt029ValDbtrAgtBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaCamt029ValDbtrAgtBic');
+	bicfiPath = "/Document/RsltnOfInvstgtn/CxlDtls/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "DbtrAgt", "00");
+
+	return retVal;
+}
+
+function sepaCamt029ValCdtrAgtBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaCamt029ValCdtrAgtBic');
+	bicfiPath = "/Document/RsltnOfInvstgtn/CxlDtls/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "CdtrAgt", "00");
+
+	return retVal;
+}
+
+function sepaPacs028ValInstgBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaPacs028ValInstgBic');
+	bicfiPath = "/Document/FIToFIPmtStsReq/GrpHdr/InstgAgt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "InstgAgt", "126");
+
+	return retVal;
+}
+
+function sepaPacs028ValInstdBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaPacs028ValInstdBic');
+	bicfiPath = "/Document/FIToFIPmtStsReq/GrpHdr/InstdAgt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "InstdAgt", "119");
+
+	return retVal;
+}
+
+function sepaPacs028ValDbtrAgtBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaPacs028ValDbtrAgtBic');
+	bicfiPath = "/Document/FIToFIPmtStsReq/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "DbtrAgt", "00");
+
+	return retVal;
+}
+
+function sepaPacs028ValCdtrAgtBic(exchange) {
+	var retVal;
+	var bicfiPath;
+
+	logger.info('In sepaPacs028ValCdtrAgtBic');
+	bicfiPath = "/Document/FIToFIPmtStsReq/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/BICFI";
+	retVal = validateBicFromPath(exchange, bicfiPath, "CdtrAgt", "00");
+
+	return retVal;
+}
+
+
+function ibanValidationSepaCamt029(exchange) {
+	var val = 0;
+	var retVal = 0;
+
+	logger.info("In ibanValidationSepaCamt029");
+
+	val = validateDbtrAcctIbanSepaCamt029(exchange);
+	logger.info("val = " + val);
+	if(val) {
+		retVal = val;
+	}
+
+	val = validateCdtrAcctIbanSepaCamt029(exchange);
+	logger.info("val = " + val);
+	if(val) {
+		retVal = retVal + val;
+	}
+	logger.info("retVal = " + retVal);
+
+	return retVal;
+}
+
+function validateDbtrAcctIbanSepaCamt029(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateDbtrAcctIbanSepaCamt029");
+	path = "/Document/RsltnOfInvstgtn/CxlDtls/TxInfAndSts/OrgnlTxRef/DbtrAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateDbtrAcctIbanSepaCamt029: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateDbtrAcctIbanSepaCamt029: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("00", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);		
+	}
+	return retVal;
+}
+
+function validateCdtrAcctIbanSepaCamt029(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateDbtrAcctIbanSepaCamt029");
+	path = "/Document/RsltnOfInvstgtn/CxlDtls/TxInfAndSts/OrgnlTxRef/CdtrAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateDbtrAcctIbanSepaCamt029: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateDbtrAcctIbanSepaCamt029: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("00", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);		
+	}
+	return retVal;
+}
+
+function sepaValidationDBBRulesCamt029(camt029ValdFlagMx, exchange){
+	logger.info("sepaValidationDBBRulesCamt029");
+	var retVal;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(camt029ValdFlagMx == "ERROR") {
+
+		retVal = nbOfTxsDBBRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = genericCountryCheckRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+	}
+	if(camt029ValdFlagMx == "WARNING") {
+		retVal = nbOfTxsDBBRule(exchange);
+		retVal = genericCountryCheckRule(exchange);
+	}
+}
+
+function constraintsISORulesSEPACamt029(camt029ValdFlagMx, exchange) {
+	var retVal;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In constraintsISORulesSEPACamt029");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	retVal = 0;
+
+	if(camt029ValdFlagMx == "ERROR") {
+		
+		retVal = amendmentIndicatorRuleCamt029(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = genericMustPresentRuleCamt029(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = genericNotAllowedRuleCamt029(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = settlementMethodRuleCamt029(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = genericEitherFieldPresentRuleCamt029(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+	}
+	if(camt029ValdFlagMx == "WARNING") {
+		
+		retVal = amendmentIndicatorRuleCamt029(Document, map);
+		retVal = genericMustPresentRuleCamt029(Document, map);
+		retVal = genericNotAllowedRuleCamt029(Document, map);
+		retVal = settlementMethodRuleCamt029(Document, map);
+		retVal = genericEitherFieldPresentRuleCamt029(Document, map);
+	}	
+	return retVal;
+}
+//DPH 9.7
+
+function wrapperSepaPacs003Mx(exchange) {
+	logger.info("wrapperSepaPacs003Mx");
+	var retVal;
+	var commentsB2b;
+	var pacs03ValdFlagMx;
+	var txnComments;
+	var inMsg;
+	var map;
+	var Document;
+	var tenantName;
+	var tenantNamePath;
+	var manualMode;
+
+	logger.info('wrapperSepaPacs003Mx:In wrapperSepaPacs003Mx');
+	inMsg = exchange.getIn();
+	map = inMsg.getHeaders();
+	Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	pacs03ValdFlagMx = memTblGetTableValue(map, "FLAG-TABLE", "PACS03_VALD_FLAG_MX");
+	pacs03ValdFlagMx = pacs03ValdFlagMx?.trim();
+	logger.info("pacs03ValdFlagMx = " + pacs03ValdFlagMx);
+
+	manualMode = getHeader(map, "PLCN_manualMode");
+	logger.info("wrapperSepaPacs003Mx: manualMode " +manualMode);
+	
+	var institutionId = getHeader(map, "PLCN_institutionId");
+	tenantName = getHeader(map, "PLCN_tenantName");
+	logger.info("wrapperSepaPacs003Mx: tenantName = " + tenantName);
+	if(!tenantName){
+		var tenantNamePath = institutionId + ".INSTITUTION_DETAILS.TENANT_NAME";
+		logger.info("wrapperSepaPacs003Mx: tenantName = " + tenantNamePath);
+		tenantName = memTblGetTableValue(map, "INST_PARAM",tenantNamePath);
+		logger.info("wrapperSepaPacs003Mx: tenantName = " + tenantName);
+	}
+
+	var dbbFlag = getHeader(map, "PLCN_xsdCheckFlag");
+	logger.info("wrapperSepaPacs003Mx: dbbFlag = " + dbbFlag);	
+
+	if(pacs03ValdFlagMx == 'ERROR') {
+
+		logger.info("wrapperSepaPacs003Mx: Calling sepaValidationRulesPacs003");
+		retVal = sepaValidationRulesPacs003(pacs03ValdFlagMx, exchange);
+		logger.info("wrapperSepaPacs003Mx: retVal from sepaValidationRulesPacs003 = " + retVal);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaPacs003Mx: txnComments = " + txnComments);
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaPacs003Mx: Calling externalCodelistValidationSepaPacs003");
+			//retVal = externalCodelistValidationSepaPacs003(Document, map);		
+			txnComments = getHeader(map, "PLCN_txnComments");
+			logger.info("txnComments from externalCodelistValidationSepaPacs003 = " + txnComments);			
+		}
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaPacs003Mx: Calling ibanValidationSepaPacs003");
+			//retVal = ibanValidationSepaPacs003(exchange);
+			txnComments = getHeader(map, "PLCN_txnComments");
+			logger.info("wrapperSepaPacs003Mx: txnComments from ibanValidationSepaPacs003 = " + txnComments);
+		}
+		
+		if(retVal == 0) {
+		logger.info("wrapperSepaPacs003Mx: Calling constraintsISORulesSEPAPacs003");
+		constraintsISORulesSEPAPacs003(pacs03ValdFlagMx,exchange);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaPacs003Mx: txnComments from constraintsISORulesSEPAPacs003 = " + txnComments);
+		}
+		
+		if(retVal == 0 && manualMode == "REPAIR" && (tenantName == "SNTDBK")) {
+			logger.info("wrapperSepaPacs003Mx: Calling sepaCustomValidationsPacs003");
+			sepaCustomValidationsPacs003(pacs03ValdFlagMx,exchange);
+			txnComments = getHeader(map, "PLCN_txnComments");
+			logger.info("wrapperSepaPacs003Mx: txnComments from sepaCustomValidationsPacs003 = " + txnComments);
+		}
+
+		if(dbbFlag == "DBB") {
+			logger.info("wrapperSepaPacs003Mx: Calling sepaValidationDBBRulesPacs003");
+			retVal = sepaValidationDBBRulesPacs003(pacs03ValdFlagMx, exchange);
+			logger.info("wrapperSepaPacs003Mx: retVal from sepaValidationDBBRulesPacs003 = " + retVal);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaPacs003Mx: txnComments = " + txnComments);
+		}		
+	}
+
+	if(pacs03ValdFlagMx == 'WARNING') {
+
+		logger.info("wrapperSepaPacs003Mx: Calling sepaValidationRulesPacs003");
+		retVal = sepaValidationRulesPacs003(pacs03ValdFlagMx, exchange);
+		logger.info("wrapperSepaPacs003Mx: retVal from sepaValidationRulesPacs003 = " + retVal);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaPacs003Mx: txnComments = " + txnComments);
+
+		logger.info("wrapperSepaPacs003Mx: Calling externalCodelistValidationSepaPacs003");
+		retVal = externalCodelistValidationSepaPacs003(Document, map);		
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("txnComments from externalCodelistValidationSepaPacs003 = " + txnComments);			
+		
+		logger.info("wrapperSepaPacs003Mx: Calling ibanValidationSepaPacs003");
+		ibanValidationSepaPacs003(exchange);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaPacs003Mx: txnComments from ibanValidationSepaPacs003 = " + txnComments);
+		
+		logger.info("wrapperSepaPacs003Mx: Calling constraintsISORulesSEPAPacs003");
+		//constraintsISORulesSEPAPacs003(pacs03ValdFlagMx,exchange);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaPacs003Mx: txnComments from constraintsISORulesSEPAPacs003 = " + txnComments);
+
+		logger.info("wrapperSepaPacs003Mx: Calling sepaValidationDBBRulesPacs003");
+		retVal = sepaValidationDBBRulesPacs003(pacs03ValdFlagMx, exchange);
+		logger.info("wrapperSepaPacs003Mx: retVal from sepaValidationDBBRulesPacs003 = " + retVal);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaPacs003Mx: txnComments = " + txnComments);		
+	}
+}
+
+function sepaValidationRulesPacs003(pacs03ValdFlagMx, exchange){
+	logger.info("sepaValidationRulesPacs003");
+	var retVal;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(pacs03ValdFlagMx == "ERROR") {
+		
+		retVal = inclusionOfElementsClrSysPacs003Rule(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+/* 		retVal = svcLvlOccurenceSepaPacs003(exchange);
+		if(retVal != 0) {
+			return retVal;
+		} */
+		retVal = townNameAndCountryRuleSepaPacs003(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = adrLineOptinalElementRuleSepaPacs003(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = hybridAddressRuleSepaPacs003(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = NonEeaSepaCountriesRuleSepaPacs003(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = orgIdRuleSepaPacs003(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+	if(pacs03ValdFlagMx == "WARNING") {
+		
+		retVal = inclusionOfElementsClrSysPacs003Rule(Document, map);
+		;retVal = svcLvlOccurenceSepaPacs003(exchange);
+		retVal = townNameAndCountryRuleSepaPacs003(exchange);
+		retVal = adrLineOptinalElementRuleSepaPacs003(exchange);
+		retVal = hybridAddressRuleSepaPacs003(exchange);
+		retVal = orgIdRuleSepaPacs003(exchange);
+		
+	}
+	return retVal;
+}
+
+function inclusionOfElementsClrSysPacs003Rule(Document, map) {
+	
+	var retVal ; 
+
+	logger.info("In inclusionOfElementsClrSysPacs003Rule");
+	retVal = 0;
+
+	var CtgyPurpCheck1 = isXmlNodePresent(Document, "GrpHdr", "PmtTpInf", "CtgyPurp");
+	logger.info("inclusionOfElementsClrSysPacs003Rule: CtgyPurpCheck1 = " + CtgyPurpCheck1); 
+
+	if(CtgyPurpCheck1)
+	{
+		var ctgyPurpCd = isXmlNodePresent3(Document, "GrpHdr", "PmtTpInf", "CtgyPurp", "<Cd>");
+		logger.info("inclusionOfElementsClrSysPacs003Rule: ctgyPurpCd = " + ctgyPurpCd);
+		
+		var ctgyPurpPrtry = isXmlNodePresent3(Document, "GrpHdr", "PmtTpInf", "CtgyPurp", "<Prtry>");
+		logger.info("inclusionOfElementsClrSysPacs003Rule: ctgyPurpPrtry = " + ctgyPurpPrtry);
+
+		if(!ctgyPurpCd && !ctgyPurpPrtry)
+		{
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("025", "7130", map);
+			logger.info("inclusionOfElementsClrSysPacs003Rule: Inclusion of sub-elements ‘Code’ and ‘Proprietary’.");
+			return retVal;
+		}
+	} 
+	
+	var CtgyPurpCheck2 = isXmlNodePresent(Document, "DrctDbtTxInf", "PmtTpInf", "CtgyPurp");
+	logger.info("inclusionOfElementsClrSysPacs003Rule: CtgyPurpCheck2 = " + CtgyPurpCheck2); 
+
+	if(CtgyPurpCheck2)
+	{
+		var ctgyPurpCd = isXmlNodePresent3(Document, "DrctDbtTxInf", "PmtTpInf", "CtgyPurp", "<Cd>");
+		logger.info("inclusionOfElementsClrSysPacs003Rule: ctgyPurpCd = " + ctgyPurpCd);
+		
+		var ctgyPurpPrtry = isXmlNodePresent3(Document, "DrctDbtTxInf", "PmtTpInf", "CtgyPurp", "<Prtry>");
+		logger.info("inclusionOfElementsClrSysPacs003Rule: ctgyPurpPrtry = " + ctgyPurpPrtry);
+
+		if(!ctgyPurpCd && !ctgyPurpPrtry)
+		{
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("047", "7130", map);
+			logger.info("inclusionOfElementsClrSysPacs003Rule: Inclusion of sub-elements ‘Code’ and ‘Proprietary’.");
+			return retVal;
+		}
+	} 
+	return retVal;
+}
+
+function svcLvlOccurenceSepaPacs003(exchange) {
+	logger.info("In svcLvlOccurenceSepaPacs003");
+	var svcLvlGrpHdr;
+	var svcLvlDrctDbtTxInf;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+
+	svcLvlGrpHdr = isXmlNodePresent3(Document, "FIToFICstmrDrctDbt", "GrpHdr", "PmtTpInf", "<SvcLvl>");
+	logger.info("svcLvlOccurenceSepaPacs003:svcLvlGrpHdr = " + svcLvlGrpHdr);
+	svcLvlDrctDbtTxInf = isXmlNodePresent3(Document, "FIToFICstmrDrctDbt", "DrctDbtTxInf", "PmtTpInf", "<SvcLvl>");
+	logger.info("svcLvlOccurenceSepaPacs003:svcLvlDrctDbtTxInf = " + svcLvlDrctDbtTxInf);
+
+	if(svcLvlGrpHdr && svcLvlDrctDbtTxInf){
+		setHeader(map, "PLCN_validMessage", false);
+		logger.info("svcLvlOccurenceSepaPacs003: Only one occurence of SvcLvl is allowed");
+		retVal = setCommentsForTransaction("037", "7058", map);
+		return retVal;
+	}
+	return retVal;
+}
+
+function townNameAndCountryRuleSepaPacs003(exchange) {  //DONE 
+	logger.info("townNameAndCountryRuleSepaPacs003");
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	//CREDITOR
+	var cdtrPstlAdr = isXmlNodePresent(Document, "DrctDbtTxInf" , "Cdtr", "<PstlAdr>");
+	logger.info("townNameAndCountryRuleSepaPacs003:cdtrPstlAdr = " + cdtrPstlAdr);
+
+	var cdtrAddrLinePath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/AdrLine';
+	var cdtrAddrLine = getValueFromPath(Document, cdtrAddrLinePath);
+	logger.info("townNameAndCountryRuleSepaPacs003:cdtrAddrLine = " + cdtrAddrLine);
+
+	var cdtrTwnNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/TwnNm';
+	var cdtrTwnNm = getValueFromPath(Document, cdtrTwnNmPath);
+	logger.info("townNameAndCountryRuleSepaPacs003:cdtrTwnNm = " + cdtrTwnNm);
+
+	var cdtrCtryPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/Ctry';
+	var cdtrCtry = getValueFromPath(Document, cdtrCtryPath);
+	logger.info("townNameAndCountryRuleSepaPacs003:cdtrCtry = " + cdtrCtry);
+
+	if(isPatternPresent(Document1, "<Cdtr>")){
+		if(cdtrPstlAdr){
+			if(!cdtrAddrLine && (!cdtrTwnNm || !cdtrCtry)){
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("townNameAndCountryRuleSepaPacs003:Cdtr-If PostalAddress is used & if AddressLine is absent then Country and Town name must be present");
+				retVal = setCommentsForTransaction("104", "7926", map);
+				return retVal;
+			}
+		}
+	}
+
+	//DEBTOR
+	var dbtrPstlAdr = isXmlNodePresent(Document, "DrctDbtTxInf" , "Dbtr", "<PstlAdr>");
+	logger.info("townNameAndCountryRuleSepaPacs003:dbtrPstlAdr = " + dbtrPstlAdr);
+
+	var dbtrAddrLinePath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/AdrLine';
+	var dbtrAddrLine = getValueFromPath(Document, dbtrAddrLinePath);
+	logger.info("townNameAndCountryRuleSepaPacs003:dbtrAddrLine = " + dbtrAddrLine);
+
+	var dbtrTwnNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/TwnNm';
+	var dbtrTwnNm = getValueFromPath(Document, dbtrTwnNmPath);
+	logger.info("townNameAndCountryRuleSepaPacs003:dbtrTwnNm = " + dbtrTwnNm);
+
+	var dbtrCtryPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/Ctry';
+	var dbtrCtry = getValueFromPath(Document, dbtrCtryPath);
+	logger.info("townNameAndCountryRuleSepaPacs003:dbtrCtry = " + dbtrCtry);
+
+	if(isPatternPresent(Document1, "<Dbtr>")){
+		if(dbtrPstlAdr){
+			if(!dbtrAddrLine && (!dbtrTwnNm || !dbtrCtry)){
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("townNameAndCountryRuleSepaPacs003:DBTR-If PostalAddress is used & if AddressLine is absent then Country and Town name must be present");
+				retVal = setCommentsForTransaction("146", "7926", map);
+				return retVal;
+			}
+		}
+	}		
+	return retVal;
+}
+function adrLineOptinalElementRuleSepaPacs003(exchange){ 
+	logger.info("adrLineOptinalElementRuleSepaPacs003");
+
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+
+	var Date1 = memTblGetTableValue(map, "USER_CONFIG_MAP", "SEPA_LIB2025_DATE");
+	logger.info("adrLineOptinalElementRuleSepaPacs003: Date1 = " + Date1);
+
+	var Date2 = memTblGetTableValue(map, "USER_CONFIG_MAP", "SEPA_LIB2026_DATE");
+	logger.info("adrLineOptinalElementRuleSepaPacs003: Date2 = " + Date2);
+	
+	var sysDate = getDate();
+	logger.info("adrLineOptinalElementRuleSepaPacs003: sysDate = " + sysDate);
+
+	//CREDITOR
+	var cdtrPstlAdr =  isXmlNodePresent(Document, "DrctDbtTxInf", "Cdtr", "<PstlAdr>");
+
+	var cdtrAddrLinePath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/AdrLine';
+	var cdtrAddrLine = getValueFromPath(Document, cdtrAddrLinePath);
+
+	var cdtrTwnNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/TwnNm';
+	var cdtrTwnNm = getValueFromPath(Document, cdtrTwnNmPath);
+
+	var cdtrCtryPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/Ctry';
+	var cdtrCtry = getValueFromPath(Document, cdtrCtryPath);
+
+	var cdtrDeptPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/Dept';
+	var cdtrDept = getValueFromPath(Document, cdtrDeptPath);
+
+	var cdtrSubDeptPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/SubDept';
+	var cdtrSubDept = getValueFromPath(Document, cdtrSubDeptPath);
+
+	var cdtrStrtNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/StrtNm';
+	var cdtrStrtNm = getValueFromPath(Document, cdtrStrtNmPath);
+
+	var cdtrBldgNbPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/BldgNb';
+	var cdtrBldgNb = getValueFromPath(Document, cdtrBldgNbPath);
+
+	var cdtrBldgNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/BldgNm';
+	var cdtrBldgNm = getValueFromPath(Document, cdtrBldgNmPath);
+
+	var cdtrFlrPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/Flr';
+	var cdtrFlr = getValueFromPath(Document, cdtrFlrPath);
+
+	var cdtrPstBxPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/PstBx';
+	var cdtrPstBx = getValueFromPath(Document, cdtrPstBxPath);
+
+	var cdtrRoomPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/Room';
+	var cdtrRoom = getValueFromPath(Document, cdtrRoomPath);
+
+	var cdtrPstCdPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/PstCd';
+	var cdtrPstCd = getValueFromPath(Document, cdtrPstCdPath);
+
+	var cdtrTwnLctnNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/TwnLctnNm';
+	var cdtrTwnLctnNm = getValueFromPath(Document, cdtrTwnLctnNmPath);
+
+	var cdtrDstrctNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/DstrctNm';
+	var cdtrDstrctNm = getValueFromPath(Document, cdtrDstrctNmPath);
+
+	var cdtrCtrySubDvsnPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/CtrySubDvsn';
+	var cdtrCtrySubDvsn = getValueFromPath(Document, cdtrCtrySubDvsnPath);
+
+	if(sysDate < Date1){
+		if(isPatternPresent(Document1, "<Cdtr>")){
+			if(cdtrPstlAdr){
+				if(cdtrAddrLine && (cdtrDept||cdtrSubDept||cdtrStrtNm||cdtrBldgNb||cdtrBldgNm||cdtrFlr||cdtrPstBx||cdtrRoom||cdtrPstCd||cdtrTwnNm||cdtrTwnLctnNm ||cdtrDstrctNm||cdtrCtrySubDvsn)){
+					setHeader(map, "PLCN_validMessage", false);
+					logger.info("adrLineOptinalElementRuleSepaPacs003:Cdtr-If PstlAddr is used & if Adrline is present then all other optional elements except Country in PostalAddress must be absent");
+					retVal = setCommentsForTransaction("104", "7928", map);
+					return retVal;
+				}
+			}
+		}
+	}else if(sysDate >= Date1){
+		var cdtrAgtPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/CdtrAgt/FinInstnId/BICFI';
+		var cdtrAgt = getValueFromPath(Document, cdtrAgtPath);
+		logger.info("adrLineOptinalElementRuleSepaPacs003New: cdtrAgt = " + cdtrAgt);
+		
+		var cdtrCtryCd = cdtrAgt?.slice(4, 6);
+		logger.info("adrLineOptinalElementRuleSepaPacs003New: cdtrCtryCd = " + cdtrCtryCd);
+		
+		var cdtrCtryDb = memTblGetTableValue(map, "EUEEA_CNTRY_LST_MAP", cdtrCtryCd);
+		logger.info("adrLineOptinalElementRuleSepaPacs003New: cdtrCtryDb = " + cdtrCtryDb);
+
+	if(isPatternPresent(Document1, "<Cdtr>")){
+		if(cdtrPstlAdr){
+                if(isPatternPresent(Document1, "<Cdtr>")){
+                    if(cdtrPstlAdr){
+                        if(cdtrAddrLine && (!cdtrDept && !cdtrSubDept && !cdtrStrtNm && !cdtrBldgNb && !cdtrBldgNm && !cdtrFlr && !cdtrPstBx && !cdtrRoom && !cdtrPstCd && !cdtrTwnLctnNm  && !cdtrDstrctNm && !cdtrCtrySubDvsn) && !cdtrTwnNm){
+                            if(sysDate < Date2){
+								logger.info("adrLineOptinalElementRuleSepaPacs8:Cdtr-valid unstructure address");
+								/* if(cdtrTwnNm && !cdtrCtry){
+				setHeader(map, "PLCN_validMessage", false);
+                                logger.info("adrLineOptinalElementRuleSepaPacs8:Cdtr-If PstlAddr is used & if Adrline is present then all other optional elements except Country in PostalAddress must be absent");
+				retVal = setCommentsForTransaction("104", "7928", map);
+				return retVal;
+								} */
+							}else{
+								setHeader(map, "PLCN_validMessage", false);
+								logger.info("adrLineOptinalElementRuleSepaPacs8:Cdtr-Unstructured address is not allowed");
+								retVal = setCommentsForTransaction("104", "7513", map);
+								return retVal;
+			}
+                        }
+					}
+				}
+			}
+		}
+	}	
+
+	//DEBTOR
+	var dbtrPstlAdr =  isXmlNodePresent(Document, "DrctDbtTxInf", "Dbtr", "<PstlAdr>");
+
+	var dbtrAddrLinePath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/AdrLine';
+	var dbtrAddrLine = getValueFromPath(Document, dbtrAddrLinePath);
+
+	var dbtrTwnNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/TwnNm';
+	var dbtrTwnNm = getValueFromPath(Document, dbtrTwnNmPath);
+
+	var dbtrCtryPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/Ctry';
+	var dbtrCtry = getValueFromPath(Document, dbtrCtryPath);
+
+	var dbtrDeptPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/Dept';
+	var dbtrDept = getValueFromPath(Document, dbtrDeptPath);
+
+	var dbtrSubDeptPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/SubDept';
+	var dbtrSubDept = getValueFromPath(Document, dbtrSubDeptPath);
+
+	var dbtrStrtNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/StrtNm';
+	var dbtrStrNm = getValueFromPath(Document, dbtrStrtNmPath);
+
+	var dbtrBldgNbPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/BldgNb';
+	var dbtrBldgNb = getValueFromPath(Document, dbtrBldgNbPath);
+
+	var dbtrBldgNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/BldgNm';
+	var dbtrBldgNm = getValueFromPath(Document, dbtrBldgNmPath);
+
+	var dbtrFlrPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/Flr';
+	var dbtrFlr = getValueFromPath(Document, dbtrFlrPath);
+
+	var dbtrPstBxPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/PstBx';
+	var dbtrPstBx = getValueFromPath(Document, dbtrPstBxPath);
+
+	var dbtrRoomPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/Room';
+	var dbtrRoom = getValueFromPath(Document, dbtrRoomPath);
+
+	var dbtrPstCdPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/PstCd';
+	var dbtrPstCd = getValueFromPath(Document, dbtrPstCdPath);
+
+	var dbtrTwnLctnNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/TwnLctnNm';
+	var dbtrTwnLctnNm = getValueFromPath(Document, dbtrTwnLctnNmPath);
+
+	var dbtrDstrctNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/DstrctNm';
+	var dbtrDstrctNm = getValueFromPath(Document, dbtrDstrctNmPath);
+
+	var dbtrCtrySubDvsnPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/CtrySubDvsn';
+	var dbtrCtrySubDvsn = getValueFromPath(Document, dbtrCtrySubDvsnPath);
+
+	if(sysDate < Date1){
+		if(isPatternPresent(Document1, "<Dbtr>")){
+			if(dbtrPstlAdr){
+				if(dbtrAddrLine && (dbtrDept||dbtrSubDept||dbtrStrNm||dbtrBldgNb||dbtrBldgNm||dbtrFlr||dbtrPstBx||dbtrRoom||dbtrPstCd||dbtrTwnLctnNm||dbtrDstrctNm||dbtrCtrySubDvsn||dbtrTwnNm)){
+					setHeader(map, "PLCN_validMessage", false);
+					logger.info("adrLineOptinalElementRuleSepaPacs003:Dbtr-If PstlAddr is used & if Adrline is present then all other optional elements except country in PostalAddress must be absent");
+					retVal = setCommentsForTransaction("146", "7928", map);
+					return retVal;
+				}
+			}
+		}
+	}else if(sysDate >= Date1){
+		var dbtrAgtPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/DbtrAgt/FinInstnId/BICFI';
+		var dbtrAgt = getValueFromPath(Document, dbtrAgtPath);
+		logger.info("adrLineOptinalElementRuleSepaPacs003New: dbtrAgt = " + dbtrAgt);
+		
+		var dbtrCtryCd = dbtrAgt?.slice(4, 6);
+		logger.info("adrLineOptinalElementRuleSepaPacs003New: dbtrCtryCd = " + dbtrCtryCd);
+		
+		var dbtrCtryDb = memTblGetTableValue(map, "EUEEA_CNTRY_LST_MAP", dbtrCtryCd);
+		logger.info("adrLineOptinalElementRuleSepaPacs003New: dbtrCtryDb = " + dbtrCtryDb);
+		
+	if(isPatternPresent(Document1, "<Dbtr>")){
+		if(dbtrPstlAdr){
+                    logger.info("adrLineOptinalElementRuleSepaPacs8: inside 1st loop");
+                if(dbtrAddrLine && (!dbtrDept && !dbtrSubDept && !dbtrStrNm && !dbtrBldgNb && !dbtrBldgNm && !dbtrFlr && !dbtrPstBx && !dbtrRoom && !dbtrPstCd && !dbtrTwnLctnNm  && !dbtrDstrctNm && !dbtrCtrySubDvsn) && !dbtrTwnNm){
+					if(sysDate < Date2){
+					  /*if(dbtrTwnNm && !dbtrCtry){
+				setHeader(map, "PLCN_validMessage", false);
+                            logger.info("adrLineOptinalElementRuleSepaPacs8:Dbtr-If PstlAddr is used & if Adrline is present then all other optional elements except Country in PostalAddress must be absent");
+				retVal = setCommentsForTransaction("146", "7928", map);
+				return retVal;
+						} */
+                        if((!dbtrCtryDb || !cdtrCtryDb) && !dbtrCtry){
+						setHeader(map, "PLCN_validMessage", false);
+                                logger.info("adrLineOptinalElementRuleSepaPacs8:Dbtr - CdtrAgt/DbtrAgt is non EEA then country is mandatory and all other optional elements except Country in PostalAddress must be absent");
+						retVal = setCommentsForTransaction("146", "7621", map);
+						return retVal;
+					}
+					}else {
+						setHeader(map, "PLCN_validMessage", false);
+						logger.info("adrLineOptinalElementRuleSepaPacs8:Dbtr-Unstructured Address is not allowed");
+						retVal = setCommentsForTransaction("146", "7513", map);
+						return retVal;
+					}
+				}
+			}
+		}
+	}
+	return retVal;	
+}
+function NonEeaSepaCountriesRuleSepaPacs003(exchange) {  //DONE 
+	logger.info("NonEeaSepaCountriesRuleSepaPacs003");
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	//CREDITOR
+	var cdtrPstlAdr = isXmlNodePresent(Document, "DrctDbtTxInf" , "Cdtr", "<PstlAdr>");
+	logger.info("NonEeaSepaCountriesRuleSepaPacs003:cdtrPstlAdr = " + cdtrPstlAdr);
+	
+	var cdtrAddrLinePath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/AdrLine';
+	var cdtrAddrLine = getValueFromPath(Document, cdtrAddrLinePath);
+
+	var cdtrCtryPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/Ctry';
+	var cdtrCtry = getValueFromPath(Document, cdtrCtryPath);
+	logger.info("NonEeaSepaCountriesRuleSepaPacs003:cdtrCtry = " + cdtrCtry);
+
+	if(isPatternPresent(Document1, "<Cdtr>")){
+		if(cdtrCtry){
+			if(cdtrCtry == 'AD' || cdtrCtry == 'MC' || cdtrCtry == 'VA' ||cdtrCtry == 'SM'|| cdtrCtry == 'CH'|| cdtrCtry == 'UK'){
+				if(!cdtrAddrLine){
+					setHeader(map, "PLCN_validMessage", false);
+				    logger.info("NonEeaSepaCountriesRuleSepaPacs003:Cdtr-If ctry belongs to Andorra, Monaco, Vatican, San Marino, Switzerland, United Kingdom then address line is mandatory");
+				    retVal = setCommentsForTransaction("104", "7914", map);
+				    return retVal;
+				}
+			}
+		}
+	}
+
+	//DEBTOR
+	var dbtrPstlAdr = isXmlNodePresent(Document, "DrctDbtTxInf" , "Dbtr", "<PstlAdr>");
+	logger.info("NonEeaSepaCountriesRuleSepaPacs003:dbtrPstlAdr = " + dbtrPstlAdr);
+     
+	var dbtrAddrLinePath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/AdrLine';
+	var dbtrAddrLine = getValueFromPath(Document, dbtrAddrLinePath);
+
+	var dbtrCtryPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/Ctry';
+	var dbtrCtry = getValueFromPath(Document, dbtrCtryPath);
+	logger.info("NonEeaSepaCountriesRuleSepaPacs003:dbtrCtry = " + dbtrCtry);
+
+	if(isPatternPresent(Document1, "<Dbtr>")){
+		if(dbtrCtry){
+			if(dbtrCtry == 'AD' || dbtrCtry == 'MC' || dbtrCtry == 'VA' ||dbtrCtry == 'SM'|| dbtrCtry == 'CH'|| dbtrCtry == 'UK'){
+				if(!dbtrAddrLine){
+					setHeader(map, "PLCN_validMessage", false);
+				    logger.info("NonEeaSepaCountriesRuleSepaPacs003:DBTR-If ctry belongs to Andorra, Monaco, Vatican, San Marino, Switzerland, United Kingdom then address line is mandatory");
+				    retVal = setCommentsForTransaction("146", "7914", map);
+				    return retVal;
+				}
+			}
+		}
+	}		
+	return retVal;
+}
+
+function constraintsISORulesSEPAPacs003(pacs03ValdFlagMx, exchange) {
+	var retVal;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In constraintsISORulesSEPAPacs003");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	retVal = 0;
+
+	if(pacs03ValdFlagMx == "ERROR") {
+		
+		retVal = grpHdrDrctDbtTxInfFldCompRulePacs003(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = b2bInstAmtExchRateSepaPacs003(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+        /*
+		 retVal = grpHdrTtlintrBkSttlmAmtRulePacs003(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		} 
+        */
+		
+		retVal = b2bIntrBnkSttltDateSepaPacs003(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = b2bTtlIntrBkSttlmAmtCcySepaPacs003(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = genericMustPresentRulePacs003(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = settlementMethodRulePacs003(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		/*retVal = dbtrUltmtDbtrContentCheckPacs003(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = cdtrUltmtCdtrContentCheckPacs003(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}*/
+		
+		retVal = eitherFieldPresentRulePacs003(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+	}
+	if(pacs03ValdFlagMx == "WARNING") {
+		
+		retVal = grpHdrDrctDbtTxInfFldCompRulePacs003(Document, map);
+		retVal = b2bInstAmtExchRateSepaPacs003(Document, map);
+		//retVal = grpHdrTtlintrBkSttlmAmtRulePacs003(Document, map);
+		retVal = b2bIntrBnkSttltDateSepaPacs003(Document, map);
+		retVal = b2bTtlIntrBkSttlmAmtCcySepaPacs003(Document, map);
+		retVal = genericMustPresentRulePacs003(Document, map);
+		retVal = settlementMethodRulePacs003(Document, map);
+		/* retVal = dbtrUltmtDbtrContentCheckPacs003(Document, map);
+		retVal = cdtrUltmtCdtrContentCheckPacs003(Document, map); */
+		retVal = eitherFieldPresentRulePacs003(Document, map);
+	}	
+	return retVal;
+}
+
+//SEPA PACS007
+
+function wrapperSepaPacs007Mx(exchange) {
+	logger.info("wrapperSepaPacs007Mx");
+	var retVal;
+	var commentsB2b;
+	var pacs07ValdFlagMx;
+	var txnComments;
+	var inMsg;
+	var map;
+	var Document;
+
+	logger.info('wrapperSepaPacs007Mx: In wrapperSepaPacs007Mx');
+	inMsg = exchange.getIn();
+	map = inMsg.getHeaders();
+	Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	pacs07ValdFlagMx = memTblGetTableValue(map, "FLAG-TABLE", "PACS07_VALD_FLAG_MX");
+	pacs07ValdFlagMx = pacs07ValdFlagMx?.trim();
+	logger.info("pacs07ValdFlagMx = " + pacs07ValdFlagMx);
+	retVal = 0;  //TESTING
+
+	var dbbFlag = getHeader(map, "PLCN_xsdCheckFlag");
+	logger.info("wrapperSepaPacs007Mx: dbbFlag = " + dbbFlag);
+
+	if(pacs07ValdFlagMx == 'ERROR') {
+
+		logger.info("wrapperSepaPacs007Mx: Calling sepaValidationRulesPacs007");
+		//retVal = sepaValidationRulesPacs007(pacs07ValdFlagMx, exchange);
+		logger.info("wrapperSepaPacs007Mx: retVal from sepaValidationRulesPacs007 = " + retVal);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaPacs007Mx: txnComments = " + txnComments);
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaPacs007Mx: Calling externalCodelistValidationSepaPacs007");
+			//retVal = externalCodelistValidationSepaPacs007(Document, map);		
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaPacs007Mx: txnComments from externalCodelistValidationSepaPacs007 = " + txnComments);			
+		}
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaPacs007Mx: Calling ibanValidationSepaPacs007");
+			//retVal = ibanValidationSepaPacs007(exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaPacs007Mx: txnComments from ibanValidationSepaPacs007 = " + txnComments);
+		}
+		
+		if(retVal == 0) {
+			logger.info("wrapperSepaPacs007Mx: Calling constraintsISORulesSEPAPacs007");
+			constraintsISORulesSEPAPacs007(pacs07ValdFlagMx,exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaPacs007Mx: txnComments from constraintsISORulesSEPAPacs007 = " + txnComments);
+		}
+		
+		if(dbbFlag == "DBB") {
+			logger.info("wrapperSepaPacs007Mx: Calling sepaValidationDBBRulesPacs007");
+			retVal = sepaValidationDBBRulesPacs007(pacs07ValdFlagMx, exchange);
+			logger.info("wrapperSepaPacs007Mx: retVal from sepaValidationDBBRulesPacs007 = " + retVal);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaPacs007Mx: txnComments = " + txnComments);
+		}
+	}
+
+	if(pacs07ValdFlagMx == 'WARNING') {
+
+		logger.info("wrapperSepaPacs007Mx: Calling sepaValidationRulesPacs007");
+		//retVal = sepaValidationRulesPacs007(pacs07ValdFlagMx, exchange);
+		logger.info("wrapperSepaPacs007Mx: retVal from sepaValidationRulesPacs007 = " + retVal);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaPacs007Mx: txnComments = " + txnComments);
+
+		logger.info("wrapperSepaPacs007Mx: Calling externalCodelistValidationSepaPacs007");
+		//retVal = externalCodelistValidationSepaPacs007(Document, map);		
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaPacs007Mx: txnComments from externalCodelistValidationSepaPacs007 = " + txnComments);			
+		
+		logger.info("wrapperSepaPacs007Mx: Calling ibanValidationSepaPacs007");
+		//ibanValidationSepaPacs007(exchange);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaPacs007Mx: txnComments from ibanValidationSepaPacs007 = " + txnComments);
+		
+		logger.info("wrapperSepaPacs007Mx: Calling constraintsISORulesSEPAPacs007");
+		constraintsISORulesSEPAPacs007(pacs07ValdFlagMx,exchange);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaPacs007Mx: txnComments from constraintsISORulesSEPAPacs007 = " + txnComments);
+	
+		if(dbbFlag == "DBB") {
+			logger.info("wrapperSepaPacs007Mx: Calling sepaValidationDBBRulesPacs007");
+			retVal = sepaValidationDBBRulesPacs007(pacs07ValdFlagMx, exchange);
+			logger.info("wrapperSepaPacs007Mx: retVal from sepaValidationDBBRulesPacs007 = " + retVal);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaPacs007Mx: txnComments = " + txnComments);
+		}
+	}
+}
+
+function constraintsISORulesSEPAPacs007(pacs07ValdFlagMx, exchange) {
+	var retVal;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In constraintsISORulesSEPAPacs007");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	retVal = 0;
+
+	if(pacs07ValdFlagMx == "ERROR") {
+		
+		retVal = intrBnkSttltDateSepaPacs007(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = sttlmMtdRuleSepaPacs007(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = genericMustPresentRulePacs007(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = OrgnlGrpInfoSepaPacs007Rule(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = originalMsgNameIdRulePacs007(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = chargesInfoSepaPacs007Rule(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = AmdmntIndSepaPacs007Rule(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = TtlRvsdIntrBkSttlmAmtRulePacs007(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+	}
+	if(pacs07ValdFlagMx == "WARNING") {
+		
+		retVal = AmdmntIndSepaPacs007Rule(Document, map);
+		retVal = chargesInfoSepaPacs007Rule(Document, map);
+		retVal = OrgnlGrpInfoSepaPacs007Rule(Document, map);
+		retVal = originalMsgNameIdRulePacs007(Document, map);
+		retVal = sttlmMtdRuleSepaPacs007(Document, map);
+		retVal = genericMustPresentRulePacs007(Document, map);
+		retVal = intrBnkSttltDateSepaPacs007(Document, map);
+		retVal = TtlRvsdIntrBkSttlmAmtRulePacs007(Document, map);
+
+	}
+	return retVal;
+}
+
+function sepaValidationDBBRulesPacs007(pacs07ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaValidationDBBRulesPacs007");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(pacs07ValdFlagMx == "ERROR") {
+
+		retVal = nbOfTxsDBBRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+
+	if(pacs07ValdFlagMx == "WARNING") {
+		retVal = nbOfTxsDBBRule(exchange);
+	}
+	return retVal;
+}
+
+function sntdManualBackofficeCheck(exchange) {
+	var iban;
+	var retVal;
+	var ibanPath;
+	var msgType;
+	var formatLabel;
+	var processPath;
+	var processLevel;
+	var institutionId;
+	var orgmsgnmidPath;
+	var orgmsgnmid;
+	var channelIdSource;
+	var manualMode;
+	var key;
+	
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	logger.info("sntdManualBackofficeCheck: for pacs008");
+	msgType = getHeader(map, "PaymentType");
+	logger.info("sntdManualBackofficeCheck: msgType = " + msgType);
+	sourceChannelId = getHeader(map, "PLCN_channelIdSource");
+	logger.info("sntdManualBackofficeCheck: sourceChannelId = " + sourceChannelId);
+	manualMode = getHeader(map, "PLCN_manualMode");
+	logger.info("sntdManualBackofficeCheck: manualMode = " + manualMode);
+	institutionId = getHeader(map, "PLCN_institutionId");
+	logger.info("sntdManualBackofficeCheck: institutionId = " + institutionId);
+	
+	//skipped the SWIFT messages validations
+	
+	if(isPatternPresent(msgType, "FMESSAGE") && !isPatternPresent(manualMode, "REPAIR")){
+		return 0;
+	}
+	
+
+	if(institutionId) {
+		key  = institutionId.concat(".PROCESSING_LEVEL.PRODUCTS");
+	}
+	logger.info("sntdManualBackofficeCheck: Key = " + key);
+	var processLevel = memTblGetTableValue(map, "INST_PARAM", key);
+	logger.info("sntdManualBackofficeCheck: process Level = " + processLevel);	
+
+	if(processLevel != "MESSAGE"){
+		return 0;
+	}
+	
+	if(isPatternPresent(msgType, "pacs.004") && sourceChannelId != "PELICAN" && sourceChannelId != "IB_SDD_RTR_IN"){
+		return 0;
+	}
+	
+	if(sourceChannelId == "PELICAN" || sourceChannelId == "LEASE-OB-IN" || sourceChannelId == "PCS-OB-IN" || sourceChannelId == "DOLPHIN-OB-IN" || sourceChannelId == "DINERO-OB-IN" || sourceChannelId == "SAP-OB-IN"){
+		logger.info("sntdManualBackofficeCheck: inside sourceChannelId loop ");
+		if(isPatternPresent(msgType, "pacs.008")){
+			logger.info("sntdManualBackofficeCheck: inside pacs008 loop ");
+			var ibanPath = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAcct/Id/IBAN";
+			var iban = getValueFromPath(Document, ibanPath);
+			  logger.info("sntdManualBackofficeCheck: iban = " + iban);
+		}
+		if(isPatternPresent(msgType, "pacs.003")){
+			 ibanPath = "/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/CdtrAcct/Id/IBAN";
+			 iban = getValueFromPath(Document, ibanPath);
+			 logger.info("sntdManualBackofficeCheck: iban for PACS003 = " + iban);
+		}
+		
+		if(isPatternPresent(msgType, "pacs.004")){
+			 logger.info("sntdManualBackofficeCheck: inside pacs004 loop ");
+			 orgmsgnmidPath = "/Document/PmtRtr/TxInf/OrgnlGrpInf/OrgnlMsgNmId";
+			 orgmsgnmid = getValueFromPath(Document, orgmsgnmidPath);
+			 logger.info("sntdManualBackofficeCheck: orgmsgnmid for PACS004 = " + orgmsgnmid);
+			 if(!orgmsgnmid) {
+					orgmsgnmidPath = '/Document/PmtRtr/OrgnlGrpInf/OrgnlMsgNmId';
+					orgmsgnmid = getValueFromPath(Document, orgmsgnmidPath);
+					logger.info("sntdManualBackofficeCheck: orgmsgnmid for PACS004 = " + orgmsgnmid);
+			} 
+			 
+			if(isPatternPresent(orgmsgnmid, "pacs.008")){
+				 logger.info("sntdManualBackofficeCheck: inside pacs004 orginalmsgid pacs008 loop ");
+				 ibanPath = "/Document/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Id/IBAN";
+				 iban = getValueFromPath(Document, ibanPath);
+				 logger.info("sntdManualBackofficeCheck: iban for PACS004 = " + iban);
+			}
+			if(isPatternPresent(orgmsgnmid, "pacs.003")){
+				 ibanPath = "/Document/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Id/IBAN";
+				 iban = getValueFromPath(Document, ibanPath);
+				 logger.info("sntdManualBackofficeCheck: iban for PACS004 = " + iban);
+			}
+		}
+		if(isPatternPresent(msgType, "pacs.009")){
+			 ibanPath = "/Document/FICdtTrf/CdtTrfTxInf/DbtrAcct/Id/IBAN";
+			 iban = getValueFromPath(Document, ibanPath);
+			 //iban = 'AT131981001310315556';
+			 logger.info("sntdManualBackofficeCheck: iban for PACS009 = " + iban);
+		}
+		
+		//skipped the SWIFT messages validations
+	}
+	
+	if(sourceChannelId == "IB_SCT_IN" || sourceChannelId == "IB_SDD_IN" || sourceChannelId == "SWIFT_FIN_IB" || sourceChannelId == "IB_SDD_RTR_IN" || sourceChannelId == "OB-MX-PAY-PELMAN" ){
+		logger.info("sntdManualBackofficeCheck: inside file flow repair ");
+		if(isPatternPresent(msgType, "pacs.008")){
+			 var ibanPath = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/CdtrAcct/Id/IBAN";
+			 iban = getValueFromPath(Document, ibanPath);
+			 logger.info("sntdManualBackofficeCheck: iban for PACS008 = " + iban);
+		}
+		if(isPatternPresent(msgType, "pacs.003")){
+			 ibanPath = "/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/DbtrAcct/Id/IBAN";
+			 iban = getValueFromPath(Document, ibanPath);
+			  logger.info("sntdManualBackofficeCheck: iban for PACS003 = " + iban);
+		}
+		
+		if(isPatternPresent(msgType, "pacs.004")){
+			 logger.info("sntdManualBackofficeCheck: inside pacs004 loop ");
+			 orgmsgnmidPath = "/Document/PmtRtr/TxInf/OrgnlGrpInf/OrgnlMsgNmId";
+			 orgmsgnmid = getValueFromPath(Document, orgmsgnmidPath);
+			 logger.info("sntdManualBackofficeCheck: orgmsgnmid for PACS004 = " + orgmsgnmid);
+			 if(!orgmsgnmid) {
+					orgmsgnmidPath = '/Document/PmtRtr/OrgnlGrpInf/OrgnlMsgNmId';
+					orgmsgnmid = getValueFromPath(Document, orgmsgnmidPath);
+					logger.info("sntdManualBackofficeCheck: orgmsgnmid for PACS004 = " + orgmsgnmid);
+			} 
+			 
+			if(isPatternPresent(orgmsgnmid, "pacs.008")){
+				 ibanPath = "/Document/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Id/IBAN";
+				 iban = getValueFromPath(Document, ibanPath);
+				 logger.info("sntdManualBackofficeCheck: iban for PACS004 SCT = " + iban);
+			}
+			if(isPatternPresent(orgmsgnmid, "pacs.003")){
+				 ibanPath = "/Document/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Id/IBAN";
+				 iban = getValueFromPath(Document, ibanPath);
+				 logger.info("sntdManualBackofficeCheck: iban for PACS004 SDD = " + iban);
+			}
+		}
+		
+		//skipped the SWIFT messages validationss
+	}
+
+	formatLabel = validateIntBookingBackoffdrvaccFromIban(exchange ,iban);
+	logger.info("sntdManualBackofficeCheck: formatLabel" + formatLabel);
+	if(formatLabel == 'F011'){
+		 var coresystem = 'SAP';
+		 setHeader(map, "PLCN_coresystem", coresystem); 
+	 }
+	 if(formatLabel == 'F012'){
+		 var coresystem = 'PCS';
+		 setHeader(map, "PLCN_coresystem", coresystem); 
+	 }
+	 if(formatLabel == 'F013'){
+		 var coresystem = 'LEASE';
+		 setHeader(map, "PLCN_coresystem", coresystem); 
+	 }
+	 if(formatLabel == 'F014'){
+		 var coresystem = 'DINERO';
+		 setHeader(map, "PLCN_coresystem", coresystem); 
+	 }
+	
+	if(!formatLabel && isPatternPresent(msgType, "pacs.004") && sourceChannelId == "PELICAN"){
+		logger.info("sntdManualBackofficeCheck: ob pacs004 soft error");
+		retVal = setCommentsForTransaction("00", "6939", map);
+		return retVal; 
+	}
+		
+	
+	if(!formatLabel){
+		logger.info("sntdManualBackofficeCheck: if formatLabel not derived");
+		retVal = setCommentsForTransaction("00", "8990", map);
+		return retVal; 
+	}else
+	{
+		return 0;
+	}
+}
+
+function sntdCompanyCodeValidations(exchange) {
+	
+	var dbtrIban;
+	var cdtrIban;
+	var dbtrIbanPath;
+	var cdtrIbanPath;
+	var intBranchCd;
+	var extBranchCd;
+	var backOffice;
+	var backOffice1;
+	var companyCode;
+	var companyCode1;
+	var retVal;
+	
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	logger.info("sntdCompanyCodeValidations");
+	var orgBody = getHeader(map, "PLCN_originalMsgBody");
+	logger.info("sntdCompanyCodeValidations: orgBody = "+ orgBody);
+	inMsg.setBody(orgBody);
+
+	var parser = new XMLParser();
+	parser.parseXML(orgBody);
+	retVal = 0;
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+  	body = inMsg.getBody(java.lang.String.class);
+  	logger.info("sntdCompanyCodeValidations: body = " + body);
+	var document1 = parser.parseXML(body);
+	
+	logger.info("in sntdCompanyCodeValidations ");
+	dbtrIbanPath = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAcct/Id/IBAN";
+	dbtrIban = getValueFromPath(document1, dbtrIbanPath);
+	logger.info("sntdCompanyCodeValidations: dbtrIban = " + dbtrIban);
+	
+	cdtrIbanPath = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/CdtrAcct/Id/IBAN";
+	cdtrIban = getValueFromPath(document1, cdtrIbanPath);
+	logger.info("sntdCompanyCodeValidations: cdtrIban = " + cdtrIban);
+	
+	intBranchCd = dbtrIban.substr(4,5);
+	logger.info("sntdCompanyCodeValidations: intBranchCd " +intBranchCd);
+	extBranchCd = cdtrIban.substr(4,5);
+	logger.info("sntdCompanyCodeValidations: extBranchCd " +extBranchCd);
+	
+	
+	if(intBranchCd == 19810 && extBranchCd == 19810) {
+		setHeader(map, "PLCN_internalBookingFlag", "N");
+		backOffice = validateIntBookingBackoffdrvaccFromIban(exchange,dbtrIban);
+		logger.info("sntdCompanyCodeValidations: backOffice " +backOffice);
+		setHeader(map, "PLCN_internalBookingFlag", "Y");
+		backOffice1 = validateIntBookingBackoffdrvaccFromIban(exchange,cdtrIban);
+		logger.info("sntdCompanyCodeValidations: backOffice1 " +backOffice1);
+		
+		if(!backOffice || !backOffice1) {
+			retVal = setCommentsForTransaction("00", "8990", map);
+			return retVal; 
+		} else{
+			companyCode = getHeader(map, "PLCN_companyCode");
+			logger.info("sntdCompanyCodeValidations: companyCode " +companyCode);
+			companyCode1 = getHeader(map, "PLCN_companyCode1");
+			logger.info("sntdCompanyCodeValidations: companyCode1 " +companyCode1);
+			
+			if(companyCode != companyCode1){
+				retVal = setCommentsForTransaction("00", "8779", map);
+				return retVal; 
+			}
+		}
+		return retVal; 
+	}else{
+		return retVal; 
+	}
+}
+
+function pcsPacs008Validation(exchange){
+
+	var map;
+	var manualMode;
+	var channelIdSource;
+	var retVal;
+	var sourceChannelId;
+	
+	retVal = 0;
+	logger.info("in pcsPacs008Validation");
+	var inMsg = exchange.getIn();
+	var	map = inMsg.getHeaders();
+	//var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	sourceChannelId = getHeader(map, "PLCN_channelIdSource");
+	logger.info("pcsPacs008Validation: sourceChannelId " +sourceChannelId);
+	manualMode = getHeader(map, "PLCN_manualMode");
+	logger.info("pcsPacs008Validation: manualMode " +manualMode);
+
+	if(manualMode == "REPAIR" && sourceChannelId == "PELICAN") {
+		logger.info("pcsPacs008Validation: in rule caling loop");
+		retVal = pcsValidationRulePacs008(exchange);
+		return retVal; 		
+	}
+	return retVal; 		
+}
+
+function pcsValidationRulePacs008(exchange){
+
+	var formatLabel;
+	var companyCode;
+	var companyCode1;
+	var retVal;
+	var internalBookingFlag;
+	var sddBank;
+	var sddCustomer;
+	var sntdCrf004Flag;
+	var path;
+	var iban;
+	var retVal;
+	
+	retVal = 0;
+	
+	logger.info("In pcsValidationRulePacs008");
+	
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	logger.info("sntdCompanyCodeValidations");
+	var orgBody = getHeader(map, "PLCN_originalMsgBody");
+	logger.info("sntdCompanyCodeValidations: orgBody = "+ orgBody);
+	inMsg.setBody(orgBody);
+
+	var parser = new XMLParser();
+	parser.parseXML(orgBody);
+	retVal = 0;
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+  	body = inMsg.getBody(java.lang.String.class);
+  	logger.info("pcsValidationRulePacs008: body = " + body);
+	var document1 = parser.parseXML(body);
+	
+	internalBookingFlag = getHeader(map, "PLCN_internalBookingFlag");
+	logger.info("pcsValidationRulePacs008: internalBookingFlag " +internalBookingFlag);
+	if(internalBookingFlag == "Y") {
+		 return retVal; 
+	}	
+
+	path = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAcct/Id/IBAN";
+	iban = getValueFromPath(document1, path);
+	logger.info("pcsValidationRulePacs008: dbtrIban " +iban);
+	
+	formatLabel = validateIntBookingBackoffdrvaccFromIban(exchange,iban);
+	
+	sddBank = getHeader(map, "PLCN_sddBank");
+	logger.info("pcsValidationRulePacs008: sddBank " +sddBank);
+	sddCustomer = getHeader(map, "PLCN_sddCustomer");
+	logger.info("pcsValidationRulePacs008: sddCustomer " +sddCustomer);
+	sntdCrf004Flag = memTblGetTableValue(map,"FLAG-TABLE","SNTDCRF004");
+	logger.info("pcsValidationRulePacs008: sntdCrf004Flag " +sntdCrf004Flag);
+
+	if(sntdCrf004Flag == "N") {
+		if(formatLabel == "F012") {
+			retVal = setCommentsForTransaction("00", "8778", map);
+			 return retVal; 
+		}	
+		else {
+			return retVal; 
+		}
+	}
+	
+	if(formatLabel == "F011" || formatLabel == "F013" || formatLabel == "F014") {
+		 return retVal; 
+	}
+
+	if((formatLabel == "F012") && ((sddBank == ""|| sddBank == " " || sddBank == "N") && (sddCustomer == ""|| sddCustomer == " " || sddCustomer == "N"))) {
+		 return retVal; 
+	}
+	else {
+		 retVal = setCommentsForTransaction("00", "8778", map);
+		 return retVal; 	
+	}
+}
+
+
+function validateIntBookingBackoffdrvaccFromIban(exchange, iban) {
+	var baseIban;
+	var fld;
+	var flag;
+	var secLvl;
+	var runEnv;
+	var formatLabel;
+	var account;
+	var companycode;
+	var sapaccount;
+	var accounttype;
+	var receipient;
+	var status1;
+	var sddcustomer;
+	var sddbank;
+	var derivedProduct;
+	var prevqueueid;
+	var internalBookingFlag;
+	var parseRequest;
+	var key;
+	
+ 	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class); 
+	key = ":SYSTEM-ID|:ACCOUNT|:COMPANYCODE|:SAPACCOUNT|:ACCOUNTTYPE|:RECEIPIENT|:STATUS|:SDDCUSTOMER|:SDDBANK";
+	
+	 flag = "f";
+	 fld = "73";
+	 secLvl = "security=high";
+	 runEnv = "backoffsys-run";
+	 baseIban = "iban " + iban;
+	 
+	 internalBookingFlag = getHeader(map, "PLCN_internalBookingFlag");
+	 logger.info("validateIntBookingBackoffdrvaccFromIban: internalBookingFlag = " + internalBookingFlag);
+	 
+
+	logger.info("Inside validateIntBookingBackoffdrvaccFromIban:Before parseFieldJs");
+	parseFieldJs(Document, map,fld,baseIban, secLvl, runEnv,key);
+	parseRequest = getHeader(map, "PLCN_ParseRequest");
+	logger.info("validateIntBookingBackoffdrvaccFromIban: parseRequest = " + parseRequest);
+	var hdrMap = inMsg.getHeaders();
+
+	var executeRoute = new ExecuteCamelRoute();
+	executeRoute.callRouteWithHeader('direct://ParseAccMaster', parseRequest, new HashMap());
+	var outHdrMap = executeRoute.getOutputHeader();
+	var outmsg = executeRoute.getOutputBody(java.util.List.class);
+
+	var body = executeRoute.getOutputBody(org.w3c.dom.Document.class);
+	var messageBody = convertDocumentToString(body);
+	logger.info("validateIntBookingBackoffdrvaccFromIban: messageBody type = "+typeof messageBody);
+	logger.info("validateIntBookingBackoffdrvaccFromIban: Output messageBody = " + messageBody );
+	logger.info("validateIntBookingBackoffdrvaccFromIban: response = "+ outmsg);
+
+	var orgBody = getHeader(map, "PLCN_originalMsgBody");
+	logger.info("validateIntBookingBackoffdrvaccFromIban: orgBody = "+ orgBody);
+	inMsg.setBody(orgBody);
+
+	var parser = new XMLParser();
+	parser.parseXML(orgBody);
+
+	if(messageBody){
+		var responseBody = dataBetweenTokens("<Value>" , "</Value>" , messageBody); 
+		logger.info("validateIntBookingBackoffdrvaccFromIban: response Value = "+ responseBody);
+		responseBody = "|".concat(responseBody); 
+		responseBody = responseBody.concat("|"); 
+		logger.info("validateIntBookingBackoffdrvaccFromIban: response Value = "+ responseBody);
+	}
+	temp = responseBody;
+
+	value = dataBetweenTokens("|", "|", temp);
+	value = value?.trim();
+	formatLabel= value;
+	setHeader(map, "PLCN_formatLabel1", value);
+	logger.info("validateIntBookingBackoffdrvaccFromIban: PLCN_formatLabel1 = " + value);
+	temp = removePattern(temp, "|" + value);
+
+	value = dataBetweenTokens("|", "|", temp); //WIP
+	value = value?.trim();
+	//setHeader(map, "PLCN_account", value);
+	account = value;
+	logger.info("validateIntBookingBackoffdrvaccFromIban: PLCN_account = " + value);
+	temp = removePattern(temp, "|" + value);
+
+	value = dataBetweenTokens("|", "|", temp); //Y, N, YES, No
+	value = value?.trim();
+	setHeader(map, "PLCN_companycode1", value);
+	companycode = value; 
+	logger.info("validateIntBookingBackoffdrvaccFromIban: PLCN_companycode1 = " + value);
+	temp = removePattern(temp, "|" + value);
+	
+	value = dataBetweenTokens("|", "|", temp);
+	value = value?.trim();
+	setHeader(map, "PLCN_sapaccount", value);
+	sapaccount = value;
+	logger.info("validateIntBookingBackoffdrvaccFromIban: PLCN_sapaccount = " + value);
+	temp = removePattern(temp, "|" + value);
+
+	value = dataBetweenTokens("|", "|", temp);
+	value = value?.trim();
+	setHeader(map, "PLCN_accounttype", value);
+	accounttype = value;
+	logger.info("validateIntBookingBackoffdrvaccFromIban: PLCN_accounttype = " + value);
+	temp = removePattern(temp, "|" + value);
+
+	value = dataBetweenTokens("|", "|", temp);
+	value = value?.trim();
+	receipient = value;
+	logger.info("validateIntBookingBackoffdrvaccFromIban: PLCN_receipient = " + value);
+	temp = removePattern(temp, "|" + value);
+	
+	value = dataBetweenTokens("|", "|", temp);
+	value = value?.trim();
+	logger.info("validateIntBookingBackoffdrvaccFromIban: PLCN_status = " + value);
+	temp = removePattern(temp, "|" + value);
+	
+	value = dataBetweenTokens("|", "|", temp);
+	value = value?.trim();
+	setHeader(map, "PLCN_sddcustomer", value);
+	sddcustomer = value;
+	logger.info("validateIntBookingBackoffdrvaccFromIban: PLCN_sddcustomer = " + value);
+	temp = removePattern(temp, "|" + value);
+
+	value = dataBetweenTokens("|", "|", temp);
+	value = value?.trim();
+	setHeader(map, "PLCN_sddbank", value);
+	sddbank = value;
+	logger.info("validateIntBookingBackoffdrvaccFromIban: PLCN_sddbank = " + value);
+	temp = removePattern(temp, "|" + value);
+	logger.info("validateIntBookingBackoffdrvaccFromIban: before internalBookingFlag loop ");
+	if(internalBookingFlag != "Y"){
+		logger.info("validateIntBookingBackoffdrvaccFromIban: internalBookingFlag N loop ");
+		setHeader(map, "PLCN_formatLabel", formatLabel);
+		setHeader(map, "PLCN_companycode", companycode);
+		setHeader(map, "PLCN_formatLabel1", "");
+		setHeader(map, "PLCN_companycode1", "");	
+	}
+	return formatLabel;
+	
+}
+
+function parseFieldJs(Document, map,fld,parseString, secLvl, runEnv,key) {
+	var institutionId;
+	var encodedMessage ;
+	var messageReference;
+
+/* 	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+ */
+	logger.info("In parseFieldJs");
+
+	var helper = new JSHelperClass();
+	var msgstr = convertDocumentToString(Document);
+
+	messageType = getHeader(map, "PLCN_msgType");
+	logger.info("parseFieldJs: messageType: " + messageType);
+
+	messageReference = getHeader(map, "PLCN_messageNo");
+	logger.info("parseFieldJs: messageReference: " + messageReference);
+
+	var parseString1 = parseString;
+
+	var document = getDocument();
+	var acew = createElement(document, "KbMsg");
+	appendElementtoNode(document, acew);
+	
+	var messageRef = createElementwithTextNode(document, acew, "MsgRef", messageReference);
+	appendElementtoNode(acew, messageRef);
+
+	var ptyInfo = createElementwithTextNode(document, acew, "PtyInfo", "");
+	appendElementtoNode(acew, ptyInfo);
+
+	var prtyFldNm = createElementwithTextNode(document, ptyInfo, "PrtyFldNm", fld);
+	appendElementtoNode(ptyInfo, prtyFldNm);
+
+	var requestCode = createElementwithTextNode(document, ptyInfo, "RequestCode", "CUSTOM");
+	appendElementtoNode(ptyInfo, requestCode);
+
+	var refDb = createElementwithTextNode(document, ptyInfo, "RefDB", runEnv);
+	appendElementtoNode(ptyInfo, refDb);
+
+	var secLvl = createElementwithTextNode(document, ptyInfo, "SecLevel", secLvl);
+	appendElementtoNode(ptyInfo, secLvl);
+
+	var str1 = createElementwithTextNode(document, ptyInfo, "Str", parseString1);
+	appendElementtoNode(ptyInfo, str1);
+
+	var key1 = createElementwithTextNode(document, ptyInfo, "Key", key);
+	appendElementtoNode(ptyInfo, key1);
+
+	var request = convertDocumentToString(document);
+	logger.info("parseFieldJs: request = " + request);
+
+	if(isPatternPresent(request, "xml version")){
+		request1 = dataBetweenTokens("<KbMsg>","</KbMsg>",request);
+		request2 = "<KbMsg>" + request1 + "</KbMsg>";
+		logger.info("parseFieldJs: request2 = " + request2);
+
+	}
+
+	setHeader(map, "PLCN_ParseRequest", request2);
+
+	return request;
+}
+
+function orgnlBodyRoute(exchange){
+
+ 	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	var orgBody = getHeader(map, "PLCN_originalMsgBody");
+	logger.info("orgnlBodyRoute: orgBody = "+ orgBody);
+	inMsg.setBody(orgBody);
+	
+	var parser = new XMLParser();
+	parser.parseXML(orgBody);
+}
+
+function pcsValidationRulePacs004(exchange){
+
+	var formatLabel;
+	var retVal;
+	var sddBank;
+	var sddCustomer;
+	var orgMsgNmIdPath;
+	var orgMsgNmId;
+	var sourceChannelId;
+	var sntdCrf004Flag;
+	
+	retVal = 0;
+	
+	logger.info("In pcsValidationRulePacs004");
+
+	var inMsg = exchange.getIn();
+	var	map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	var body = inMsg.getBody(java.lang.String.class);
+	logger.info("pcsValidationRulePacs004: body = " + body);
+
+	var parser = new XMLParser();
+	parser.parseXML(body);
+	Document = parser.parseXML(body);
+	
+	sntdCrf004Flag = memTblGetTableValue(map,"FLAG-TABLE","SNTDCRF004");
+	//sourceChannelId = getHeader(map, "PLCN_sourceChannelId");
+	sourceChannelId = getHeader(map, "PLCN_channelIdSource");
+	logger.info("pcsValidationRulePacs004: sourceChannelId = " + sourceChannelId);
+	
+
+	logger.info("pcsValidationRulePacs004:sntdCrf004Flag = " + sntdCrf004Flag);
+	if(sntdCrf004Flag == "N") {
+		return retVal; 
+	}
+
+	if(sourceChannelId != "PELICAN") {
+			return retVal; 		
+	}
+	
+	orgMsgNmIdPath = '/Document/PmtRtr/TxInf/OrgnlGrpInf/OrgnlMsgNmId';
+	orgMsgNmId = getValueFromPath(Document, orgMsgNmIdPath);
+	logger.info("pcsValidationRulePacs004: orgMsgNmId for PACS004 = " + orgMsgNmId);
+	if(!orgMsgNmId) {
+		orgMsgNmIdPath = '/Document/PmtRtr/OrgnlGrpInf/OrgnlMsgNmId';
+		orgMsgNmId = getValueFromPath(Document, orgMsgNmIdPath);
+	    logger.info("pcsValidationRulePacs004: orgMsgNmId for PACS004 = " + orgMsgNmId);
+	} 
+	if(!orgMsgNmId) {
+		orgMsgNmIdPath = dataBetweenTokens("<OrgnlGrpInf>", "</OrgnlGrpInf>", body);;
+		orgMsgNmId = dataBetweenTokens("<OrgnlMsgNmId>", "</OrgnlMsgNmId>", orgMsgNmIdPath);
+	    logger.info("pcsValidationRulePacs004: orgMsgNmId for PACS004 = " + orgMsgNmId);	
+	} 
+		
+	if(isPatternPresent(orgMsgNmId, "pacs.003")) {
+		logger.info("In pcsValidationRulePacs004 = if loop of pacs003");
+		return retVal; 
+	}
+
+	formatLabel = getHeader(map, "PLCN_formatLabel");
+	logger.info("pcsValidationRulePacs004: formatLabel " +formatLabel);
+	sddBank = getHeader(map, "PLCN_sddBank");
+	logger.info("pcsValidationRulePacs004: sddBank " +sddBank);
+	sddCustomer = getHeader(map, "PLCN_sddCustomer");
+	logger.info("pcsValidationRulePacs004: sddCustomer " +sddCustomer);
+
+	if(formatLabel == "F011" || formatLabel == "F013" || formatLabel == "F014") {
+		 return retVal; 
+	}
+
+	if((formatLabel == "F012") && ((sddBank == ""|| sddBank == " " || sddBank == "N") && (sddCustomer == ""|| sddCustomer == " " || sddCustomer == "N"))) {
+		 return retVal; 
+	}
+	else {
+		 retVal = setCommentsForTransaction("00", "8778", map);
+		 setHeader(map, "PLCN_validMessage","false");
+		 return retVal; 	
+	}
+
+}
+
+function dineroValidationRulePacs004(exchange){
+
+	var formatLabel;
+	var retVal;
+	var sddBank;
+	var sddCustomer;
+	var orgMsgNmIdPath;
+	var orgMsgNmId;
+	var sourceChannelId;
+	var sntdCrf004Flag;
+	
+	retVal = 0;
+	
+	logger.info("In dineroValidationRulePacs004");
+
+	var inMsg = exchange.getIn();
+	var	map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	sourceChannelId = getHeader(map, "PLCN_channelIdSource");
+	logger.info("dineroValidationRulePacs004: sourceChannelId = " + sourceChannelId);
+	
+	if(sourceChannelId != "PELICAN") {
+			return retVal; 		
+	}
+	
+	orgMsgNmIdPath = "/Document/PmtRtr/TxInf/OrgnlGrpInf/OrgnlMsgNmId";
+	orgMsgNmId = getValueFromPath(Document, orgMsgNmIdPath);
+	logger.info("dineroValidationRulePacs004: orgMsgNmId for PACS004 = " + orgMsgNmId);
+	if(!orgMsgNmId) {
+		orgMsgNmIdPath = '/Document/PmtRtr/OrgnlGrpInf/OrgnlMsgNmId';
+		orgMsgNmId = getValueFromPath(Document, orgMsgNmIdPath);
+	    logger.info("dineroValidationRulePacs004: orgMsgNmId for PACS004 = " + orgMsgNmId);
+	} 
+		
+	if(isPatternPresent(orgMsgNmId, "pacs.003")) {
+		logger.info("In dineroValidationRulePacs004 = if loop of pacs003");
+		return retVal; 
+	}
+
+	formatLabel = getHeader(map, "PLCN_formatLabel");
+	logger.info("dineroValidationRulePacs004: formatLabel " +formatLabel);
+
+	if(formatLabel == "F014") {
+		retVal = setCommentsForTransaction("00", "8780", map);
+		 return retVal; 
+	}	
+	else {
+		return retVal; 
+	}
+
+}
+
+
+function originalMsgNameIdRulePacs004(Document, map) {
+	
+	var originalMsgNameIdPath;
+	var originalMsgNameId;
+	
+	var retVal = 0;
+	logger.info("In originalMsgNameIdRulePacs004");
+	
+	originalMsgNameIdPath = '/Document/PmtRtr/OrgnlGrpInf/OrgnlMsgNmId';
+	originalMsgNameId = getValueFromPath(Document, originalMsgNameIdPath);
+	if(!originalMsgNameId) {
+		originalMsgNameIdPath = '/Document/PmtRtr/TxInf/OrgnlGrpInf/OrgnlMsgNmId';
+		originalMsgNameId = getValueFromPath(Document, originalMsgNameIdPath);
+	}
+	logger.info("originalMsgNameIdRulePacs004: originalMsgNameId = " + originalMsgNameId );
+	logger.info("originalMsgNameIdRulePacs004: type of originalMsgNameId = " + typeof originalMsgNameId );
+
+	
+	var Date1 = memTblGetTableValue(map, "USER_CONFIG_MAP", "SEPA_LIB2025_DATE");
+	logger.info("originalMsgNameIdRulePacs004: Date1 = " + Date1);
+
+	var sysDate = getDate();
+	logger.info("originalMsgNameIdRulePacs004: sysDate = " + sysDate);
+	
+	if(sysDate){
+		if(sysDate < Date1){
+	const values = ["pacs.008.001.08","pacs.003.001.08"];
+
+	if(originalMsgNameId) {
+		if(values.includes(originalMsgNameId)){
+			logger.info("originalMsgNameIdRulePacs004: originalMsgNameId value is 'pacs.008.001.08' or 'pacs.003.001.08'");
+		}else {
+			setHeader(map, "PLCN_validMessage",false);
+			logger.info("originalMsgNameIdRulePacs004: originalMsgNameId value is other than 'pacs.008.001.08' or 'pacs.003.001.08'");
+			retVal = setCommentsForTransaction("109", "7137", map);	//NEW violations to be defined..
+			//return retVal;			
+		}
+	}
+		}else {
+			if(originalMsgNameId) {
+				originalMsgNameId = originalMsgNameId?.slice(0, 8);
+				logger.info("originalMsgNameIdRulePacs004: originalMsgNameId after trim = " + originalMsgNameId );
+			}
+			const values = ["pacs.008","pacs.003"];
+
+			if(originalMsgNameId) {
+				if(values.includes(originalMsgNameId)){
+					logger.info("originalMsgNameIdRulePacs004: originalMsgNameId value is begin with 'pacs.008' or 'pacs.003'");
+				}else {
+					setHeader(map, "PLCN_validMessage",false);
+					logger.info("originalMsgNameIdRulePacs004: originalMsgNameId value is must begin with 'pacs.008' or 'pacs.003'");
+					retVal = setCommentsForTransaction("169", "7636", map);	//NEW violations to be defined..
+					//return retVal;			
+				}
+			}
+		}
+	}
+	
+	return retVal;
+}
+
+function msgValidationSepaInstPacs004(exchange) {
+	var result;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In msgValidationSepaInstPacs004");
+	logger.info("msgValidationSepaInstPacs004: exchange = " + exchange);
+	logger.info("msgValidationSepaInstPacs004: typeof exchange = " + typeof exchange);
+
+	setHeader(map, "PLCN_txxnForceStopCounter", 0);
+	setHeader(map, "PLCN_errorCountAdd", "Y"); 
+	setHeader(map, "PLCN_validMessage", true);
+	//setHeader(map, "validFlag", true);
+
+	var plcnInternalcall = getHeader(map,"PLCN_call");
+	logger.info("msgValidationSepaInstPacs004: plcnInternalcall = " + plcnInternalcall);
+	logger.info("msgValidationSepaInstPacs004: typeof plcnInternalcall = " + typeof plcnInternalcall);
+	plcnInternalcall = plcnInternalcall.toString();
+
+	var creationCall = getHeader(map,"PLCN_creationCall");
+	logger.info("msgValidationSepaInstPacs004: creationCall = " + creationCall);
+	logger.info("msgValidationSepaInstPacs004: typeof creationCall = " + typeof creationCall);
+	creationCall = creationCall.toString();
+
+	var msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	if(!msgFamily){
+		var msgFamily = getHeader(map, "PLCN_msgFamily");
+	}
+	logger.info("calculateBusiness: msgFamily = " + msgFamily);	
+	msgFamily = msgFamily?.toUpperCase();
+	//msgFamily = getHeader(map, "PLCN_msgFamily");
+	logger.info("msgValidationSepaInstPacs004: msgFamily = " + msgFamily);
+
+	var custom13 = getHeader(map, "PLCN_custom13");
+	logger.info("msgValidationSepaInstPacs004: custom13 = " + custom13);
+
+	var flag = memTblGetTableValue(map, "FLAG-TABLE", "PROCESS_T2ONLY");
+	logger.info("msgValidationSepaInstCamt056: flag = " + flag);
+
+	flag = flag?.trim();	
+
+	if(isPatternPresent(msgFamily,"SEPAINST")  && plcnInternalcall == "true"){
+		logger.info("msgValidationSepaInstPacs004: inside 1st loop");
+		if(isPatternPresent(custom13, "VALIDATE=Y")){
+			wrapperSepaInstPacs004Mx(exchange);
+			custom13 = replacePattern(custom13, "VALIDATE=Y", "VALIDATE=D");
+			logger.info("msgValidationSepaInstPacs004: custom13 = " + custom13);
+			setHeader(map, "PLCN_custom13", custom13);
+			setHeader(map, "PLCNAPI_custom13", custom13);
+		}
+		else{
+			wrapperSepaInstPacs004Mx(exchange);
+		}
+	}else{
+		logger.info("msgValidationSepaInstPacs004: External call");
+		wrapperSepaInstPacs004Mx(exchange);
+		//wrapperTimelineCheck(exchange);
+	}
+
+	result = getHeader(map, "PLCN_validMessage");
+	logger.info("msgValidationSepaInstPacs004: PLCN_validMessage = " + result);
+	logger.info("msgValidationSepaInstPacs004: typeof PLCN_validMessage = " + typeof result);
+
+	if(result == true) {
+		setHeader(map, "status", "valid");
+	}else {
+		setHeader(map, "status", "error");
+
+		if(flag == "Y"){
+			//SEPA business rule failed
+			setCommentsForTransaction("00", "8183", map);
+		}
+	}
+}
+
+function msgValidationSepaInstCamt056(exchange) {
+	var result;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In msgValidationSepaInstCamt056");
+	logger.info("msgValidationSepaInstCamt056: exchange = " + exchange);
+	logger.info("msgValidationSepaInstCamt056: typeof exchange = " + typeof exchange);
+
+	setHeader(map, "PLCN_txxnForceStopCounter", 0);
+	setHeader(map, "PLCN_errorCountAdd", "Y"); 
+	setHeader(map, "PLCN_validMessage", true);
+	//setHeader(map, "validFlag", true);
+
+	var plcnInternalcall = getHeader(map,"PLCN_call");
+	logger.info("msgValidationSepaInstCamt056: plcnInternalcall = " + plcnInternalcall);
+	logger.info("msgValidationSepaInstCamt056: typeof plcnInternalcall = " + typeof plcnInternalcall);
+	plcnInternalcall = plcnInternalcall.toString();
+
+	var creationCall = getHeader(map,"PLCN_creationCall");
+	logger.info("msgValidationSepaInstCamt056: creationCall = " + creationCall);
+	logger.info("msgValidationSepaInstCamt056: typeof creationCall = " + typeof creationCall);
+	creationCall = creationCall.toString();
+
+	var msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	msgFamily = msgFamily?.toUpperCase();
+	//msgFamily = getHeader(map, "PLCN_msgFamily");
+	logger.info("msgValidationSepaInstCamt056: msgFamily = " + msgFamily);
+
+	var custom13 = getHeader(map, "PLCN_custom13");
+	logger.info("msgValidationSepaInstCamt056: custom13 = " + custom13);	
+
+	if(isPatternPresent(msgFamily,"SEPAINST")  && plcnInternalcall == "true"){
+		logger.info("msgValidationSepaInstCamt056: inside 1st loop");
+		if(isPatternPresent(custom13, "VALIDATE=Y")){
+			wrapperSepaInstCamt056Mx(exchange);
+			custom13 = replacePattern(custom13, "VALIDATE=Y", "VALIDATE=D");
+			logger.info("msgValidationSepaInstCamt056: custom13 = " + custom13);
+			setHeader(map, "PLCN_custom13", custom13);
+			setHeader(map, "PLCNAPI_custom13", custom13);
+		}
+	}else{
+		logger.info("msgValidationSepaInstCamt056: External call");
+		wrapperSepaInstCamt056Mx(exchange);
+		//wrapperTimelineCheck(exchange);
+	}
+
+	//result = true;  //getHeader(map, "PLCN_validMessage");
+	result = getHeader(map, "PLCN_validMessage");
+	logger.info("msgValidationSepaInstCamt056: PLCN_validMessage = " + result);
+	logger.info("msgValidationSepaInstCamt056: typeof PLCN_validMessage = " + typeof result);
+
+	var flag = memTblGetTableValue(map, "FLAG-TABLE", "PROCESS_T2ONLY");
+	logger.info("msgValidationSepaInstCamt056: flag = " + flag);
+
+	flag = flag?.trim();
+
+	if(result == true) {
+		setHeader(map, "status", "valid");
+	}else {
+		setHeader(map, "status", "error");
+
+		if(flag == "Y"){
+			//SEPA business rule failed
+			setCommentsForTransaction("00", "8183", map);
+		}
+	}
+}
+
+function wrapperSepaInstCamt056Mx(exchange) {
+	logger.info("wrapperSepaInstCamt056Mx");
+	var retVal = 0;
+	var commentsB2b;
+	var camt056ValdFlagMx;
+	var txnComments;
+	var inMsg;
+	var map;
+	var Document;
+	var manualMode;
+
+	logger.info('wrapperSepaInstCamt056Mx: In wrapperSepaInstCamt056Mx');
+	inMsg = exchange.getIn();
+	map = inMsg.getHeaders();
+	Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	camt056ValdFlagMx = memTblGetTableValue(map, "FLAG-TABLE", "CAMT056_VALD_FLAG_MX");
+	camt056ValdFlagMx = camt056ValdFlagMx?.trim();
+	logger.info("camt056ValdFlagMx = " + camt056ValdFlagMx);
+
+	var institutionId = getHeader(map, "PLCN_institutionId");
+	logger.info("wrapperSepaInstCamt056Mx: institutionId " +institutionId);
+	
+	manualMode = getHeader(map, "PLCN_manualMode");
+	logger.info("wrapperSepaInstCamt056Mx: manualMode " +manualMode);
+	
+	var clrSysPrtryPath = "/Document/FIToFIPmtCxlReq/Undrlyg/TxInf/OrgnlTxRef/SttlmInf/ClrSys/Prtry";
+	var clrSysPrtry = getValueFromPath(Document, clrSysPrtryPath);
+	logger.info("wrapperSepaInstCamt056Mx:clrSysPrtry = "+ clrSysPrtry);
+	
+	clrSysPrtry = getHeader(map, "PLCN_clrSysRT1");
+	logger.info("wrapperSepaInstCamt056Mx:clrSysPrtry = "+ clrSysPrtry);
+
+	if(camt056ValdFlagMx == 'ERROR') {
+
+		logger.info("wrapperSepaInstCamt056Mx: Calling sepaInstValidationEPCRulesCamt056");
+		/* retVal = sepaInstValidationEPCRulesCamt056(camt056ValdFlagMx, exchange); */
+		retVal = sepaInstEPCValidationRulesCamt056(camt056ValdFlagMx, exchange);
+		logger.info("wrapperSepaInstCamt056Mx: retVal from sepaInstValidationEPCRulesCamt056 = " + retVal);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstCamt056Mx: txnComments = " + txnComments);
+
+		/* if(retVal == 0) {
+			if(clrSysPrtry == "RT1") {
+				logger.info("wrapperSepaInstCamt056Mx: Calling sepaInstValidationRulesCamt056");
+				retVal = sepaInstRT1ValidationRulesCamt056(camt056ValdFlagMx, exchange);
+				logger.info("wrapperSepaInstCamt056Mx: retVal from sepaInstValidationRulesCamt056 = " + retVal);
+				txnComments = getHeader(map, 'PLCN_txnComments');
+				logger.info("wrapperSepaInstCamt056Mx: txnComments = " + txnComments);	
+			}else {
+				logger.info("wrapperSepaInstCamt056Mx: Calling sepaInstTipsValidationRulesCamt056");
+				//sepaInstTipsValidationRulesCamt056(pacs04ValdFlagMx,exchange);
+				retVal = sepaInstTipsValidationRulesCamt056(camt056ValdFlagMx, exchange);
+				txnComments = getHeader(map, 'PLCN_txnComments');
+				logger.info("wrapperSepaInstCamt056Mx: txnComments from sepaInstTipsValidationRulesCamt056 = " + txnComments);
+			}
+		} */
+		
+		if(retVal == 0) {
+			if(clrSysPrtry == "true") {
+				logger.info("wrapperSepaInstCamt056Mx: Calling sepaInstRT1ValidationRulesCamt056");
+				retVal = sepaInstRT1ValidationRulesCamt056(camt056ValdFlagMx,exchange);
+				txnComments = getHeader(map, 'PLCN_txnComments');
+				logger.info("wrapperSepaInstCamt056Mx: txnComments from sepaInstRT1ValidationRulesCamt056 = " + txnComments);
+			}else {
+				logger.info("wrapperSepaInstCamt056Mx: Calling sepaInstTipsValidationRulesCamt056");
+				retVal = sepaInstTipsValidationRulesCamt056(camt056ValdFlagMx, exchange);
+				txnComments = getHeader(map, 'PLCN_txnComments');
+				logger.info("wrapperSepaInstCamt056Mx: txnComments from sepaInstTipsValidationRulesCamt056 = " + txnComments);
+			}
+		}
+			
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaInstCamt056Mx: Calling externalCodelistValidationSepaCamt056");
+			//retVal = externalCodelistValidationSepaCamt056(Document, map);		
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstCamt056Mx: txnComments from externalCodelistValidationSepaCamt056 = " + txnComments);			
+		}
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaInstCamt056Mx: Calling ibanValidationSepaCamt056");
+			retVal = ibanValidationSepaCamt056(exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstCamt056Mx: txnComments from ibanValidationSepaCamt056 = " + txnComments);
+		}
+		
+		if(retVal == 0) {
+			logger.info("wrapperSepaInstCamt056Mx: Calling constraintsISORulesSEPAPacs004");
+			//constraintsISORulesSEPACamt056(camt056ValdFlagMx,exchange);
+			//retVal = constraintsISORulesSEPACamt056(camt056ValdFlagMx, exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstCamt056Mx: txnComments from constraintsISORulesSEPACamt056 = " + txnComments);
+		}
+		
+		// if(retVal == 0) {
+		// 	logger.info("wrapperSepaInstCamt056Mx: Calling sepaInstRT1ValidationRulesCamt056");
+		// 	//sepaInstRT1ValidationRulesCamt056(camt056ValdFlagMx,exchange);
+		// 	//retVal = sepaInstRT1ValidationRulesCamt056(camt056ValdFlagMx, exchange);
+		// 	txnComments = getHeader(map, 'PLCN_txnComments');
+		// 	logger.info("wrapperSepaInstCamt056Mx: txnComments from sepaInstRT1ValidationRulesCamt056 = " + txnComments);
+		// }
+		if(retVal == 0 && manualMode == "REPAIR") {
+		logger.info("wrapperSepaInstCamt056Mx: Calling sepaCustomValidationsPacs004");
+		//sepaCustomValidationsPacs004(camt056ValdFlagMx,exchange);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaInstCamt056Mx: txnComments from sepaCustomValidationsPacs004 = " + txnComments);
+		}
+	}
+
+	if(camt056ValdFlagMx == 'WARNING') {
+
+		logger.info("wrapperSepaInstCamt056Mx: Calling sepaInstValidationRulesCamt056");
+		//retVal = sepaInstValidationRulesCamt056(camt056ValdFlagMx, exchange);
+		retVal = sepaInstEPCValidationRulesCamt056(camt056ValdFlagMx, exchange)
+		logger.info("wrapperSepaInstCamt056Mx: retVal from sepaInstValidationRulesCamt056 = " + retVal);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstCamt056Mx: txnComments = " + txnComments);
+
+		logger.info("wrapperSepaInstCamt056Mx: Calling externalCodelistValidationSepaCamt056");
+		//retVal = externalCodelistValidationSepaCamt056(Document, map);		
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstCamt056Mx: txnComments from externalCodelistValidationSepaCamt056 = " + txnComments);			
+		
+		logger.info("wrapperSepaInstCamt056Mx: Calling ibanValidationSepaCamt056");
+		//ibanValidationSepaCamt056(exchange);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstCamt056Mx: txnComments from ibanValidationSepaCamt056 = " + txnComments);
+		
+		logger.info("wrapperSepaInstCamt056Mx: Calling constraintsISORulesSEPACamt056");
+		//constraintsISORulesSEPACamt056(camt056ValdFlagMx,exchange);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstCamt056Mx: txnComments from constraintsISORulesSEPACamt056 = " + txnComments);
+		
+		
+		if(clrSysPrtry == "RT1") {
+			logger.info("wrapperSepaInstCamt056Mx: Calling sepaInstValidationRulesCamt056");
+			retVal = sepaInstRT1ValidationRulesCamt056(camt056ValdFlagMx, exchange);
+			logger.info("wrapperSepaInstCamt056Mx: retVal from sepaInstValidationRulesCamt056 = " + retVal);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstCamt056Mx: txnComments = " + txnComments);	
+		}else {
+			logger.info("wrapperSepaInstCamt056Mx: Calling sepaInstTipsValidationRulesCamt056");
+			//sepaInstTipsValidationRulesCamt056(pacs04ValdFlagMx,exchange);
+			retVal = sepaInstTipsValidationRulesCamt056(camt056ValdFlagMx, exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstCamt056Mx: txnComments from sepaInstTipsValidationRulesCamt056 = " + txnComments);
+		}
+	}
+}
+
+function sepaInstRT1ValidationRulesCamt056(camt056ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaInstRT1ValidationRulesCamt056");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(camt056ValdFlagMx == "ERROR") {
+
+		retVal = nbOfTxsSepaInstGenericRule(exchange); //for testing 
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = orgtrNmSepaInstCamt056Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = rsnPrtrySepaInstCamt056Rule(exchange);
+		if(retVal != 0) {
+		 	return retVal;
+		}
+
+		 retVal = addtlInfSepaInstCamt056Rule(exchange);
+		if(retVal != 0) {
+		 	return retVal;
+		} 
+		retVal = clrSysPrtrySepaInstCamt056Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = pmtTpInfGenericRule(exchange);
+		if(retVal != 0) {
+		 	return retVal;
+		}
+
+		/* retVal = lclInstrmCdSepaInstCamt056Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		} */
+
+		retVal = genericAnyBicLEIOthrRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = dtAndPlcOfBirthOthrGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = sttlmMtdRT1GenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = orgnlMsgNmIdRT1GenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaInstCurrencyCheckRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepacamt056ValAssgnrBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepacamt056ValAssgneBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepacamt056ValDbtrAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepacamt056ValCdtrAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = anyBicSepaInstCamt056Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = Camt056TimelineCheck(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+
+	if(camt056ValdFlagMx == "WARNING") {
+
+		retVal = nbOfTxsSepaInstGenericRule(exchange);
+		retVal = orgtrNmSepaInstCamt056Rule(exchange);
+		retVal = rsnPrtrySepaInstCamt056Rule(exchange);
+		 retVal = addtlInfSepaInstCamt056Rule(exchange); 
+		retVal = clrSysPrtrySepaInstCamt056Rule(exchange);
+		retVal = pmtTpInfGenericRule(exchange);
+		/* retVal = lclInstrmCdSepaInstCamt056Rule(exchange); */
+		retVal = genericAnyBicLEIOthrRule(exchange);
+		retVal = dtAndPlcOfBirthOthrGenericRule(exchange);
+		retVal = sttlmMtdRT1GenericRule(exchange);
+		retVal = orgnlMsgNmIdRT1GenericRule(exchange);
+		retVal = sepacamt056ValAssgnrBic(exchange);
+		retVal = sepacamt056ValAssgneBic(exchange);
+		retVal = sepacamt056ValDbtrAgtBic(exchange);
+		retVal = sepacamt056ValCdtrAgtBic(exchange);
+		retVal = anyBicSepaInstCamt056Rule(exchange);
+		retVal = Camt056TimelineCheck(exchange);
+	}
+	return retVal;
+}
+
+function msgValidationSepaInstPacs008(exchange) {
+	var result;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In msgValidationSepaInstPacs008");
+	logger.info("msgValidationSepaInstPacs008: exchange = " + exchange);
+	logger.info("msgValidationSepaInstPacs008: typeof exchange = " + typeof exchange);
+
+	setHeader(map, "PLCN_txxnForceStopCounter", 0);
+	setHeader(map, "PLCN_errorCountAdd", "Y"); 
+	setHeader(map, "PLCN_validMessage", true);
+	//setHeader(map, "validFlag", true);
+
+	var plcnInternalcall = getHeader(map,"PLCN_call");
+	logger.info("msgValidationSepaInstPacs008: plcnInternalcall = " + plcnInternalcall);
+	logger.info("msgValidationSepaInstPacs008: typeof plcnInternalcall = " + typeof plcnInternalcall);
+	plcnInternalcall = plcnInternalcall.toString();
+
+	var creationCall = getHeader(map,"PLCN_creationCall");
+	logger.info("msgValidationSepaInstPacs008: creationCall = " + creationCall);
+	logger.info("msgValidationSepaInstPacs008: typeof creationCall = " + typeof creationCall);
+	creationCall = creationCall.toString();
+
+	var msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	msgFamily = msgFamily?.toUpperCase();
+	//msgFamily = getHeader(map, "PLCN_msgFamily");
+	logger.info("msgValidationSepaInstPacs008: msgFamily = " + msgFamily);
+
+	var custom13 = getHeader(map, "PLCN_custom13");
+	logger.info("msgValidationSepaInstPacs008: custom13 = " + custom13);	
+
+	if(isPatternPresent(msgFamily,"SEPAINST")  && plcnInternalcall == "true"){
+		logger.info("msgValidationSepaInstPacs008: inside 1st loop");
+		if(isPatternPresent(custom13, "VALIDATE=Y")){
+			wrapperSepaInstPacs008Mx(exchange); 
+			custom13 = replacePattern(custom13, "VALIDATE=Y", "VALIDATE=D");
+			logger.info("msgValidationSepaInstPacs008: custom13 = " + custom13);
+			setHeader(map, "PLCN_custom13", custom13);
+			setHeader(map, "PLCNAPI_custom13", custom13);
+		}
+	}else{
+		logger.info("msgValidationSepaInstPacs008: External call");
+		wrapperSepaInstPacs008Mx(exchange);
+		//wrapperTimelineCheck(exchange);
+	}
+
+	result = getHeader(map, "PLCN_validMessage");
+	logger.info("msgValidationSepaInstPacs008: PLCN_validMessage = " + result);
+	logger.info("msgValidationSepaInstPacs008: typeof PLCN_validMessage = " + typeof result);
+
+	var flag = memTblGetTableValue(map, "FLAG-TABLE", "PROCESS_T2ONLY");
+	logger.info("msgValidationSepaInstPacs008: flag = " + flag);
+
+	flag = flag?.trim();
+
+	if(result == true) {
+		setHeader(map, "status", "valid");
+	}else {
+		setHeader(map, "status", "error");
+
+		if(flag == "Y"){
+			//SEPA business rule failed
+			setCommentsForTransaction("00", "8183", map);
+		}
+	}
+}
+
+function wrapperSepaInstPacs004Mx(exchange) {
+	logger.info("wrapperSepaInstPacs004Mx");
+	var retVal;
+	var commentsB2b;
+	var pacs04ValdFlagMx;
+	var txnComments;
+	var inMsg;
+	var map;
+	var Document;
+	var manualMode;
+
+	logger.info('wrapperSepaInstPacs004Mx: In wrapperSepaInstPacs004Mx');
+	inMsg = exchange.getIn();
+	map = inMsg.getHeaders();
+	Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	pacs04ValdFlagMx = memTblGetTableValue(map, "FLAG-TABLE", "PACS04_VALD_FLAG_MX");
+	pacs04ValdFlagMx = pacs04ValdFlagMx?.trim();
+	logger.info("pacs04ValdFlagMx = " + pacs04ValdFlagMx);
+
+	var institutionId = getHeader(map, "PLCN_institutionId");
+	logger.info("wrapperSepaInstPacs004Mx: institutionId " +institutionId);
+	
+	manualMode = getHeader(map, "PLCN_manualMode");
+	logger.info("wrapperSepaInstPacs004Mx: manualMode " +manualMode);
+
+	// var clrSysPrtryPath = "/Document/PmtRtr/GrpHdr/SttlmInf/ClrSys/Prtry";
+	// var clrSysPrtry = getValueFromPath(Document, clrSysPrtryPath);
+	// logger.info("wrapperSepaInstPacs004Mx:clrSysPrtry = "+ clrSysPrtry);
+	var clrSysPrtry = getHeader(map, "PLCN_clrSysRT1");
+	logger.info("wrapperSepaInstPacs004Mx:clrSysPrtry = "+ clrSysPrtry);
+
+	if(pacs04ValdFlagMx == 'ERROR') {
+
+		logger.info("wrapperSepaInstPacs004Mx: Calling sepaInstEPCValidationRulesPacs004");
+		retVal = sepaInstEPCValidationRulesPacs004(pacs04ValdFlagMx, exchange);
+		logger.info("wrapperSepaInstPacs004Mx: retVal from sepaInstEPCValidationRulesPacs004 = " + retVal);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs004Mx: txnComments = " + txnComments);
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaInstPacs004Mx: Calling externalCodelistValidationSepaPacs004");
+			//retVal = externalCodelistValidationSepaPacs004(Document, map);		
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs004Mx: txnComments from externalCodelistValidationSepaPacs004 = " + txnComments);			
+		}
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaInstPacs004Mx: Calling ibanValidationSepaINSTPacs004");
+			retVal = ibanValidationSepaINSTPacs004(exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs004Mx: txnComments from ibanValidationSepaINSTPacs004 = " + txnComments);
+		}
+		
+		if(retVal == 0) {
+			logger.info("wrapperSepaInstPacs004Mx: Calling constraintsISORulesSEPAPacs004");
+			//constraintsISORulesSEPAPacs004(pacs04ValdFlagMx,exchange);
+			//retVal = constraintsISORulesSEPAPacs004(pacs04ValdFlagMx, exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs004Mx: txnComments from constraintsISORulesSEPAPacs004 = " + txnComments);
+		}
+		
+		if(retVal == 0) {
+			if(clrSysPrtry == "true") {
+				logger.info("wrapperSepaInstPacs004Mx: Calling sepaInstRT1ValidationRulesPacs004");
+				//sepaInstRT1ValidationRulesPacs004(pacs04ValdFlagMx,exchange);
+				retVal = sepaInstRT1ValidationRulesPacs004(pacs04ValdFlagMx, exchange);
+				txnComments = getHeader(map, 'PLCN_txnComments');
+				logger.info("wrapperSepaInstPacs004Mx: txnComments from sepaInstRT1ValidationRulesPacs004 = " + txnComments);
+			}else {
+				logger.info("wrapperSepaInstPacs004Mx: Calling SepaInstTipsValidationRulesPacs004");
+				//sepaInstRT1ValidationRulesPacs004(pacs04ValdFlagMx,exchange);
+				retVal = sepaInstTipsValidationRulesPacs004(pacs04ValdFlagMx,exchange);
+				txnComments = getHeader(map, 'PLCN_txnComments');
+				logger.info("wrapperSepaInstPacs004Mx: txnComments from SepaInstTipsValidationRulesPacs004 = " + txnComments);
+			}
+		}
+		if(retVal == 0 && manualMode == "REPAIR") {
+		logger.info("wrapperSepaInstPacs004Mx: Calling sepaCustomValidationsPacs004");
+		//sepaCustomValidationsPacs004(pacs04ValdFlagMx,exchange);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaInstPacs004Mx: txnComments from sepaCustomValidationsPacs004 = " + txnComments);
+		}
+	}
+
+	if(pacs04ValdFlagMx == 'WARNING') {
+
+		logger.info("wrapperSepaInstPacs004Mx: Calling sepaInstEPCValidationRulesPacs004");
+		retVal = sepaInstEPCValidationRulesPacs004(pacs04ValdFlagMx, exchange);
+		logger.info("wrapperSepaInstPacs004Mx: retVal from sepaInstEPCValidationRulesPacs004 = " + retVal);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs004Mx: txnComments = " + txnComments);
+
+		logger.info("wrapperSepaInstPacs004Mx: Calling externalCodelistValidationSepaPacs004");
+		//retVal = externalCodelistValidationSepaPacs004(Document, map);		
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs004Mx: txnComments from externalCodelistValidationSepaPacs004 = " + txnComments);			
+		
+		logger.info("wrapperSepaInstPacs004Mx: Calling ibanValidationSepaINSTPacs004");
+		retVal = ibanValidationSepaINSTPacs004(exchange);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs004Mx: txnComments from ibanValidationSepaINSTPacs004 = " + txnComments);
+		
+		logger.info("wrapperSepaInstPacs004Mx: Calling constraintsISORulesSEPAPacs004");
+		//constraintsISORulesSEPAPacs004(pacs04ValdFlagMx,exchange);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs004Mx: txnComments from constraintsISORulesSEPAPacs004 = " + txnComments);
+		
+		if(clrSysPrtry == "true") {
+			logger.info("wrapperSepaInstPacs004Mx: Calling sepaInstRT1ValidationRulesPacs004");
+			//sepaInstRT1ValidationRulesPacs004(pacs04ValdFlagMx,exchange);
+			retVal = sepaInstRT1ValidationRulesPacs004(pacs04ValdFlagMx, exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs004Mx: txnComments from sepaInstRT1ValidationRulesPacs004 = " + txnComments);
+		}else {
+			logger.info("wrapperSepaInstPacs004Mx: Calling SepaInstTipsValidationRulesPacs004");
+			//sepaInstRT1ValidationRulesPacs004(pacs04ValdFlagMx,exchange);
+			retVal = sepaInstTipsValidationRulesPacs004(pacs04ValdFlagMx,exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs004Mx: txnComments from SepaInstTipsValidationRulesPacs004 = " + txnComments);
+		}
+	}
+}
+
+function ibanValidationSepaINSTPacs004(exchange) {
+	var val;
+	var retVal = 0;
+
+	logger.info("In ibanValidationSepaINSTPacs004");
+
+	val = validateDbtrAcctIbanSepaPacs004(exchange);	
+	if(val) {
+		retVal = retVal + val;
+	}
+	
+	val = validateCdtrAcctIbanSepaPacs004(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+	return retVal;
+}
+
+function sepaInstEPCValidationRulesPacs004(pacs04ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaInstEPCValidationRulesPacs004");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(pacs04ValdFlagMx == "ERROR") {
+
+		retVal = orgnlGrpInfSepaInstPacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaInstGrpHdrAmtRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaInstCurrencyCheckRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = sepaPacs004ValDbtrAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs004ValCdtrAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs004ValinstgAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs004ValinstdAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}	
+
+		/* retVal = addtnlInfoGenericRule(exchange);	
+		if(retVal != 0) {
+			return retVal;
+		} */
+	}
+
+	if(pacs04ValdFlagMx == "WARNING") {
+
+		orgnlGrpInfSepaInstPacs004(Document, map);
+		sepaInstGrpHdrAmtRule(exchange);
+		 //SepaInstGrpHdrAmtRule(exchange); 
+		sepaInstCurrencyCheckRule(exchange);
+		sepaPacs004ValDbtrAgtBic(exchange)
+		sepaPacs004ValCdtrAgtBic(exchange)
+		sepaPacs004ValinstgAgtBic(exchange)
+		sepaPacs004ValinstdAgtBic(exchange) 
+		//retVal = addtnlInfoGenericRule(exchange); 
+	}
+	return retVal;
+}
+
+function sepaInstRT1ValidationRulesPacs004(pacs04ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaInstRT1ValidationRulesPacs004");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	retVal = 0;
+
+	if(pacs04ValdFlagMx == "ERROR") {
+
+		retVal = genericNoOfTxnCheckSepaInstRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = grpHdrTtlRtrIntrBkSttlmAmtRulePacs004(Document, map);
+		if(retVal != 0) {
+		 	return retVal;
+		}
+		
+		/* retVal = nonAllowedFieldsGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		} */
+		
+		retVal = mandatoryValueGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = chrgsInfAndRtrdInstdAmtSepaInstPacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = rtrdInstdAmtAndrsnCdSepaInstPacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = chrgsInfAmtAndrsnCdSepaInstPacs004(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = lclInstrmCdSepaInstPacs004Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = genericAnyBicLEIOthrRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = dtAndPlcOfBirthOthrGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = sttlmMtdRT1GenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = sttlmAcctRT1GenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = orgnlMsgNmIdRT1GenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+	}
+
+	if(pacs04ValdFlagMx == "WARNING") {
+
+		retVal = genericNoOfTxnCheckSepaInstRule(exchange);
+		retVal = grpHdrTtlRtrIntrBkSttlmAmtRulePacs004(Document, map);
+		/* retVal = nonAllowedFieldsGenericRule(exchange); */
+		retVal = mandatoryValueGenericRule(exchange);
+		retVal = chrgsInfAndRtrdInstdAmtSepaInstPacs004(Document, map);
+		retVal = rtrdInstdAmtAndrsnCdSepaInstPacs004(Document, map);
+		retVal = chrgsInfAmtAndrsnCdSepaInstPacs004(Document, map);
+		retVal = lclInstrmCdSepaInstPacs004Rule(exchange);
+		retVal = genericAnyBicLEIOthrRule(exchange);
+		retVal = dtAndPlcOfBirthOthrGenericRule(exchange);
+		retVal = sttlmMtdRT1GenericRule(exchange);
+		retVal = sttlmAcctRT1GenericRule(exchange);
+		retVal = orgnlMsgNmIdRT1GenericRule(exchange);
+		
+	}
+
+	return retVal;
+}
+
+function orgnlGrpInfSepaInstPacs004(Document, map) {
+	logger.info("In orgnlGrpInfSepaInstPacs004");
+	var orgnlMsgNmIdPath;
+	var orgnlMsgNmId;
+	var retVal = 0;
+
+	/*orgnlGrpInf = isXmlNodePresent4(Document, "PmtRtr", "OrgnlGrpInf");
+	logger.info("orgnlGrpInfSepaInstPacs004:orgnlGrpInf in PmtRtr " + orgnlGrpInf);
+
+	var orgnlGrpInfTxnInf = isXmlNodePresent(Document, "PmtRtr", "TxInf", "OrgnlGrpInf");
+	logger.info("orgnlGrpInfSepaInstPacs004:orgnlGrpInf in TxnInf " + orgnlGrpInfTxnInf);*/
+
+	var nodes = Document.getElementsByTagName("OrgnlGrpInf"); //Get the <node> tags
+	logger.info("orgnlGrpInfSepaInstPacs004: nodes = " + nodes); 
+    var amountOfNodes = nodes.length;
+	logger.info("orgnlGrpInfSepaInstPacs004: amountOfNodes = " + amountOfNodes);
+
+	if(amountOfNodes == 0) {
+		setHeader(map, "PLCN_validMessage", false);
+		logger.info("orgnlGrpInfSepaInstPacs004: Sub-elements of ‘Original Group Information’ must be present in either 'Original Group Information’ or in ‘Transaction Information’");
+		retVal = setCommentsForTransaction("164", "7153", map);
+		return retVal;
+	}
+
+	if(amountOfNodes > 1) {
+		setHeader(map, "PLCN_validMessage", false);
+		logger.info("orgnlGrpInfSepaInstPacs004: Sub-elements of Original Group Information present in both sequences");
+		retVal = setCommentsForTransaction("164", "5726", map);
+		return retVal;
+	}
+
+	return retVal;
+}
+
+function sepaInstGrpHdrAmtRule(exchange){
+	var retVal;
+	logger.info("In sepaInstGrpHdrAmtRule");
+	retVal = 0;
+	var res;
+	var resPath;
+	var numbOfTxnPath;
+	var numbOfTxn;
+	var i;
+	var totalAmountOfTxn = 0;
+	var IntrBkSttlmAmtPath;
+	var IntrBkSttlmAmt;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+
+	if(isPatternPresent(Document1, "</FIToFICstmrCdtTrf>")) {
+		resPath = '/Document/FIToFICstmrCdtTrf/GrpHdr/TtlIntrBkSttlmAmt';
+		res = getValueFromPath(Document, resPath);
+		logger.info(" SepaInstGrpHdrAmtRule: res = " + res);
+		numbOfTxnPath = '/Document/FIToFICstmrCdtTrf/GrpHdr/NbOfTxs';
+		numbOfTxn = getValueFromPath(Document, numbOfTxnPath);
+		logger.info("SepaInstGrpHdrAmtRule: numbOfTxn = " + numbOfTxn);
+		logger.info("SepaInstGrpHdrAmtRule: typeof numbOfTxn = " + typeof numbOfTxn);
+
+		numbOfTxn = Number(numbOfTxn);
+		logger.info("SepaInstGrpHdrAmtRule: typeof numbOfTxn = " + typeof numbOfTxn);
+
+		for(i = 0; i < numbOfTxn; i++) {
+			IntrBkSttlmAmtPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/IntrBkSttlmAmt';
+			IntrBkSttlmAmt = getValueFromPath(Document, IntrBkSttlmAmtPath);
+			IntrBkSttlmAmt = Number(IntrBkSttlmAmt);
+			logger.info("SepaInstGrpHdrAmtRule: IntrBkSttlmAmt = " + IntrBkSttlmAmt);
+			totalAmountOfTxn = totalAmountOfTxn + IntrBkSttlmAmt;
+			totalAmountOfTxn = Number(totalAmountOfTxn);
+			logger.info("SepaInstGrpHdrAmtRule: totalAmountOfTxn = " + totalAmountOfTxn);
+		}
+
+		if(res != totalAmountOfTxn){
+			setHeader(map,"PLCN_validMessage",false);
+			logger.info("SepaInstGrpHdrAmtRule: GroupHeader/TotalReturnedInterbankSettlementAmount must equal the sum of all occurrences of TransactionInformation/ReturnedInterbankSettlementAmount when present.");
+			retVal = setCommentsForTransaction("322","5707", map);
+			return retVal;
+		}else{
+            var Date1 = memTblGetTableValue(map, "USER_CONFIG_MAP", "SEPA_LIB2025_DATE");
+            var sysDate = getDate();
+            if(sysDate < Date1){
+			var maxAmt = memTblGetTableValue(map, "SEPAINST_PROC_MAP", "MAX_AMOUNT");
+			logger.info("SepaInstGrpHdrAmtRule: maxAmt = " + maxAmt);
+
+			maxAmt = parseInt(maxAmt);
+			logger.info("SepaInstGrpHdrAmtRule: typeof maxAmt = " + typeof maxAmt);
+
+			if(totalAmountOfTxn > maxAmt) {
+				logger.info("SepaInstGrpHdrAmtRule: Amount to be transferred is greater than the maximum amount in the scheme, Amount not in specified limit");
+				setHeader(map,"PLCN_validMessage",false);
+				retVal = setCommentsForTransaction("322","5718", map);
+
+				return retVal;
+			}		
+		}
+	}
+	}
+
+	if(isPatternPresent(Document1, "</PmtRtr>")) {
+		resPath = '/Document/PmtRtr/GrpHdr/TtlRtrdIntrBkSttlmAmt';
+		res = getValueFromPath(Document, resPath);
+		logger.info(" SepaInstGrpHdrAmtRule: res = " + res);
+		numbOfTxnPath = '/Document/PmtRtr/GrpHdr/NbOfTxs';
+		numbOfTxn = getValueFromPath(Document, numbOfTxnPath);
+		logger.info("SepaInstGrpHdrAmtRule: numbOfTxn = " + numbOfTxn);
+		logger.info("SepaInstGrpHdrAmtRule: typeof numbOfTxn = " + typeof numbOfTxn);
+
+		numbOfTxn = Number(numbOfTxn);
+		logger.info("SepaInstGrpHdrAmtRule: typeof numbOfTxn = " + typeof numbOfTxn);
+
+		//for(i = 0; i < numbOfTxn; i++) {
+			IntrBkSttlmAmtPath = '/Document/PmtRtr/TxInf/RtrdIntrBkSttlmAmt';
+			IntrBkSttlmAmt = getValueFromPath(Document, IntrBkSttlmAmtPath);
+			IntrBkSttlmAmt = Number(IntrBkSttlmAmt);
+			logger.info("SepaInstGrpHdrAmtRule: IntrBkSttlmAmt = " + IntrBkSttlmAmt);
+			totalAmountOfTxn = totalAmountOfTxn + IntrBkSttlmAmt;
+			totalAmountOfTxn = Number(totalAmountOfTxn);
+			logger.info("SepaInstGrpHdrAmtRule: totalAmountOfTxn = " + totalAmountOfTxn);
+		//}
+
+		if(res != IntrBkSttlmAmt){
+			setHeader(map,"PLCN_validMessage",false);
+			logger.info("SepaInstGrpHdrAmtRule: GroupHeader/TotalReturnedInterbankSettlementAmount must equal the sum of all occurrences of TransactionInformation/ReturnedInterbankSettlementAmount when present.");
+			retVal = setCommentsForTransaction("125","5725", map);
+			return retVal;
+		}else{
+            var Date1 = memTblGetTableValue(map, "USER_CONFIG_MAP", "SEPA_LIB2025_DATE");
+            var sysDate = getDate();
+            if(sysDate < Date1){
+			var maxAmt = 999999999999999.99;
+			logger.info("SepaInstGrpHdrAmtRule: maxAmt = " + maxAmt);
+			logger.info("SepaInstGrpHdrAmtRule: typeof maxAmt = " + typeof maxAmt);
+
+			if(res > maxAmt) {
+				logger.info("SepaInstGrpHdrAmtRule: Amount to be transferred is greater than the maximum amount in the scheme, Amount not in specified limit");
+				setHeader(map,"PLCN_validMessage",false);
+				retVal = setCommentsForTransaction("322","5718", map);
+
+				return retVal;
+			}		
+		}
+	}
+	}
+
+	return retVal;
+}
+
+
+//SEPAINSTPACS008
+
+function wrapperSepaInstPacs008Mx(exchange) {
+	logger.info("wrapperSepaInstPacs008Mx");
+	var retVal;
+	var commentsB2b;
+	var pacs08ValdFlagMx;
+	var txnComments;
+	var inMsg;
+	var map;
+	var Document;
+	var manualMode;
+ 
+	logger.info('wrapperSepaInstPacs008Mx: In wrapperSepaInstPacs008Mx');
+	inMsg = exchange.getIn();
+	map = inMsg.getHeaders();
+	Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	pacs08ValdFlagMx = memTblGetTableValue(map, "FLAG-TABLE", "PACS08_VALD_FLAG_MX");
+	pacs08ValdFlagMx = pacs08ValdFlagMx?.trim();
+	logger.info("pacs08ValdFlagMx = " + pacs08ValdFlagMx);
+ 
+	var institutionId = getHeader(map, "PLCN_institutionId");
+	logger.info("wrapperSepaInstPacs008Mx: institutionId " +institutionId);
+	manualMode = getHeader(map, "PLCN_manualMode");
+	logger.info("wrapperSepaInstPacs008Mx: manualMode " +manualMode);
+	
+	//var clrSysPrtryPath = "/Document/FIToFICstmrCdtTrf/GrpHdr/SttlmInf/ClrSys/Prtry";
+	var clrSysRT1 = getHeader(map, 'PLCN_clrSysRT1');
+	logger.info("wrapperSepaInstPacs008Mx:clrSysRT1 = "+ clrSysRT1);
+ 
+	if(pacs08ValdFlagMx == 'ERROR') {
+ 
+		logger.info("wrapperSepaInstPacs008Mx: Calling sepaInstValidationEPCRulesPacs008");
+		retVal = sepaInstValidationEPCRulesPacs008(pacs08ValdFlagMx, exchange);
+		logger.info("wrapperSepaInstPacs008Mx: retVal from sepaInstValidationEPCRulesPacs008 = " + retVal);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs008Mx: txnComments = " + txnComments);
+ 
+		if(retVal == 0) {
+			logger.info("wrapperSepaInstPacs008Mx: Calling externalCodelistValidationSepaPacs008");
+			//retVal = externalCodelistValidationSepaPacs008(Document, map);		
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs008Mx: txnComments from externalCodelistValidationSepaPacs008 = " + txnComments);			
+		}
+ 
+		if(retVal == 0) {
+			logger.info("wrapperSepaInstPacs008Mx: Calling ibanValidationSepaINSTPacs008");
+			retVal = ibanValidationSepaINSTPacs008(exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs008Mx: txnComments from ibanValidationSepaINSTPacs008 = " + txnComments);
+		}
+		if(retVal == 0) {
+			if(clrSysRT1 == "true") {
+				logger.info("wrapperSepaInstPacs008Mx: Calling sepaInstValidationRT1RulesPacs008");
+				retVal = sepaInstValidationRT1RulesPacs008(pacs08ValdFlagMx,exchange);
+				txnComments = getHeader(map, 'PLCN_txnComments');
+				logger.info("wrapperSepaInstPacs008Mx: txnComments from sepaInstValidationRT1RulesPacs008 = " + txnComments);
+			}else {
+				logger.info("wrapperSepaInstPacs008Mx: Calling sepaInstTipsValidationRulesPacs008");
+				//sepaInstTipsValidationRulesPacs008(pacs04ValdFlagMx,exchange);
+				retVal = sepaInstTipsValidationRulesPacs008(pacs08ValdFlagMx, exchange);
+				txnComments = getHeader(map, 'PLCN_txnComments');
+				logger.info("wrapperSepaInstPacs008Mx: txnComments from sepaInstTipsValidationRulesPacs008 = " + txnComments);
+			}
+		}
+ 
+		if(retVal == 0) {
+			logger.info("wrapperSepaInstPacs008Mx: Calling constraintsISORulesSEPAPacs008");
+			//constraintsISORulesSEPAPacs008(pacs08ValdFlagMx,exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs008Mx: txnComments from constraintsISORulesSEPAPacs008 = " + txnComments);
+		}
+ 
+		if(retVal == 0 && manualMode == "REPAIR") {
+		logger.info("wrapperSepaInstPacs008Mx: Calling sepaCustomValidationsPacs008");
+		//sepaCustomValidationsPacs008(pacs08ValdFlagMx,exchange);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaInstPacs008Mx: txnComments from sepaCustomValidationsPacs008 = " + txnComments);
+		}
+	}
+ 
+	if(pacs08ValdFlagMx == 'WARNING') {
+ 
+		logger.info("wrapperSepaInstPacs008Mx: Calling sepaInstValidationEPCRulesPacs008");
+		retVal = sepaInstValidationEPCRulesPacs008(pacs08ValdFlagMx, exchange);
+		logger.info("wrapperSepaInstPacs008Mx: retVal from sepaInstValidationEPCRulesPacs008 = " + retVal);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs008Mx: txnComments = " + txnComments);
+ 
+		logger.info("wrapperSepaInstPacs008Mx: Calling externalCodelistValidationSepaPacs008");
+		//retVal = externalCodelistValidationSepaPacs008(Document, map);		
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs008Mx: txnComments from externalCodelistValidationSepaPacs008 = " + txnComments);	
+		
+		if(clrSysRT1 == "true") {
+			logger.info("wrapperSepaInstPacs008Mx: Calling sepaInstValidationRT1RulesPacs008");
+			retVal = sepaInstValidationRT1RulesPacs008(pacs08ValdFlagMx,exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs008Mx: txnComments from sepaInstValidationRT1RulesPacs008 = " + txnComments);
+		}else {
+			logger.info("wrapperSepaInstPacs008Mx: Calling sepaInstTipsValidationRulesPacs008");
+			//sepaInstTipsValidationRulesPacs008(pacs04ValdFlagMx,exchange);
+			retVal = sepaInstTipsValidationRulesPacs008(pacs08ValdFlagMx, exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs008Mx: txnComments from sepaInstTipsValidationRulesPacs008 = " + txnComments);
+		}
+		
+		logger.info("wrapperSepaInstPacs008Mx: Calling ibanValidationSepaINSTPacs008");
+		retVal = ibanValidationSepaINSTPacs008(exchange);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs008Mx: txnComments from ibanValidationSepaINSTPacs008 = " + txnComments);
+		
+		logger.info("wrapperSepaInstPacs008Mx: Calling constraintsISORulesSEPAPacs008");
+		//constraintsISORulesSEPAPacs008(pacs08ValdFlagMx,exchange);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs008Mx: txnComments from constraintsISORulesSEPAPacs008 = " + txnComments);
+	}
+}
+
+function ibanValidationSepaINSTPacs008(exchange) {
+	var val;
+	var retVal = 0;
+
+	logger.info("In ibanValidationSepaINSTPacs008");
+	logger.info("ibanValidationSepaINSTPacs008: exchange = " + exchange);
+	logger.info("ibanValidationSepaINSTPacs008: typeof exchange = " + typeof exchange);
+
+	val = validateDbtrAcctIbanSepaPacs008(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+
+	val = validateCdtrAcctIbanSepaPacs008(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+	return retVal;
+}
+
+function sepaInstValidationEPCRulesPacs008(pacs08ValdFlagMx, exchange) {
+	var retVal;
+ 
+	logger.info("In sepaInstValidationEPCRulesPacs008");
+ 
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+ 
+	if(pacs08ValdFlagMx == "ERROR") {
+ 
+		retVal = genericAnyBicLEIOthrRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = genericOnlyOneAllowedSepaInstPacs008Rule(exchange);;
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = dtAndPlcOfBirthOthrGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = adrLineOptinalElementRuleSepaPacs8(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = townNameAndCountryRuleSepaPacs8(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+ 
+		retVal = hybridAddressRuleSepaPacs8(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		//  retVal = adrLineCtryAllowedRule(exchange); 
+		// if(retVal != 0) {
+		// 	return retVal;
+		// } 
+
+		retVal = sepaInstCurrencyCheckRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs008BicValDebtorAgent(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs008BicValCdtrAgt(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs008BicValInstgAgt(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs008BicValInstdAgt(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+ 
+	if(pacs08ValdFlagMx == "WARNING") {
+ 
+		genericOnlyOneAllowedSepaInstPacs008Rule(exchange);
+		//lclInstrmCdSepaInstPacs008Rule(exchange);
+		//svcLvlCdSepaInstPacs008Rule(exchange);
+		genericAnyBicLEIOthrRule(exchange);
+		dtAndPlcOfBirthOthrGenericRule(exchange);
+		adrLineOptinalElementRuleSepaPacs8(exchange);
+		townNameAndCountryRuleSepaPacs8(exchange);
+		hybridAddressRuleSepaPacs8(exchange);
+		sepaInstGrpHdrAmtRule(exchange);
+		//adrLineCtryAllowedRule(exchange);
+		sepaInstCurrencyCheckRule(exchange);
+		sepaPacs008BicValDebtorAgent(exchange);
+		sepaPacs008BicValCdtrAgt(exchange);
+		sepaPacs008BicValInstgAgt(exchange);
+		sepaPacs008BicValInstdAgt(exchange);
+	}
+	return retVal;
+}
+ 
+function sepaInstValidationRT1RulesPacs008(pacs08ValdFlagMx, exchange) {
+	var retVal;
+ 
+	logger.info("In sepaInstValidationRT1RulesPacs008");
+ 
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+ 
+	if(pacs08ValdFlagMx == "ERROR") {
+ 
+		retVal = mandatoryValueGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = sepaInstGrpHdrAmtRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = sttlmMtdRT1GenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = sttlmAcctRT1GenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+ 
+	if(pacs08ValdFlagMx == "WARNING") {
+		mandatoryValueGenericRule(exchange);
+		sepaInstGrpHdrAmtRule(exchange);
+		retVal = sttlmMtdRT1GenericRule(exchange);
+		retVal = sttlmAcctRT1GenericRule(exchange);
+	}
+	return retVal;
+}
+
+function genericOnlyOneAllowedSepaInstPacs008Rule(exchange) {
+	logger.info("In nbOfTxsSepaInstPacs008");
+	
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+
+	var nbOfTxsPath = '/Document/FIToFICstmrCdtTrf/GrpHdr/NbOfTxs';
+	var nbOfTxsValue = getValueFromPath(Document, nbOfTxsPath);
+	logger.info("nbOfTxsSepaInstPacs008: nbOfTxsValue = " + nbOfTxsValue );
+
+	if(nbOfTxsValue > 1){
+		setHeader(map, "PLCN_validMessage", false);
+		logger.info("nbOfTxsSepaInstPacs008: Only one occurence of nbOfTxs is allowed");
+		retVal = setCommentsForTransaction("037", "7058", map);
+		return retVal;
+	}
+	return retVal;
+}
+
+function lclInstrmCdSepaInstPacs008Rule(exchange) {
+
+	var retVal = 0;
+ 
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	logger.info("In lclInstrmCdSepaInstPacs008Rule");
+ 
+	var lclInstrmCdPath = "/Document/FIToFICstmrCdtTrf/GrpHdr/PmtTpInf/LclInstrm/Cd";
+	var lclInstrmCd = getValueFromPath(Document, lclInstrmCdPath);
+	logger.info("lclInstrmCd = "+ lclInstrmCd);
+ 
+	if(lclInstrmCd){
+		if(lclInstrmCd != "INST"){
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("lclInstrmCdSepaInstPacs008Rule: lclInstrmCd : Must be “INST”.");
+			retVal = setCommentsForTransaction("011", "7058", map);
+			return retVal;
+		}
+	}
+	return retVal;
+}
+
+function svcLvlCdSepaInstPacs008Rule(exchange) {
+
+	var retVal = 0;
+ 
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	logger.info("In svcLvlCdSepaInstPacs008Rule");
+ 
+	var svcLvlCdPath = "/Document/FIToFICstmrCdtTrf/GrpHdr/PmtTpInf/SvcLvl/Cd";
+	var svcLvlCd = getValueFromPath(Document, svcLvlCdPath);
+	logger.info("svcLvlCd = "+ svcLvlCd);
+ 
+	if(svcLvlCd){
+		if(svcLvlCd != "SEPA"){
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("svcLvlCdSepaInstPacs008Rule: svcLvlCd : Must be “SEPA”.");
+			retVal = setCommentsForTransaction("012", "7058", map);
+			return retVal;
+		}
+	}
+	return retVal;
+}
+
+// function adrLineCtryAllowedRule(exchange){ 
+// 	logger.info("adrLineCtryAllowedRule");
+
+// 	var retVal = 0;
+
+// 	var inMsg = exchange.getIn();
+// 	var map = inMsg.getHeaders();
+// 	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+// 	var Document1 = inMsg.getBody(java.lang.String.class);
+
+// 	if(isPatternPresent(Document1, "</FIToFICstmrCdtTrf>")){
+// 		//CREDITOR
+// 		var cdtrPstlAdr = isXmlNodePresent(Document, "CdtTrfTxInf", "Cdtr", "<PstlAdr>");
+
+// 		var cdtrAddrLinePath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/AdrLine';
+// 		var cdtrAddrLine = getValueFromPath(Document, cdtrAddrLinePath);
+// 		logger.info("cdtrAddrLine:" + cdtrAddrLine);
+
+// 		var cdtrCtryPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/Ctry';
+// 		var cdtrCtry = getValueFromPath(Document, cdtrCtryPath);
+
+// 		if(isPatternPresent(Document1, "<Cdtr>")){
+// 			if(cdtrPstlAdr){
+// 				if(cdtrAddrLine){
+// 					if(!cdtrCtry){
+// 						setHeader(map, "PLCN_validMessage", false);
+// 						logger.info("Creditor: A combination of ‘Address Line’ and 'Country’ is allowed");
+// 						retVal = setCommentsForTransaction("945", "7928", map);
+// 						return retVal;
+// 					}
+// 				}
+// 			}
+// 		}
+
+// 		var dbtrPstlAdr = isXmlNodePresent(Document, "CdtTrfTxInf", "Dbtr", "<PstlAdr>");
+
+// 		var dbtrAddrLinePath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/AdrLine';
+// 		var dbtrAddrLine = getValueFromPath(Document, dbtrAddrLinePath);
+
+// 		var dbtrCtryPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/Ctry';
+// 		var dbtrCtry = getValueFromPath(Document, dbtrCtryPath);
+
+// 		if(isPatternPresent(Document1, "<Dbtr>")){
+// 			if(dbtrPstlAdr){
+// 				if(dbtrAddrLine){
+// 					if(!dbtrCtry){
+// 						setHeader(map, "PLCN_validMessage", false);
+// 						logger.info("Debtor: A combination of ‘Address Line’ and 'Country’ is allowed");
+// 						retVal = setCommentsForTransaction("779", "7928", map);
+// 						return retVal;
+// 					}
+// 				}
+// 			}
+// 		}
+// 	}	
+
+// 	return retVal;	
+// }
+
+
+function msgValidationSepaInstCamt056(exchange) {
+	var result;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In msgValidationSepaInstCamt056");
+	logger.info("msgValidationSepaInstCamt056: exchange = " + exchange);
+	logger.info("msgValidationSepaInstCamt056: typeof exchange = " + typeof exchange);
+
+	setHeader(map, "PLCN_txxnForceStopCounter", 0);
+	setHeader(map, "PLCN_errorCountAdd", "Y"); 
+	setHeader(map, "PLCN_validMessage", true);
+	//setHeader(map, "validFlag", true);
+
+	var plcnInternalcall = getHeader(map,"PLCN_call");
+	logger.info("msgValidationSepaInstCamt056: plcnInternalcall = " + plcnInternalcall);
+	logger.info("msgValidationSepaInstCamt056: typeof plcnInternalcall = " + typeof plcnInternalcall);
+	plcnInternalcall = plcnInternalcall.toString();
+
+	var creationCall = getHeader(map,"PLCN_creationCall");
+	logger.info("msgValidationSepaInstCamt056: creationCall = " + creationCall);
+	logger.info("msgValidationSepaInstCamt056: typeof creationCall = " + typeof creationCall);
+	creationCall = creationCall.toString();
+
+	var msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	msgFamily = msgFamily?.toUpperCase();
+	//msgFamily = getHeader(map, "PLCN_msgFamily");
+	logger.info("msgValidationSepaInstCamt056: msgFamily = " + msgFamily);
+
+	var custom13 = getHeader(map, "PLCN_custom13");
+	logger.info("msgValidationSepaInstCamt056: custom13 = " + custom13);	
+
+	if(isPatternPresent(msgFamily,"SEPAINST")  && plcnInternalcall == "true"){
+		logger.info("msgValidationSepaInstCamt056: inside 1st loop");
+		if(isPatternPresent(custom13, "VALIDATE=Y")){
+			wrapperSepaInstCamt056Mx(exchange);
+			custom13 = replacePattern(custom13, "VALIDATE=Y", "VALIDATE=D");
+			logger.info("msgValidationSepaInstCamt056: custom13 = " + custom13);
+			setHeader(map, "PLCN_custom13", custom13);
+			setHeader(map, "PLCNAPI_custom13", custom13);
+		}
+	}else{
+		logger.info("msgValidationSepaInstCamt056: External call");
+		wrapperSepaInstCamt056Mx(exchange);
+		//wrapperTimelineCheck(exchange);
+	}
+
+	//result = true;  //getHeader(map, "PLCN_validMessage");
+	result = getHeader(map, "PLCN_validMessage");
+	logger.info("msgValidationSepaInstCamt056: PLCN_validMessage = " + result);
+	logger.info("msgValidationSepaInstCamt056: typeof PLCN_validMessage = " + typeof result);
+
+	var flag = memTblGetTableValue(map, "FLAG-TABLE", "PROCESS_T2ONLY");
+	logger.info("msgValidationSepaInstCamt056: flag = " + flag);
+
+	flag = flag?.trim();
+
+	if(result == true) {
+		setHeader(map, "status", "valid");
+	}else {
+		setHeader(map, "status", "error");
+
+		if(flag == "Y"){
+			//SEPA business rule failed
+			setCommentsForTransaction("00", "8183", map);
+		}
+	}
+}
+
+function msgValidationSepaInstCamt029(exchange) {
+	var result;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In msgValidationSepaInstCamt029");
+	logger.info("msgValidationSepaInstCamt029: exchange = " + exchange);
+	logger.info("msgValidationSepaInstCamt029: typeof exchange = " + typeof exchange);
+
+	setHeader(map, "PLCN_txxnForceStopCounter", 0);
+	setHeader(map, "PLCN_errorCountAdd", "Y"); 
+	setHeader(map, "PLCN_validMessage", true);
+	//setHeader(map, "validFlag", true);
+
+	var plcnInternalcall = getHeader(map,"PLCN_call");
+	logger.info("msgValidationSepaInstCamt029: plcnInternalcall = " + plcnInternalcall);
+	logger.info("msgValidationSepaInstCamt029: typeof plcnInternalcall = " + typeof plcnInternalcall);
+	plcnInternalcall = plcnInternalcall.toString();
+
+	var creationCall = getHeader(map,"PLCN_creationCall");
+	logger.info("msgValidationSepaInstCamt029: creationCall = " + creationCall);
+	logger.info("msgValidationSepaInstCamt029: typeof creationCall = " + typeof creationCall);
+	creationCall = creationCall.toString();
+
+	var msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	msgFamily = msgFamily?.toUpperCase();
+	//msgFamily = getHeader(map, "PLCN_msgFamily");
+	logger.info("msgValidationSepaInstCamt029: msgFamily = " + msgFamily);
+
+	var custom13 = getHeader(map, "PLCN_custom13");
+	logger.info("msgValidationSepaInstCamt029: custom13 = " + custom13);	
+
+	if(isPatternPresent(msgFamily,"SEPAINST")  && plcnInternalcall == "true"){
+		logger.info("msgValidationSepaInstCamt029: inside 1st loop");
+		if(isPatternPresent(custom13, "VALIDATE=Y")){
+			wrapperSepaInstCamt029Mx(exchange);
+			custom13 = replacePattern(custom13, "VALIDATE=Y", "VALIDATE=D");
+			logger.info("msgValidationSepaInstCamt029: custom13 = " + custom13);
+			setHeader(map, "PLCN_custom13", custom13);
+			setHeader(map, "PLCNAPI_custom13", custom13);
+		}
+	}else{
+		logger.info("msgValidationSepaInstCamt029: External call");
+		wrapperSepaInstCamt029Mx(exchange);
+		//wrapperTimelineCheck(exchange);
+	}
+
+	//result = true;  //getHeader(map, "PLCN_validMessage");
+	result = getHeader(map, "PLCN_validMessage");
+	logger.info("msgValidationSepaInstCamt029: PLCN_validMessage = " + result);
+	logger.info("msgValidationSepaInstCamt029: typeof PLCN_validMessage = " + typeof result);
+
+	var flag = memTblGetTableValue(map, "FLAG-TABLE", "PROCESS_T2ONLY");
+	logger.info("msgValidationSepaInstCamt029: flag = " + flag);
+
+	flag = flag?.trim();
+
+	if(result == true) {
+		setHeader(map, "status", "valid");
+	}else {
+		setHeader(map, "status", "error");
+
+		if(flag == "Y"){
+			//SEPA business rule failed
+			setCommentsForTransaction("00", "8183", map);
+		}
+	}
+}
+
+
+function wrapperSepaInstCamt029Mx(exchange) {
+	logger.info("wrapperSepaInstCamt029Mx");
+	var retVal= 0;
+	var commentsB2b;
+	var camt029ValdFlagMx;
+	var txnComments;
+	var inMsg;
+	var map;
+	var Document;
+	var manualMode;
+
+	logger.info('wrapperSepaInstCamt029Mx: In wrapperSepaInstCamt029Mx');
+	inMsg = exchange.getIn();
+	map = inMsg.getHeaders();
+	Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	camt029ValdFlagMx = memTblGetTableValue(map, "FLAG-TABLE", "CAMT029_VALD_FLAG_MX");
+	camt029ValdFlagMx = camt029ValdFlagMx?.trim();
+	logger.info("camt029ValdFlagMx = " + camt029ValdFlagMx);
+
+	var institutionId = getHeader(map, "PLCN_institutionId");
+	logger.info("wrapperSepaInstCamt029Mx: institutionId " +institutionId);
+	
+	manualMode = getHeader(map, "PLCN_manualMode");
+	logger.info("wrapperSepaInstCamt029Mx: manualMode " +manualMode);
+
+	// var clrSysPrtryPath = "/Document/RsltnOfInvstgtn/CxlDtls/TxInfAndSts/OrgnlTxRef/SttlmInf/ClrSys/Prtry";
+	// var clrSysPrtry = getValueFromPath(Document, clrSysPrtryPath);
+	// logger.info("wrapperSepaInstCamt029Mx:clrSysPrtry = "+ clrSysPrtry);
+
+	var clrSysPrtry = getHeader(map, "PLCN_clrSysRT1");
+	logger.info("wrapperSepaInstCamt029Mx:clrSysPrtry = "+ clrSysPrtry);
+
+	if(camt029ValdFlagMx == 'ERROR') {
+
+		logger.info("wrapperSepaInstCamt029Mx: Calling sepaInstEPCValidationRulesCamt029");
+		retVal = sepaInstEPCValidationRulesCamt029(camt029ValdFlagMx, exchange);
+		logger.info("wrapperSepaInstCamt029Mx: retVal from sepaInstEPCValidationRulesCamt029 = " + retVal);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstCamt029Mx: txnComments = " + txnComments);
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaInstCamt029Mx: Calling externalCodelistValidationSepaCamt029");
+			//retVal = externalCodelistValidationSepaCamt029(Document, map);		
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstCamt029Mx: txnComments from externalCodelistValidationSepaCamt029 = " + txnComments);			
+		}
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaInstCamt029Mx: Calling ibanValidationSepaInstCamt029");
+			retVal = ibanValidationSepaCamt029(exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstCamt029Mx: retVal = " + retVal);
+			logger.info("wrapperSepaInstCamt029Mx: txnComments from ibanValidationSepaInstCamt029 = " + txnComments);
+		}
+		
+		if(retVal == 0) {
+			logger.info("wrapperSepaInstCamt029Mx: Calling constraintsISORulesSEPAInstCamt029");
+			//constraintsISORulesSEPACamt056(camt029ValdFlagMx,exchange);
+			//retVal = constraintsISORulesSEPAInstCamt029(camt029ValdFlagMx, exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstCamt029Mx: txnComments from constraintsISORulesSEPAInstCamt029 = " + txnComments);
+		}
+		
+		if(retVal == 0 ) {
+			if(clrSysPrtry == "true") {
+				logger.info("wrapperSepaInstCamt029Mx: Calling sepaInstRT1ValidationRulesCamt029");
+				//sepaInstRT1ValidationRulesCamt029(camt029ValdFlagMx,exchange);
+				retVal = sepaInstRT1ValidationRulesCamt029(camt029ValdFlagMx, exchange);
+				txnComments = getHeader(map, 'PLCN_txnComments');
+				logger.info("wrapperSepaInstCamt029Mx: txnComments from sepaInstRT1ValidationRulesCamt029 = " + txnComments);
+			}else {
+				logger.info("wrapperSepaInstCamt029Mx: Calling sepaInstTipsValidationRulesCamt029");
+				//sepaInstRT1ValidationRulesCamt029(camt029ValdFlagMx,exchange);
+				retVal = sepaInstTipsValidationRulesCamt029(camt029ValdFlagMx, exchange);
+				txnComments = getHeader(map, 'PLCN_txnComments');
+				logger.info("wrapperSepaInstCamt029Mx: txnComments from sepaInstTipsValidationRulesCamt029 = " + txnComments);
+			}
+		}
+		if(retVal == 0 && manualMode == "REPAIR") {
+		logger.info("wrapperSepaInstCamt029Mx: Calling sepaInstCustomValidationsCamt029");
+		//sepaInstCustomValidationsCamt029(camt029ValdFlagMx,exchange);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaInstCamt029Mx: txnComments from sepaInstCustomValidationsCamt029 = " + txnComments);
+		}
+	}
+
+	if(camt029ValdFlagMx == 'WARNING') {
+
+		logger.info("wrapperSepaInstCamt029Mx: Calling sepaInstEPCValidationRulesCamt029");
+		retVal = sepaInstEPCValidationRulesCamt029(camt029ValdFlagMx, exchange);
+		logger.info("wrapperSepaInstCamt029Mx: retVal from sepaInstEPCValidationRulesCamt029 = " + retVal);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstCamt029Mx: txnComments = " + txnComments);
+
+		logger.info("wrapperSepaInstCamt029Mx: Calling externalCodelistValidationSepaInstCamt029");
+		//retVal = externalCodelistValidationSepaInstCamt029(Document, map);		
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstCamt029Mx: txnComments from externalCodelistValidationSepaInstCamt029 = " + txnComments);			
+		
+		logger.info("wrapperSepaInstCamt029Mx: Calling ibanValidationSepaInstCamt029");
+		//ibanValidationSepaInstCamt029(exchange);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstCamt029Mx: txnComments from ibanValidationSepaInstCamt029 = " + txnComments);
+		
+		logger.info("wrapperSepaInstCamt029Mx: Calling constraintsISORulesSEPAInstCamt029");
+		//constraintsISORulesSEPAInstCamt029(camt029ValdFlagMx,exchange);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstCamt029Mx: txnComments from constraintsISORulesSEPAInstCamt029 = " + txnComments);
+		
+		if(clrSysPrtry == "true") {
+			logger.info("wrapperSepaInstCamt029Mx: Calling sepaInstRT1ValidationRulesCamt029");
+			retval = sepaInstRT1ValidationRulesCamt029(camt029ValdFlagMx,exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstCamt029Mx: txnComments from sepaInstRT1ValidationRulesCamt029 = " + txnComments);
+		}else {
+			logger.info("wrapperSepaInstCamt029Mx: Calling sepaInstTipsValidationRulesCamt029");
+			retval = sepaInstTipsValidationRulesCamt029(camt029ValdFlagMx,exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstCamt029Mx: txnComments from sepaInstTipsValidationRulesCamt029 = " + txnComments);
+		}
+	}
+}
+
+function sepaInstRT1ValidationRulesCamt029(camt029ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaInstRT1ValidationRulesCamt029");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(camt029ValdFlagMx == "ERROR") {
+
+		retVal = LclInstrmCdSEPAInstCamt029Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = genericAnyBicLEIOthrRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = dtAndPlcOfBirthOthrGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = orgnlMsgNmIdRT1GenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = addtlInfRT1GenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = txInfAndStsRT1GenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaInstCurrencyCheckRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaCamt029ValAssgnrBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaCamt029ValAssgneBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaCamt029ValDbtrAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaCamt029ValCdtrAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+
+	if(camt029ValdFlagMx == "WARNING") {
+		retVal = LclInstrmCdSEPAInstCamt029Rule(exchange);
+		retVal = genericAnyBicLEIOthrRule(exchange);
+		retVal = dtAndPlcOfBirthOthrGenericRule(exchange);
+		retVal = orgnlMsgNmIdRT1GenericRule(exchange);
+		retVal = addtlInfRT1GenericRule(exchange);
+		retVal = txInfAndStsRT1GenericRule(exchange);
+		retVal = sepaInstCurrencyCheckRule(exchange);
+		retVal = sepaCamt029ValAssgnrBic(exchange);
+		retVal = sepaCamt029ValAssgneBic(exchange);
+		retVal = sepaCamt029ValDbtrAgtBic(exchange);
+		retVal = sepaCamt029ValCdtrAgtBic(exchange);
+	}
+	return retVal;
+}
+
+function sepaInstEPCValidationRulesCamt029(camt029ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaInstEPCValidationRulesCamt029");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(camt029ValdFlagMx == "ERROR") {
+
+		retVal = addtnlInfoGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		/* retVal = LclInstrmCdSEPAInstCamt029Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = genericAnyBicLEIOthrRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = dtAndPlcOfBirthOthrGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		} */
+	}
+
+	if(camt029ValdFlagMx == "WARNING") {
+		/* retVal = LclInstrmCdSEPAInstCamt029Rule(exchange);
+		retVal = genericAnyBicLEIOthrRule(exchange);
+		retVal = dtAndPlcOfBirthOthrGenericRule(exchange); */
+		retVal = addtnlInfoGenericRule(exchange);
+	}
+	return retVal;
+}
+
+function sepaInstTipsValidationRulesCamt029(camt029ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaInstTipsValidationRulesCamt029");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(camt029ValdFlagMx == "ERROR") {
+
+		retVal = addtnlInfoGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaInstCurrencyCheckRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = lclInstrmCdSepaInstRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = genericAnyBicLEIOthrRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = orgnlMsgNmIdRT1GenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = setofcharAllowedTipsGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = genericNoOfTxnCheckSepaInstRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+
+	if(camt029ValdFlagMx == "WARNING") {
+
+		retVal = addtnlInfoGenericRule(exchange);
+		retVal = sepaInstCurrencyCheckRule(exchange);
+		retVal = lclInstrmCdSepaInstRule(exchange);
+		retVal = genericAnyBicLEIOthrRule(exchange);
+		retVal = orgnlMsgNmIdRT1GenericRule(exchange);
+		retVal = setofcharAllowedTipsGenericRule(exchange);
+		retVal = genericNoOfTxnCheckSepaInstRule(exchange);
+	}
+	return retVal;
+}
+
+function msgValidationSepaInstPacs028(exchange) {
+	var result;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In msgValidationSepaInstPacs028");
+	logger.info("msgValidationSepaInstPacs028: exchange = " + exchange);
+	logger.info("msgValidationSepaInstPacs028: typeof exchange = " + typeof exchange);
+
+	setHeader(map, "PLCN_txxnForceStopCounter", 0);
+	setHeader(map, "PLCN_errorCountAdd", "Y"); 
+	setHeader(map, "PLCN_validMessage", true);
+	setHeader(map, "validFlag", true);
+
+	var plcnInternalcall = getHeader(map,"PLCN_call");
+	logger.info("msgValidationSepaInstPacs028: plcnInternalcall = " + plcnInternalcall);
+	logger.info("msgValidationSepaInstPacs028: typeof plcnInternalcall = " + typeof plcnInternalcall);
+	plcnInternalcall = plcnInternalcall.toString();
+
+	var creationCall = getHeader(map,"PLCN_creationCall");
+	logger.info("msgValidationSepaInstPacs028: creationCall = " + creationCall);
+	logger.info("msgValidationSepaInstPacs028: typeof creationCall = " + typeof creationCall);
+	creationCall = creationCall.toString();
+
+	var msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	if(!msgFamily){
+		var msgFamily = getHeader(map, "PLCN_msgFamily");
+	}
+	logger.info("msgValidationSepaInstPacs028: msgFamily = " + msgFamily);	
+	msgFamily = msgFamily?.toUpperCase();
+	logger.info("msgValidationSepaInstPacs028: msgFamily = " + msgFamily);
+
+	var custom13 = getHeader(map, "PLCN_custom13");
+	logger.info("msgValidationSepaInstPacs028: custom13 = " + custom13);
+
+	var flag = memTblGetTableValue(map, "FLAG-TABLE", "PROCESS_T2ONLY");
+	logger.info("msgValidationSepaInstCamt056: flag = " + flag);
+
+	flag = flag?.trim();	
+
+	if(isPatternPresent(msgFamily,"SEPAINST")  && plcnInternalcall == "true"){
+		logger.info("msgValidationSepaInstPacs028: inside 1st loop");
+		if(isPatternPresent(custom13, "VALIDATE=Y")){
+			wrapperSepaInstPacs028Mx(exchange);
+			custom13 = replacePattern(custom13, "VALIDATE=Y", "VALIDATE=D");
+			logger.info("msgValidationSepaInstPacs028: custom13 = " + custom13);
+			setHeader(map, "PLCN_custom13", custom13);
+			setHeader(map, "PLCNAPI_custom13", custom13);
+		}
+	}else{
+		logger.info("msgValidationSepaInstPacs028: External call");
+		wrapperSepaInstPacs028Mx(exchange);
+		//wrapperTimelineCheck(exchange);
+	}
+
+	result = getHeader(map, "PLCN_validMessage");
+	logger.info("msgValidationSepaInstPacs028: PLCN_validMessage = " + result);
+	logger.info("msgValidationSepaInstPacs028: typeof PLCN_validMessage = " + typeof result);
+
+	if(result == true) {
+		setHeader(map, "status", "valid");
+		setHeader(map, "validFlag", true);
+	}else {
+		setHeader(map, "status", "error");
+		setHeader(map, "validFlag", false);
+
+		if(flag == "Y"){
+			//SEPA business rule failed
+			setCommentsForTransaction("00", "8183", map);
+		}
+	}
+	logger.info("msgValidationSepaInstPacs028: status = " + getHeader(map, "status"));
+}
+
+function wrapperSepaInstPacs028Mx(exchange) {
+	logger.info("wrapperSepaInstPacs028Mx");
+	var retVal;
+	var commentsB2b;
+	var pacs028ValdFlagMx;
+	var txnComments;
+	var inMsg;
+	var map;
+	var Document;
+	var manualMode;
+
+	logger.info('wrapperSepaInstPacs028Mx: In wrapperSepaInstPacs028Mx');
+	inMsg = exchange.getIn();
+	map = inMsg.getHeaders();
+	Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	pacs028ValdFlagMx = memTblGetTableValue(map, "FLAG-TABLE", "PACS04_VALD_FLAG_MX");
+	pacs028ValdFlagMx = pacs028ValdFlagMx?.trim();
+	logger.info("pacs028ValdFlagMx = " + pacs028ValdFlagMx);
+
+	var institutionId = getHeader(map, "PLCN_institutionId");
+	logger.info("wrapperSepaInstPacs028Mx: institutionId " +institutionId);
+	
+	manualMode = getHeader(map, "PLCN_manualMode");
+	logger.info("wrapperSepaInstPacs028Mx: manualMode " +manualMode);
+
+	var clrSysPrtryPath = "/Document/FIToFIPmtStsReq/TxInf/OrgnlTxRef/SttlmInf/ClrSys/Prtry";
+	var clrSysPrtry = getValueFromPath(Document, clrSysPrtryPath);
+	logger.info("wrapperSepaInstPacs028Mx:clrSysPrtry = "+ clrSysPrtry);
+
+	clrSysPrtry = getHeader(map, "PLCN_clrSysRT1");
+	logger.info("wrapperSepaInstPacs028Mx:clrSysPrtry = "+ clrSysPrtry);
+ 
+	if(pacs028ValdFlagMx == 'ERROR') {
+
+		if(clrSysPrtry == "true"){
+			logger.info("wrapperSepaInstPacs028Mx: Calling sepaInstRT1ValidationRulesPacs028");
+			retVal = sepaInstRT1ValidationRulesPacs028(pacs028ValdFlagMx,exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs028Mx: txnComments from sepaInstRT1ValidationRulesPacs028 = " + txnComments);
+		}else{
+			retVal = sepaInstTipsValidationRulesPacs028(pacs028ValdFlagMx,exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs028Mx: txnComments from sepaInstTipsValidationRulesPacs028 = " + txnComments);
+		}
+
+		logger.info("wrapperSepaInstPacs028Mx: Calling sepaInstValidationRulesPacs028");
+		//retVal = sepaInstValidationRulesPacs028(pacs028ValdFlagMx, exchange);
+		logger.info("wrapperSepaInstPacs028Mx: retVal from sepaInstValidationRulesPacs028 = " + retVal);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs028Mx: txnComments = " + txnComments);
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaInstPacs028Mx: Calling externalCodelistValidationSepaPacs028");
+			//retVal = externalCodelistValidationSepaPacs028(Document, map);		
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs028Mx: txnComments from externalCodelistValidationSepaPacs028 = " + txnComments);			
+		}
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaInstPacs028Mx: Calling ibanValidationSepaINSTPacs028");
+			retVal = ibanValidationSepaINSTPacs028(exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs028Mx: txnComments from ibanValidationSepaINSTPacs028 = " + txnComments);
+		}
+		
+	}
+
+	if(pacs028ValdFlagMx == 'WARNING') {
+
+		logger.info("wrapperSepaInstPacs028Mx: Calling wrapperSepaInstPacs028Mx");
+		//retVal = sepaInstValidationRulesPacs028(pacs028ValdFlagMx, exchange);
+		logger.info("wrapperSepaInstPacs028Mx: retVal from sepaValidationRulesPacs004 = " + retVal);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs028Mx: txnComments = " + txnComments);
+
+		logger.info("wrapperSepaInstPacs028Mx: Calling externalCodelistValidationSepaPacs028");
+		//retVal = externalCodelistValidationSepaPacs028(Document, map);		
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs028Mx: txnComments from externalCodelistValidationSepaPacs028 = " + txnComments);			
+		
+		logger.info("wrapperSepaInstPacs028Mx: Calling ibanValidationSepaINSTPacs028");
+		retVal = ibanValidationSepaINSTPacs028(exchange);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs028Mx: txnComments from ibanValidationSepaINSTPacs028 = " + txnComments);
+		
+		logger.info("wrapperSepaInstPacs028Mx: Calling constraintsISORulesSEPAPacs028");
+		//constraintsISORulesSEPAPacs028(pacs028ValdFlagMx,exchange);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs028Mx: txnComments from constraintsISORulesSEPAPacs028 = " + txnComments);
+		
+		if(clrSysPrtry == "RT1"){
+			logger.info("wrapperSepaInstPacs028Mx: Calling sepaInstRT1ValidationRulesPacs028");
+			retVal = sepaInstRT1ValidationRulesPacs028(pacs028ValdFlagMx,exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs028Mx: txnComments from sepaInstRT1ValidationRulesPacs028 = " + txnComments);
+		}else{
+			retVal = sepaInstTipsValidationRulesPacs028(pacs028ValdFlagMx,exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs028Mx: txnComments from sepaInstTipsValidationRulesPacs028 = " + txnComments);
+		}
+	}
+}
+
+function ibanValidationSepaINSTPacs028(exchange) {
+	var val;
+	var retVal = 0;
+
+	logger.info("In ibanValidationSepaINSTPacs028");
+	logger.info("ibanValidationSepaINSTPacs028: exchange = " + exchange);
+	logger.info("ibanValidationSepaINSTPacs028: typeof exchange = " + typeof exchange);
+
+	val = validateDbtrAcctIbanSepaINSTPacs028(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+
+	val = validateCdtrAcctIbanSepaINSTPacs028(exchange);
+	if(val) {
+		retVal = retVal + val;
+	}
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Debtor Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validateDbtrAcctIbanSepaINSTPacs028(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateDbtrAcctIbanSepaINSTPacs028");
+	path = "/Document/FIToFIPmtStsReq/TxInf/OrgnlTxRef/DbtrAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateDbtrAcctIbanSepaINSTPacs028: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateDbtrAcctIbanSepaINSTPacs028: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("822", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);
+	}
+
+	return retVal;
+}
+
+/**
+* This function validates IBAN for Creditor Account
+* @param {DOMTree} Document - The message.
+* @param {HashMap} map - The header values.
+*/
+function validateCdtrAcctIbanSepaINSTPacs028(exchange) {
+	var path;
+	var value;
+	var validFlag;
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In validateCdtrAcctIbanSepaINSTPacs028");
+	path = "/Document/FIToFIPmtStsReq/TxInf/OrgnlTxRef/CdtrAcct/Id/IBAN";
+	value = getValueFromPath(Document, path);
+	logger.info("validateCdtrAcctIbanSepaINSTPacs028: IBAN value = " + value);
+
+	if(value) {
+		validFlag = IBAN.isValid(value);
+		logger.info("validateCdtrAcctIbanSepaINSTPacs028: validFlag value = " + validFlag);
+
+		if(validFlag == false) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("988", "5714", map);
+			retVal = 1;
+		}
+
+		//ibanUpper(exchange, path, value);
+	}
+
+	return retVal;
+}
+
+function sepaInstRT1ValidationRulesPacs028(pacs028ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaInstRT1ValidationRulesPacs028");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(pacs028ValdFlagMx == "ERROR") {
+
+		retVal = mandatoryValueGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = svcLvlCdSepaInstPacs028Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = pmtTpInfOrgnlMsgNmIdGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = lclInstrmCdSEPAInstGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = genericAnyBicLEIOthrRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = dtAndPlcOfBirthOthrGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = sttlmMtdRT1GenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = orgnlMsgNmIdRT1GenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = txInfRT1GenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaInstCurrencyCheckRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs028ValInstgBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs028ValInstdBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs028ValDbtrAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = sepaPacs028ValCdtrAgtBic(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		/* retVal = Pacs028TimelineCheck(exchange);
+		if(retVal != 0) {
+			return retVal;
+		} */
+	}
+
+	if(pacs028ValdFlagMx == "WARNING") {
+
+		retval = mandatoryValueGenericRule(exchange);
+		retval = svcLvlCdSepaInstPacs028Rule(exchange);
+		retval = pmtTpInfOrgnlMsgNmIdGenericRule(exchange);
+		retval = lclInstrmCdSEPAInstGenericRule(exchange);
+		retval = genericAnyBicLEIOthrRule(exchange);
+		retval = dtAndPlcOfBirthOthrGenericRule(exchange);
+		retVal = sttlmMtdRT1GenericRule(exchange);
+		retVal = orgnlMsgNmIdRT1GenericRule(exchange);
+		retVal = txInfRT1GenericRule(exchange);
+		retVal = sepaInstCurrencyCheckRule(exchange);
+		retVal = sepaPacs028ValInstgBic(exchange);
+		retVal = sepaPacs028ValInstdBic(exchange);
+		retVal = sepaPacs028ValDbtrAgtBic(exchange);
+		retVal = sepaPacs028ValCdtrAgtBic(exchange);
+		//retVal = Pacs028TimelineCheck(exchange);
+	}
+	return retVal;
+}
+
+function msgValidationSepaInstPacs002(exchange) {
+	var result;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In msgValidationSepaInstPacs002");
+	logger.trace("msgValidationSepaInstPacs002: exchange = " + exchange);
+	logger.info("msgValidationSepaInstPacs002: typeof exchange = " + typeof exchange);
+
+	setHeader(map, "PLCN_txxnForceStopCounter", 0);
+	setHeader(map, "PLCN_errorCountAdd", "Y"); 
+	setHeader(map, "PLCN_validMessage", true);
+	setHeader(map, "validFlag", true);
+
+	var plcnInternalcall = getHeader(map,"PLCN_call");
+	logger.info("msgValidationSepaInstPacs002: plcnInternalcall = " + plcnInternalcall);
+	logger.info("msgValidationSepaInstPacs002: typeof plcnInternalcall = " + typeof plcnInternalcall);
+	plcnInternalcall = plcnInternalcall.toString();
+
+	var creationCall = getHeader(map,"PLCN_creationCall");
+	logger.info("msgValidationSepaInstPacs002: creationCall = " + creationCall);
+	logger.info("msgValidationSepaInstPacs002: typeof creationCall = " + typeof creationCall);
+	creationCall = creationCall.toString();
+
+	var msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	if(!msgFamily){
+		var msgFamily = getHeader(map, "PLCN_msgFamily");
+	}
+	logger.info("msgValidationSepaInstPacs002: msgFamily = " + msgFamily);	
+	msgFamily = msgFamily?.toUpperCase();
+	//msgFamily = getHeader(map, "PLCN_msgFamily");
+	logger.info("msgValidationSepaInstPacs002: msgFamily = " + msgFamily);
+
+	var custom13 = getHeader(map, "PLCN_custom13");
+	logger.info("msgValidationSepaInstPacs002: custom13 = " + custom13);
+
+	var flag = memTblGetTableValue(map, "FLAG-TABLE", "PROCESS_T2ONLY");
+	logger.info("msgValidationSepaInstCamt056: flag = " + flag);
+
+	flag = flag?.trim();	
+
+	if(isPatternPresent(msgFamily,"SEPAINST")  && plcnInternalcall == "true"){
+		logger.info("msgValidationSepaInstPacs002: inside 1st loop");
+		if(isPatternPresent(custom13, "VALIDATE=Y")){
+			wrapperSepaInstPacs002Mx(exchange);
+			custom13 = replacePattern(custom13, "VALIDATE=Y", "VALIDATE=D");
+			logger.info("msgValidationSepaInstPacs002: custom13 = " + custom13);
+			setHeader(map, "PLCN_custom13", custom13);
+			setHeader(map, "PLCNAPI_custom13", custom13);
+		}
+	}else{
+		logger.info("msgValidationSepaInstPacs002: External call");
+		wrapperSepaInstPacs002Mx(exchange);
+		//wrapperTimelineCheck(exchange);
+	}
+
+	result = getHeader(map, "PLCN_validMessage");
+	//result = true;
+	logger.info("msgValidationSepaInstPacs002: PLCN_validMessage = " + result);
+	logger.info("msgValidationSepaInstPacs002: typeof PLCN_validMessage = " + typeof result);
+
+	if(result == true) {
+		setHeader(map, "status", "valid");
+	}else {
+		setHeader(map, "status", "error");
+
+		if(flag == "Y"){
+			//SEPA business rule failed
+			setCommentsForTransaction("00", "8183", map);
+		}
+	}
+}
+
+/* function SepaInstGrpHdrAmtRule(exchange){
+	var retVal;
+	logger.info("In SepaInstGrpHdrAmtRule");
+	retVal = 0;
+	var res;
+	var resPath;
+	var numbOfTxnPath;
+	var numbOfTxn;
+	var i;
+	var totalAmountOfTxn = 0;
+	var IntrBkSttlmAmtPath;
+	var IntrBkSttlmAmt;
+ 
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+ 
+	if(isPatternPresent(Document1, "</FIToFICstmrCdtTrf>")) {
+		resPath = '/Document/FIToFICstmrCdtTrf/GrpHdr/TtlIntrBkSttlmAmt';
+		res = getValueFromPath(Document, resPath);
+		logger.info(" SepaInstGrpHdrAmtRule: res = " + res);
+		numbOfTxnPath = '/Document/FIToFICstmrCdtTrf/GrpHdr/NbOfTxs';
+		numbOfTxn = getValueFromPath(Document, numbOfTxnPath);
+		logger.info("SepaInstGrpHdrAmtRule: numbOfTxn = " + numbOfTxn);
+		logger.info("SepaInstGrpHdrAmtRule: typeof numbOfTxn = " + typeof numbOfTxn);
+ 
+		numbOfTxn = Number(numbOfTxn);
+		logger.info("SepaInstGrpHdrAmtRule: typeof numbOfTxn = " + typeof numbOfTxn);
+ 
+		for(i = 0; i < numbOfTxn; i++) {
+			IntrBkSttlmAmtPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/IntrBkSttlmAmt';
+			IntrBkSttlmAmt = getValueFromPath(Document, IntrBkSttlmAmtPath);
+			IntrBkSttlmAmt = Number(IntrBkSttlmAmt);
+			logger.info("SepaInstGrpHdrAmtRule: IntrBkSttlmAmt = " + IntrBkSttlmAmt);
+			totalAmountOfTxn = totalAmountOfTxn + IntrBkSttlmAmt;
+			totalAmountOfTxn = Number(totalAmountOfTxn);
+			logger.info("SepaInstGrpHdrAmtRule: totalAmountOfTxn = " + totalAmountOfTxn);
+		}
+ 
+		if(res != totalAmountOfTxn){
+			setHeader(map,"PLCN_validMessage",false);
+			logger.info("SepaInstGrpHdrAmtRule: GroupHeader/TotalReturnedInterbankSettlementAmount must equal the sum of all occurrences of TransactionInformation/ReturnedInterbankSettlementAmount when present.");
+			retVal = setCommentsForTransaction("179","5725", map);
+			return retVal;
+		}
+	}
+ 
+	if(isPatternPresent(Document1, "</PmtRtr>")) {
+		resPath = '/Document/PmtRtr/GrpHdr/TtlRtrdIntrBkSttlmAmt';
+		res = getValueFromPath(Document, resPath);
+		logger.info(" SepaInstGrpHdrAmtRule: res = " + res);
+		numbOfTxnPath = '/Document/PmtRtr/GrpHdr/NbOfTxs';
+		numbOfTxn = getValueFromPath(Document, numbOfTxnPath);
+		logger.info("SepaInstGrpHdrAmtRule: numbOfTxn = " + numbOfTxn);
+		logger.info("SepaInstGrpHdrAmtRule: typeof numbOfTxn = " + typeof numbOfTxn);
+ 
+		numbOfTxn = Number(numbOfTxn);
+		logger.info("SepaInstGrpHdrAmtRule: typeof numbOfTxn = " + typeof numbOfTxn);
+ 
+		for(i = 0; i < numbOfTxn; i++) {
+			IntrBkSttlmAmtPath = '/Document/PmtRtr/TxInf/RtrdIntrBkSttlmAmt';
+			IntrBkSttlmAmt = getValueFromPath(Document, IntrBkSttlmAmtPath);
+			IntrBkSttlmAmt = Number(IntrBkSttlmAmt);
+			logger.info("SepaInstGrpHdrAmtRule: IntrBkSttlmAmt = " + IntrBkSttlmAmt);
+			totalAmountOfTxn = totalAmountOfTxn + IntrBkSttlmAmt;
+			totalAmountOfTxn = Number(totalAmountOfTxn);
+			logger.info("SepaInstGrpHdrAmtRule: totalAmountOfTxn = " + totalAmountOfTxn);
+		}
+ 
+		if(res != totalAmountOfTxn){
+			setHeader(map,"PLCN_validMessage",false);
+			logger.info("SepaInstGrpHdrAmtRule: GroupHeader/TotalReturnedInterbankSettlementAmount must equal the sum of all occurrences of TransactionInformation/ReturnedInterbankSettlementAmount when present.");
+			retVal = setCommentsForTransaction("179","5725", map);
+			return retVal;
+		}
+	}
+ 
+	return retVal;
+} */
+
+function sepaInstCurrencyCheckRule(exchange){
+	var retVal;
+	logger.info("In sepaInstCurrencyCheckRule");
+	retVal = 0;
+	var currencyPath;
+	var currency;
+	
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+
+	if(isPatternPresent(Document1, "</FIToFICstmrCdtTrf>")) {
+		logger.info(" sepaInstCurrencyCheckRule: Inside Pacs008 loop.. ");
+		currencyPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/IntrBkSttlmAmt/@Ccy';
+		currency = getValueFromPath(Document, currencyPath);
+		logger.info("sepaInstCurrencyCheckRule: currency = " + currency);
+		logger.info("sepaInstCurrencyCheckRule: typeof currency = " + typeof currency);
+
+	}
+
+	if(isPatternPresent(Document1, "</PmtRtr>")) {
+		logger.info(" sepaInstCurrencyCheckRule: Inside Pacs004 loop..");
+		currencyPath = '/Document/PmtRtr/TxInf/RtrdIntrBkSttlmAmt/@Ccy';
+		currency = getValueFromPath(Document, currencyPath);
+		logger.info("sepaInstCurrencyCheckRule: currency = " + currency);
+		logger.info("sepaInstCurrencyCheckRule: typeof currency = " + typeof currency);
+
+
+	}
+
+	if(isPatternPresent(Document1, "</FIToFIPmtCxlReq>")) {
+		logger.info(" sepaInstCurrencyCheckRule: Inside camt056 loop..");
+		currencyPath = '/Document/FIToFIPmtCxlReq/Undrlyg/TxInf/OrgnlIntrBkSttlmAmt/@Ccy';
+		currency = getValueFromPath(Document, currencyPath);
+		logger.info("sepaInstCurrencyCheckRule: currency = " + currency);
+		logger.info("sepaInstCurrencyCheckRule: typeof currency = " + typeof currency);
+
+
+	}
+
+	if(isPatternPresent(Document1, "</FIToFIPmtStsReq>")) {
+		logger.info(" sepaInstCurrencyCheckRule: Inside pacs028 loop..");
+		currencyPath = '/Document/FIToFIPmtStsReq/TxInf/OrgnlTxRef/IntrBkSttlmAmt/@Ccy';
+		currency = getValueFromPath(Document, currencyPath);
+		logger.info("sepaInstCurrencyCheckRule: currency = " + currency);
+		logger.info("sepaInstCurrencyCheckRule: typeof currency = " + typeof currency);
+
+
+	}
+
+	if(isPatternPresent(Document1, "</RsltnOfInvstgtn>")) {
+		logger.info(" sepaInstCurrencyCheckRule: Inside pacs028 loop..");
+		currencyPath = '/Document/RsltnOfInvstgtn/CxlDtls/TxInfAndSts/OrgnlTxRef/IntrBkSttlmAmt/@Ccy';
+		currency = getValueFromPath(Document, currencyPath);
+		logger.info("sepaInstCurrencyCheckRule: currency = " + currency);
+		logger.info("sepaInstCurrencyCheckRule: typeof currency = " + typeof currency);
+
+
+	}
+
+	if(currency && currency != 'EUR'){
+		setHeader(map,"PLCN_validMessage",false);
+		logger.info("sepaInstCurrencyCheckRule: Currency is other than 'EUR'");
+		retVal = setCommentsForTransaction("124", "5710", map);
+		return retVal;
+	}
+
+	return retVal;
+}
+
+function svcLvlCdSepaInstPacs028Rule(exchange) {
+
+	var retVal = 0;
+ 
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	logger.info("In svcLvlCdSepaInstPacs008Rule");
+ 
+	var svcLvlCdPath = "/Document/FIToFIPmtStsReq/TxInf/PmtTpInf/SvcLvl/Cd";
+	var svcLvlCd = getValueFromPath(Document, svcLvlCdPath);
+	logger.info("svcLvlCd = "+ svcLvlCd);
+ 
+	if(svcLvlCd){
+		if(svcLvlCd != "SEPA"){
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("svcLvlCdSepaInstPacs028Rule: svcLvlCd : Must be “SEPA”.");
+			retVal = setCommentsForTransaction("011", "7058", map);
+			return retVal;
+		}
+	}
+	return retVal;
+}
+function sepaInstTipsValidationRulesPacs028(pacs028ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaInstTipsValidationRulesPacs028");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(pacs028ValdFlagMx == "ERROR") {
+
+		retVal = tipsPrvtIdPacs028NotAllowedRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = tipsPacs028AnyBicRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = pmtTpInfOrgnlMsgNmIdGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = setofcharAllowedTipsGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = orgMsgNmIdPacs028TipsRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+
+	if(pacs028ValdFlagMx == "WARNING") {
+
+		retval = tipsPrvtIdPacs028NotAllowedRule(exchange);
+		retval = tipsPacs028AnyBicRule(exchange);
+		retval = pmtTpInfOrgnlMsgNmIdGenericRule(exchange);
+		retval = setofcharAllowedTipsGenericRule(exchange);
+		retval = orgMsgNmIdPacs028TipsRule(exchange);
+	}
+	return retVal;
+}
+
+function wrapperSepaInstPacs002Mx(exchange) {
+	logger.info("wrapperSepaInstPacs002Mx");
+	var retVal;
+	var commentsB2b;
+	var pacs002ValdFlagMx;
+	var txnComments;
+	var inMsg;
+	var map;
+	var Document;
+	var manualMode;
+
+	logger.info('wrapperSepaInstPacs002Mx: In wrapperSepaInstPacs002Mx');
+	inMsg = exchange.getIn();
+	map = inMsg.getHeaders();
+	Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	pacs002ValdFlagMx = memTblGetTableValue(map, "FLAG-TABLE", "PACS02_VALD_FLAG_MX");
+	pacs002ValdFlagMx = pacs002ValdFlagMx?.trim();
+	logger.info("pacs002ValdFlagMx = " + pacs002ValdFlagMx);
+
+	var institutionId = getHeader(map, "PLCN_institutionId");
+	logger.info("wrapperSepaInstPacs002Mx: institutionId " +institutionId);
+	
+	manualMode = getHeader(map, "PLCN_manualMode");
+	logger.info("wrapperSepaInstPacs002Mx: manualMode " +manualMode);
+
+	clrSysRT1 = getHeader(map, "PLCN_clrSysRT1");
+	logger.info("wrapperSepaInstPacs002Mx: clrSysRT1 = "+ clrSysRT1);
+ 
+	if(pacs002ValdFlagMx == 'ERROR') {
+
+		if(clrSysRT1 == "true"){
+			logger.info("wrapperSepaInstPacs002Mx: Calling sepaInstRT1ValidationRulesPacs028");
+			retVal = sepaInstRT1ValidationRulesPacs002(pacs002ValdFlagMx,exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs002Mx: txnComments from sepaInstRT1ValidationRulesPacs028 = " + txnComments);
+		}else{
+			retVal = sepaInstTipsValidationRulesPacs002(pacs002ValdFlagMx,exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs002Mx: txnComments from sepaInstTipsValidationRulesPacs002 = " + txnComments);
+		}
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaInstPacs002Mx: Calling externalCodelistValidationSepaPacs002");
+			//retVal = externalCodelistValidationSepaPacs002(Document, map);		
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs002Mx: txnComments from externalCodelistValidationSepaPacs002 = " + txnComments);			
+		}
+
+		if(retVal == 0) {
+			logger.info("wrapperSepaInstPacs002Mx: Calling ibanValidationSepaINSTPacs002");
+			//retVal = ibanValidationSepaINSTPacs002(exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs002Mx: txnComments from ibanValidationSepaINSTPacs002 = " + txnComments);
+		}
+		
+	}
+
+	if(pacs002ValdFlagMx == 'WARNING') {
+
+		logger.info("wrapperSepaInstPacs002Mx: Calling wrapperSepaInstPacs002Mx");
+		//retVal = sepaInstValidationRulesPacs028(pacs002ValdFlagMx, exchange);
+		logger.info("wrapperSepaInstPacs002Mx: retVal from sepaInstTipsValidationRulesPacs002 = " + retVal);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs002Mx: txnComments = " + txnComments);
+
+		logger.info("wrapperSepaInstPacs002Mx: Calling externalCodelistValidationSepaPacs028");
+		//retVal = externalCodelistValidationSepaPacs028(Document, map);		
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs002Mx: txnComments from externalCodelistValidationSepaPacs028 = " + txnComments);			
+		
+		logger.info("wrapperSepaInstPacs002Mx: Calling ibanValidationSepaINSTPacs028");
+		//retVal = ibanValidationSepaINSTPacs028(exchange);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs002Mx: txnComments from ibanValidationSepaINSTPacs028 = " + txnComments);
+		
+		logger.info("wrapperSepaInstPacs002Mx: Calling constraintsISORulesSEPAPacs028");
+		//constraintsISORulesSEPAPacs028(pacs002ValdFlagMx, exchange);
+		txnComments = getHeader(map, 'PLCN_txnComments');
+		logger.info("wrapperSepaInstPacs002Mx: txnComments from constraintsISORulesSEPAPacs028 = " + txnComments);
+		
+		if(clrSysRT1 == "true"){
+			logger.info("wrapperSepaInstPacs002Mx: Calling sepaInstRT1ValidationRulesPacs028");
+			retVal = sepaInstRT1ValidationRulesPacs002(pacs002ValdFlagMx, exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs002Mx: txnComments from sepaInstRT1ValidationRulesPacs028 = " + txnComments);
+		}else{
+			retVal = sepaInstTipsValidationRulesPacs002(pacs002ValdFlagMx,exchange);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaInstPacs002Mx: txnComments from sepaInstTipsValidationRulesPacs002 = " + txnComments);
+		}
+	}
+}
+
+function sepaInstTipsValidationRulesPacs002(pacs002ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaInstTipsValidationRulesPacs002");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(pacs002ValdFlagMx == "ERROR") {
+
+		retVal = lclInstrmCdSEPAInstPacs002Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = svcLvlCdSepaInstPacs002Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = setofcharAllowedTipsGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = orgnlMsgNmIdSepaInstTipsPacs002Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+
+	if(pacs002ValdFlagMx == "WARNING") {
+
+		retval = svcLvlCdSepaInstPacs002Rule(exchange);
+		retval = lclInstrmCdSEPAInstPacs002Rule(exchange);
+		retval = setofcharAllowedTipsGenericRule(exchange);
+		retval = orgnlMsgNmIdSepaInstTipsPacs002Rule(exchange);
+	}
+	return retVal;
+}
+
+function svcLvlCdSepaInstPacs002Rule(exchange) {
+
+	var retVal = 0;
+ 
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	logger.info("In svcLvlCdSepaInstPacs028Rule");
+ 
+	var svcLvlCdPath = "/Document/FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/PmtTpInf/SvcLvl/Cd";
+	var svcLvlCd = getValueFromPath(Document, svcLvlCdPath);
+	logger.info("svcLvlCdSepaInstPacs028Rule: svcLvlCd = "+ svcLvlCd);
+ 
+	if(svcLvlCd){
+		if(svcLvlCd != "SEPA"){
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("svcLvlCdSepaInstPacs002Rule: Only the value SEPA is supported.");
+			retVal = setCommentsForTransaction("038", "7062", map);
+			return retVal;
+		}
+	}
+	return retVal;
+}
+
+function lclInstrmCdSEPAInstPacs002Rule(exchange) {
+
+	var retVal = 0;
+ 
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	logger.info("In lclInstrmCdSEPAInstPacs002Rule");
+ 
+	var lclCdPath = "/Document/FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/PmtTpInf/LclInstrm/Cd";
+	var lclInstrmCd = getValueFromPath(Document, lclCdPath);
+	logger.info("lclInstrmCdSEPAInstPacs002Rule: lclInstrmCd = " + lclInstrmCd );
+
+	if(lclInstrmCd){
+		if(lclInstrmCd != "INST") {
+			setHeader(map, "PLCN_validMessage",false);
+			logger.info("lclInstrmCdSEPAInstPacs002Rule: lclInstrmCd must be present INST..");
+			retVal = setCommentsForTransaction("215", "7158", map);	
+			//return retVal;			
+		}
+	}
+	return retVal;
+}
+
+
+function charactersAllowedinTips(inputtxt) { 
+	logger.info("In charactersAllowedinTips");
+    var letters = /^[0-9a-zA-Z\-\?:\(\)\.,'\+]+$/;
+    logger.info("charactersAllowedinTips inputtxt" + inputtxt);
+
+    if(inputtxt) {
+	    if (inputtxt.match(letters)) {
+	        return true;
+	    } else {
+	        return false;
+	    }
+    }       
+}
+
+function sepaInstTipsValidationRulesPacs004(pacs04ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In SepaInstTipsValidationRulesPacs004");
+	logger.info("SepaInstTipsValidationRulesPacs004: exchange = " + exchange);
+
+	var inMsg = exchange.getIn();
+	logger.info("SepaInstTipsValidationRulesPacs004: inMsg = " + inMsg);
+	var map = inMsg.getHeaders();
+	logger.info("SepaInstTipsValidationRulesPacs004: map = " + map);
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	logger.info("SepaInstTipsValidationRulesPacs004: Document = " + Document);
+
+	retVal = 0;
+
+	if(pacs04ValdFlagMx == "ERROR") {
+
+		retVal = genericNoOfTxnCheckSepaInstRule(exchange);
+		logger.info("SepaInstTipsValidationRulesPacs004: genericNoOfTxnCheckSepaInstRule rule called.. ");
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = genericAnyBicLEIOthrRule(exchange);
+		logger.info("SepaInstTipsValidationRulesPacs004: genericAnyBicLEIOthrRule rule called..");
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = setofcharAllowedTipsGenericRule(exchange);
+		logger.info("SepaInstTipsValidationRulesPacs004: setofcharAllowedTipsGenericRule  rule called..." );
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = orgnlGrpInfoTIPSPacs004Rule(exchange);
+		logger.info("SepaInstTipsValidationRulesPacs004: orgnlGrpInfoTIPSPacs004Rule rule called...");
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = chrgsInfoAndRtrnIntrBkSttlmntAmountRuleTIPSPacs004(exchange);
+		logger.info("SepaInstTipsValidationRulesPacs004: chrgsInfoAndRtrnIntrBkSttlmntAmountRuleTIPSPacs004 rule called... ");
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = lclInstrmCdTIPSPacs004Rule(exchange);
+		logger.info("SepaInstTipsValidationRulesPacs004: lclInstrmCdTIPSPacs004Rule rule called...");
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = orgMsgNmIdPacs004TipsRule(exchange);
+		logger.info("SepaInstTipsValidationRulesPacs004: orgMsgNmIdPacs004TipsRule rule called...");
+		if(retVal != 0) {
+			return retVal;
+		}
+
+	}
+
+	if(pacs04ValdFlagMx == "WARNING") {
+		logger.info("SepaInstTipsValidationRulesPacs004: Document = " + Document);
+
+		retVal = genericNoOfTxnCheckSepaInstRule(exchange);
+		retVal = genericAnyBicLEIOthrRule(exchange);
+		retVal = setofcharAllowedTipsGenericRule(exchange);
+		retVal = orgnlGrpInfoTIPSPacs004Rule(exchange);
+		retVal = chrgsInfoAndRtrnIntrBkSttlmntAmountRuleTIPSPacs004(exchange);
+		retVal = lclInstrmCdTIPSPacs004Rule(exchange);
+		retVal = orgMsgNmIdPacs004TipsRule(exchange);
+		
+	}
+	return retVal;
+}
+
+
+function sepaInstTipsValidationRulesPacs008(pacs08ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaInstTipsValidationRulesPacs008");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(pacs08ValdFlagMx == "ERROR") {
+
+		retVal = ustrdStrdNonGenericRuleTips(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = setofcharAllowedTipsGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		//TBSEETHTY-10257
+		retVal = sepaInstGrpHdrAmtRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+
+	if(pacs08ValdFlagMx == "WARNING") {
+
+		retval = ustrdStrdNonGenericRuleTips(exchange);
+		retval = setofcharAllowedTipsGenericRule(exchange);		
+		retVal =sepaInstGrpHdrAmtRule(exchange);
+		}
+	return retVal;
+}
+
+function txInfTipsGenericRule(exchange) {
+	
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var messageBody = inMsg.getBody(java.lang.String.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	var addtlInfCheck;
+	var addtlInfCount = 0;
+	var retVal = 0;
+	var count ;
+	var msgString = inMsg.getBody(java.lang.String.class);
+	logger.trace("In txInfTipsGenericRule");
+
+	var nodes = Document.getElementsByTagName("TxInf"); //Get the <node> tags
+	logger.info("txInfTipsGenericRule:nodes = "+nodes); 
+    var amountOfNodes = nodes.length;
+	logger.info("txInfTipsGenericRule:amountOfNodes = "+amountOfNodes); 
+	
+	if(amountOfNodes > 1){
+		setHeader(map, "PLCN_validMessage",false);
+		logger.info("txInfTipsGenericRule : If TxInf present only 1 occurence is allowed in Tips.");
+		retVal = setCommentsForTransaction("126", "7132", map);
+		return retVal;
+	}
+	
+	return retVal;
+}
+
+function undrlygTipsGenericRule(exchange) {
+	
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var messageBody = inMsg.getBody(java.lang.String.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	var addtlInfCheck;
+	var addtlInfCount = 0;
+	var retVal = 0;
+	var count ;
+	var msgString = inMsg.getBody(java.lang.String.class);
+	logger.trace("In undrlygTipsGenericRule");
+
+	var nodes = Document.getElementsByTagName("Undrlyg"); //Get the <node> tags
+	logger.info("undrlygTipsGenericRule:nodes = "+nodes); 
+    var amountOfNodes = nodes.length;
+	logger.info("undrlygTipsGenericRule:amountOfNodes = "+amountOfNodes); 
+	
+	if(amountOfNodes > 1){
+		setHeader(map, "PLCN_validMessage",false);
+		logger.info("undrlygTipsGenericRule : If Undrlyg present only 1 occurence is allowed in Tips.");
+		retVal = setCommentsForTransaction("126", "7132", map);
+		return retVal;
+	}
+	
+	return retVal;
+}
+
+
+function sepaInstTipsValidationRulesCamt056(camt056ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaInstTipsValidationRulesCamt056");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(camt056ValdFlagMx == "ERROR") {
+
+		retVal = setofcharAllowedTipsGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		/* retVal = txInfTipsGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		} */
+		
+		retVal = orgnlMsgNmIdTIPSGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = addtlInfSepaInstCamt056Rule(exchange);
+		if(retVal != 0) {
+		 	return retVal;
+		} 
+		
+		/* retVal = undrlygTipsGenericRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		} */
+		
+		retVal = genericAnyBicLEIOthrTipsRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = amtLengthCheckRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+	}
+
+	if(camt056ValdFlagMx == "WARNING") {
+
+		retval = setofcharAllowedTipsGenericRule(exchange);
+		/* retVal = txInfTipsGenericRule(exchange); */
+		retVal = orgnlMsgNmIdTIPSGenericRule(exchange);
+		retVal = addtlInfSepaInstCamt056Rule(exchange);
+		/* retVal = undrlygTipsGenericRule(exchange); */
+		retVal = genericAnyBicLEIOthrTipsRule(exchange);
+		retVal = amtLengthCheckRule(exchange);
+
+	}
+	return retVal;
+}
+
+function sepaInstEPCValidationRulesCamt056(camt056ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaInstEPCValidationRulesCamt056");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(camt056ValdFlagMx == "ERROR") {
+
+		retVal = addtlInfSepaInstCamt056Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		
+		retVal = lclInstrmCdSepaInstCamt056Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = genericCurrencyEPCRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+	}
+
+	if(camt056ValdFlagMx == "WARNING") {
+
+		retval = addtlInfSepaInstCamt056Rule(exchange);
+		retVal = lclInstrmCdSepaInstCamt056Rule(exchange);
+		retVal = genericCurrencyEPCRule(exchange);
+
+	}
+	return retVal;
+}
+
+function genericCurrencyEPCRule(exchange) {
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var messageBody = inMsg.getBody(java.lang.String.class);
+	logger.info('genericCurrencyEPCRule: messageBody = ' + messageBody);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	logger.info('genericCurrencyEPCRule: Document1 = ' + Document1);
+	var retVal = 0;
+	var currencyPath;
+	var currencyValue;
+
+	logger.info('In genericCurrencyEPCRule');
+	
+	//loop for camt.056
+	if(isPatternPresent(Document1, "<FIToFIPmtCxlReq>")){
+		
+		currencyPath = '/Document/FIToFIPmtCxlReq/Undrlyg/TxInf/OrgnlIntrBkSttlmAmt/@Ccy';
+		currencyValue = getValueFromPath(Document, currencyPath);
+		logger.info("FIToFIPmtCxlReq-currencyValue :"+ currencyValue);
+		
+		const currencyValue1 = ["EUR"];
+		logger.info("RsltnOfInvstgtn-currencyValue1 :"+currencyValue1);
+
+		if(currencyValue){
+			if(currencyValue1.includes(currencyValue)){
+				logger.info("RsltnOfInvstgtn: currencyValue is correct");
+			}
+			else {
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("RsltnOfInvstgtn: Only EUR is allowed.");
+				retVal = setCommentsForTransaction("184", "7640", map);	//NEW violations to be defined..
+				//return retVal;			
+			}
+		}	
+	}
+
+	return retVal;
+}
+
+function sepaInstXSDCheckRsnCd(exchange) {
+	
+	var msgFamily;
+	var messageClassType;
+	var messageDirection;
+	var paramname;
+	var flagValue;
+	var userConfigVal;
+	var sourceChannelId;
+	
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In sepaInstXSDCheckRsnCd");	
+	messageDirection = getHeader(map, "PLCN_msgDirection");
+	logger.info("sepaInstXSDCheckRsnCd: messageDirection = " + messageDirection);
+	var rsnCdPath = "/Document/FIToFIPmtCxlReq/Undrlyg/TxInf/CxlRsnInf/Rsn/Cd";
+	var rsnCd = getValueFromPath(Document, rsnCdPath);
+	logger.info("rsnCd = "+ rsnCd);	
+	const rsnCdValues = ["CUST","AM09","AC03"];	
+	if(rsnCd){
+		if(rsnCdValues.includes(rsnCd)){
+			logger.info("sepaInstXSDCheckRsnCd: rsnCd is" + rsnCd);
+		}
+	}
+	
+	var anyBICCheck = isXmlNodePresent3(Document, "Orgtr", "Id", "OrgId", "<AnyBIC>");
+	logger.info("sepaInstXSDCheckRsnCd: anyBICCheck = " + anyBICCheck);
+	
+	msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	if(!msgFamily){
+		msgFamily = getHeader(map, "PLCN_msgFamily");
+	}
+	if(!msgFamily){
+		var paymentType = getHeader(map, "PaymentType");
+		logger.info("sepaInstXSDCheckRsnCd: paymentType: PaymentType = " + paymentType);
+
+		var tmpStr = paymentType?.slice(-15);
+		msgFamily = removePattern(paymentType, tmpStr);
+		//logger.info("sepaInstXSDCheckRsnCd: msgFamily = " + msgFamily);
+		logger.info("sepaInstXSDCheckRsnCd: msgFamily = " + msgFamily);
+	}
+	msgFamily = msgFamily?.toUpperCase();
+	logger.info("sepaInstXSDCheckRsnCd: msgFamily = " + msgFamily);	
+	messageClassType = getHeader(map, "PLCN_msgType");
+	logger.info("sepaInstXSDCheckRsnCd: messageClassType = " + messageClassType);	
+	if(isPatternPresent(messageClassType , "camt.056")) {
+		paramname = msgFamily.concat("_Camt.056." + rsnCd + "_XSDCHECK");
+	}
+	
+	if(anyBICCheck){
+		setHeader(map, "PLCN_BANK_XSDCHECK", true);
+	}
+	else{
+		setHeader(map, "PLCN_CLIENT_XSDCHECK", true);
+	}
+
+}
+
+function anyBicSepaInstCamt056Rule(exchange) {
+
+	var retVal = 0;
+ 
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	logger.info("In rsnPrtrySepaInstCamt056Rule");
+	
+	var rsnCdPath = "/Document/FIToFIPmtCxlReq/Undrlyg/TxInf/CxlRsnInf/Rsn/Cd";
+	var rsnCd = getValueFromPath(Document, rsnCdPath);
+	logger.info("rsnCd = "+ rsnCd);
+	logger.info("type of rsnCd = "+ typeof rsnCd);
+	
+	var rsnCdCheck = isXmlNodePresent3(Document, "TxInf", "CxlRsnInf", "Rsn", "<Cd>");
+	logger.info("anyBicSepaInstCamt056Rule  rsnCdCheck = "+ rsnCdCheck);
+	
+	var anyBICCheck = isXmlNodePresent3(Document, "Orgtr", "Id", "OrgId", "<AnyBIC>");
+	logger.info("anyBicSepaInstCamt056Rule: anyBICCheck = " + anyBICCheck);
+	
+	var nmCheck = isXmlNodePresent3(Document, "TxInf", "CxlRsnInf", "Orgtr", "<Nm>");
+	logger.info("anyBicSepaInstCamt056Rule: anyBICCheck = " + anyBICCheck);
+ 
+	const rsnCdValues = ["DUPL","FRAD","TECH"];
+
+	if(rsnCdCheck){
+		if(rsnCdValues.includes(rsnCd)){
+			if((nmCheck && anyBICCheck) || (!anyBICCheck)){
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("anyBicSepaInstCamt056Rule: only Anybic is supported when Rsncd is DUPL,FRAD,TECH.");
+				retVal = setCommentsForTransaction("109", "7137", map);	//NEW violations to be defined..
+				//return retVal;
+			}			
+		}
+	}
+	return retVal;
+}
+
+function dineroPacs008Validation(exchange){
+
+	var map;
+	var manualMode;
+	var channelIdSource;
+	var retVal;
+	var sourceChannelId;
+	var msgType;
+
+	
+	retVal = 0;
+	logger.info("in dineroPacs008Validation");
+	var inMsg = exchange.getIn();
+	var	map = inMsg.getHeaders();
+	//var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	sourceChannelId = getHeader(map, "PLCN_channelIdSource");
+	logger.info("dineroPacs008Validation: sourceChannelId " +sourceChannelId);
+	manualMode = getHeader(map, "PLCN_manualMode");
+	logger.info("dineroPacs008Validation: manualMode " +manualMode);
+
+
+	if(manualMode == "REPAIR" && sourceChannelId == "PELICAN") {
+		logger.info("dineroPacs008Validation: in rule caling loop");
+		retVal = dineroValidationRulePacs008(exchange);
+		return retVal; 		
+	}
+	return retVal;
+}
+function bicPacs008Validation(exchange){
+	
+	var map;
+	var retVal;
+	var sourceChannelId;
+
+	logger.info("In bicPacs008Validation");
+	retVal = 0;
+	var inMsg = exchange.getIn();
+	var	map = inMsg.getHeaders();
+
+	sourceChannelId = getHeader(map, "PLCN_channelIdSource");
+	logger.info("bicPacs008Validation: sourceChannelId " + sourceChannelId);
+    if (sourceChannelId == "PELICAN"){
+		retVal = bicValidationRulePacs008(exchange);
+	}
+	return retVal;
+	
+}
+
+function bicValidationRulePacs008(exchange){
+	
+	var cdtrBicPath;
+	var cdtrBic;
+    var dbtrBicPath;
+    var dbtrBic;
+	var ultmtDbtrBicPath;
+    var ultmtCdtrBicPath;
+    var instgAgtPath;
+    var instdAgtPath;
+	var retVal;
+	
+	logger.info("In bicValidationRulePacs008");
+    
+	retVal = 0;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var parser = new XMLParser();
+	
+    /*
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+  	body = inMsg.getBody(java.lang.String.class);
+	var document1 = parser.parseXML(body);
+    */
+    
+	cdtrBicPath = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/CdtrAgt/FinInstnId/BICFI";
+    retVal = validateBicFromPath1(exchange, cdtrBicPath, "CdtrAgt", "889");
+	if(retVal != 0) {
+        return retVal;
+	}
+	/*
+    cdtrBic = getValueFromPath(document1, cdtrBicPath);
+	logger.info("bicPacs008Validation: cdtrBic = " + cdtrBic);
+	if(cdtrBic){
+	    if(!isValidBic(cdtrBic, map)) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("891", "5770", map);
+            return retVal;
+		}
+	}
+    */
+    
+	dbtrBicPath = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAgt/FinInstnId/BICFI";
+    retVal = validateBicFromPath1(exchange, dbtrBicPath, "DbtrAgt", "841");
+	if(retVal != 0) {
+        return retVal;
+	}
+    /*
+    dbtrBic = getValueFromPath(document1, dbtrBicPath);
+	logger.info("bicPacs008Validation: dbtrBic = " + dbtrBic);
+	if(dbtrBic){
+	    if(!isValidBic(dbtrBic, map)) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("843", "5770", map);
+            return retVal;
+		}
+	}
+    */
+    
+	ultmtDbtrBicPath = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtDbtr/Id/OrgId/AnyBIC";
+    retVal = validateBicFromPath1(exchange, ultmtDbtrBicPath, "UltmtDbtr", "693");
+	if(retVal != 0) {
+        return retVal;
+	}
+
+	ultmtCdtrBicPath = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtCdtr/Id/OrgId/AnyBIC";
+    retVal = validateBicFromPath1(exchange, ultmtCdtrBicPath, "UltmtCdtr", "1007");
+	if(retVal != 0) {
+        return retVal;
+	}
+    
+    instgAgtPath = "/Document/FIToFICstmrCdtTrf/GrpHdr/InstgAgt/FinInstnId/BICFI"
+    retVal = validateBicFromPath1(exchange, instgAgtPath, "InstgAgt", "295");
+	if(retVal != 0) {
+        return retVal;
+	}
+    
+    instdAgtPath = "/Document/FIToFICstmrCdtTrf/GrpHdr/InstdAgt/FinInstnId/BICFI"
+    retVal = validateBicFromPath1(exchange, instdAgtPath, "InstdAgt", "296");
+	if(retVal != 0) {
+        return retVal;
+	}
+	return retVal;
+}
+
+function dineroValidationRulePacs008(exchange){
+
+	var formatLabel;
+	var companyCode;
+	var companyCode1;
+	var retVal;
+	var internalBookingFlag;
+	var sddBank;
+	var sddCustomer;
+	var sntdCrf004Flag;
+	var path;
+	var iban;
+	var retVal;
+	var msgType;
+	
+	retVal = 0;
+	
+	logger.info("In dineroValidationRulePacs008");
+	
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var orgBody = getHeader(map, "PLCN_originalMsgBody");
+	logger.info("dineroValidationRulePacs008: orgBody = "+ orgBody);
+	inMsg.setBody(orgBody);
+
+	var parser = new XMLParser();
+	parser.parseXML(orgBody);
+	retVal = 0;
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+  	body = inMsg.getBody(java.lang.String.class);
+  	logger.info("dineroValidationRulePacs008: body = " + body);
+	var document1 = parser.parseXML(body);
+	
+	internalBookingFlag = getHeader(map, "PLCN_internalBookingFlag");
+	logger.info("dineroValidationRulePacs008: internalBookingFlag " +internalBookingFlag);
+	//commented by SP for TECHBULLS-30119
+	/* if(internalBookingFlag == "Y") {
+		 return retVal; 
+	} */
+
+	var ibanPath = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAcct/Id/IBAN";
+	var iban = getValueFromPath(document1, ibanPath);
+	logger.info("dineroValidationRulePacs008: iban = " + iban);
+
+	formatLabel = validateIntBookingBackoffdrvaccFromIban(exchange,iban);
+	
+
+	if(formatLabel == "F014") {
+		retVal = setCommentsForTransaction("00", "8780", map);
+		 return retVal; 
+	}	
+	else {
+		return retVal; 
+	}
+
+}
+
+function bicPacs003Validation(exchange){
+	
+	var map;
+	var retVal;
+	var sourceChannelId;
+
+	logger.info("In bicPacs003Validation");
+	retVal = 0;
+	var inMsg = exchange.getIn();
+	var	map = inMsg.getHeaders();
+
+	sourceChannelId = getHeader(map, "PLCN_channelIdSource");
+	logger.info("bicPacs003Validation: sourceChannelId " + sourceChannelId);
+    if (sourceChannelId == "PELICAN"){
+		retVal = bicValidationRulePacs003(exchange);
+	}
+	return retVal;
+	
+}
+
+function bicValidationRulePacs003(exchange){
+	
+	var cdtrBicPath;
+	var cdtrBic;
+    var dbtrBicPath;
+    var dbtrBic;
+	var ultmtDbtrBicPath;
+    var ultmtCdtrBicPath;
+    var instgAgtPath;
+    var instdAgtPath;
+	var retVal;
+	
+	logger.info("In bicValidationRulePacs003");
+    
+	retVal = 0;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var parser = new XMLParser();
+    
+	cdtrBicPath = "/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/CdtrAgt/FinInstnId/BICFI";
+    retVal = validateBicFromPath1(exchange, cdtrBicPath, "CdtrAgt", "127");
+	if(retVal != 0) {
+        return retVal;
+	}
+    
+	dbtrBicPath = "/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/DbtrAgt/FinInstnId/BICFI";
+    retVal = validateBicFromPath1(exchange, dbtrBicPath, "DbtrAgt", "171");
+	if(retVal != 0) {
+        return retVal;
+	}
+    
+	ultmtDbtrBicPath = "/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtDbtr/Id/OrgId/AnyBIC";
+    retVal = validateBicFromPath1(exchange, ultmtDbtrBicPath, "UltmtDbtr", "173");
+	if(retVal != 0) {
+        return retVal;
+	}
+
+	ultmtCdtrBicPath = "/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtCdtr/Id/OrgId/AnyBIC";
+    retVal = validateBicFromPath1(exchange, ultmtCdtrBicPath, "UltmtCdtr", "129");
+	if(retVal != 0) {
+        return retVal;
+	}
+    
+    instgAgtPath = "/Document/FIToFICstmrDrctDbt/GrpHdr/InstgAgt/FinInstnId/BICFI"
+    retVal = validateBicFromPath1(exchange, instgAgtPath, "InstgAgt", "138"); //???
+	if(retVal != 0) {
+        return retVal;
+	}
+    
+    instdAgtPath = "/Document/FIToFICstmrDrctDbt/GrpHdr/InstdAgt/FinInstnId/BICFI"
+    retVal = validateBicFromPath1(exchange, instdAgtPath, "InstdAgt", "139"); //???
+	if(retVal != 0) {
+        return retVal;
+	}
+	return retVal;
+}
+
+function validateBicFromPath1(exchange, bicfiPath, fld, fldNo) {
+	var temp;
+	var bic;
+	var len;
+	var bicCheck;
+	var retVal = 0;
+	var bicfiPath;
+	var bicfiVar;
+	var upperBic;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+    var parser = new XMLParser();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+    var document1 = parser.parseXML(body);
+
+	logger.info('In validateBicFromPath1');
+	bicfiVar = getValueFromPath(document1, bicfiPath);
+
+	if(!bicfiVar) {
+		return 0;
+	}
+
+	var bicFmtCheck = memTblGetTableValue(map, "FLAG-TABLE", "BIC_FMT_CHECK_REQ");
+	bicFmtCheck = bicFmtCheck?.trim();
+
+	if(bicFmtCheck == "Y") {
+		retVal = bicIdentifier(bicfiVar);
+
+		if(retVal > 0) {
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction(fldNo, "8001", map);
+			return retVal;
+		}
+
+		len = bicfiVar.length;
+
+		if(len == 8) {
+			bic = bicfiVar.concat("XXX");
+		}else {
+			bic = bicfiVar;
+		}
+	}
+
+    temp = isValidBic(bic, map);
+    if(temp == false) {
+        setHeader(map, "PLCN_validMessage", false);
+        retVal = setCommentsForTransaction(fldNo, "8001", map);
+    }
+
+	return retVal;
+}
+
+function sepaValidationDBBRulesPacs008(pacs008ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaValidationDBBRulesPacs008");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(pacs008ValdFlagMx == "ERROR") {
+
+		retVal = CtgyPurpDBBPacs008Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = ttlIntrBkSttlmAmtDBBPacs008Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = nbOfTxsDBBRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = genericCountryCheckRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = rmtInfStrdDBBPacs008Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = noOfTxnRule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		retVal = instgAndInstdAgtDBBPacs008Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+
+	if(pacs008ValdFlagMx == "WARNING") {
+		retVal = CtgyPurpDBBPacs008Rule(exchange);
+		retVal = ttlIntrBkSttlmAmtDBBPacs008Rule(exchange);
+		retVal = nbOfTxsDBBRule(exchange);
+		retVal = genericCountryCheckRule(exchange);
+		retVal = rmtInfStrdDBBPacs008Rule(exchange);
+		retVal = noOfTxnRule(exchange);
+        retVal = instgAndInstdAgtDBBPacs008Rule(exchange);
+	}
+	return retVal;
+}
+
+function CtgyPurpDBBPacs008Rule(exchange) {
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);	
+	var retVal = 0;
+	
+	logger.info("In CtgyPurpDBBPacs008Rule");
+
+    var ctgyPurpCdPath = "/Document/FIToFICstmrCdtTrf/GrpHdr/PmtTpInf/CtgyPurp/Cd";
+    var ctgyPurpCdP = getValueFromPath(Document, ctgyPurpCdPath);
+    logger.info("CtgyPurpDBBPacs008Rule: ctgyPurpCdP from GrpHdr = " + ctgyPurpCdP);
+	
+	if(!ctgyPurpCdP) {
+		ctgyPurpCdPath = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/PmtTpInf/CtgyPurp/Cd";
+		ctgyPurpCdP = getValueFromPath(Document, ctgyPurpCdPath);
+		logger.info("CtgyPurpDBBPacs008Rule: ctgyPurpCdP from CdtTrfTxInf = " + ctgyPurpCdP);		
+	}
+
+    if(ctgyPurpCdP == "FCOL" || ctgyPurpCdP == "INTE" || ctgyPurpCdP == "FCIN") {
+    	var ultmtDbtr = isXmlNodePresent2(Document, "UltmtDbtr");
+    	logger.info("CtgyPurpDBBPacs008Rule: ultmtDbtr = " + ultmtDbtr);
+
+    	if(ultmtDbtr) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("693", "7181", map);
+			logger.info("CtgyPurpDBBPacs008Rule: If 'CtgyPurp' is 'FCOL', 'INTE' or 'FCIN', ultimate debtor must not be used.");
+			return retVal;
+		}
+
+		var dbtrPstlAdr = isXmlNodePresent(Document, "CdtTrfTxInf", "Dbtr", "PstlAdr");
+    	logger.info("CtgyPurpDBBPacs008Rule: dbtrPstlAdr = " + dbtrPstlAdr);
+
+    	if(dbtrPstlAdr) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("779", "7182", map);
+			logger.info('CtgyPurpDBBPacs008Rule: If "CtgyPurp" is "FCOL", "INTE" or "FCIN", Address of the payer must not be used.');
+			return retVal;
+		}
+
+		var dbtrId = isXmlNodePresent(Document, "CdtTrfTxInf", "Dbtr", "Id");
+    	logger.info("CtgyPurpDBBPacs008Rule: dbtrId = " + dbtrId);
+
+    	if(!dbtrId) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("779", "7183", map);
+			logger.info('CtgyPurpDBBPacs008Rule: If "CtgyPurp" is "FCOL", "INTE" or "FCIN", Identification of the payer must be used.');
+			return retVal;
+		}
+
+		var dbtrAnyBIC = isXmlNodePresent(Document, "CdtTrfTxInf", "Dbtr", "AnyBIC");
+    	logger.info("CtgyPurpDBBPacs008Rule: dbtrAnyBIC = " + dbtrAnyBIC);
+
+    	if(!dbtrAnyBIC) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("779", "7186", map);
+			logger.info('CtgyPurpDBBPacs008Rule: If "CtgyPurp" is "FCOL", "INTE" or "FCIN", "AnyBIC" must be used.');
+			return retVal;
+		}
+
+    	var ultmtCdtr = isXmlNodePresent2(Document, "UltmtCdtr");
+    	logger.info("CtgyPurpDBBPacs008Rule: ultmtCdtr = " + ultmtCdtr);
+
+    	if(ultmtCdtr) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("1007", "7189", map);
+			logger.info("CtgyPurpDBBPacs008Rule: If 'CtgyPurp' is 'FCOL', 'INTE' or 'FCIN', ultimate creditor must not be used.");
+			return retVal;
+		}
+		
+		var purp = isXmlNodePresent(Document, "FIToFICstmrCdtTrf", "CdtTrfTxInf", "<Purp>");
+    	logger.info("CtgyPurpDBBPacs008Rule: purp = " + purp);
+
+    	if(purp) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("1060", "7190", map);
+			logger.info('CtgyPurpDBBPacs008Rule: If "CtgyPurp" is "FCOL", "INTE" or "FCIN",  Purpose of the Credit Transfer must not be used.');
+			return retVal;
+		}
+
+		var cdtrPstlAdr = isXmlNodePresent(Document, "CdtTrfTxInf", "Cdtr", "PstlAdr");
+    	logger.info("CtgyPurpDBBPacs008Rule: cdtrPstlAdr = " + cdtrPstlAdr);
+
+    	if(cdtrPstlAdr) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("945", "7187", map);
+			logger.info('CtgyPurpDBBPacs008Rule: If "CtgyPurp" is "FCOL", "INTE" or "FCIN", Address of the creditor must not be used.');
+			return retVal;
+		}
+
+		var cdtrId = isXmlNodePresent(Document, "CdtTrfTxInf", "Cdtr", "Id");
+    	logger.info("CtgyPurpDBBPacs008Rule: cdtrId = " + cdtrId);
+
+    	if(!cdtrId) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("945", "7188", map);
+			logger.info('CtgyPurpDBBPacs008Rule: If "CtgyPurp" is "FCOL", "INTE" or "FCIN", Identification of the creditor must be used.');
+			return retVal;
+		}
+
+		var cdtrAnyBIC = isXmlNodePresent(Document, "CdtTrfTxInf", "Cdtr", "AnyBIC");
+    	logger.info("CtgyPurpDBBPacs008Rule: cdtrAnyBIC = " + cdtrAnyBIC);
+ 
+    	if(!cdtrAnyBIC) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("945", "7186", map);
+			logger.info('CtgyPurpDBBPacs008Rule: If "CtgyPurp" is "FCOL", "INTE" or "FCIN", "AnyBIC" must be used.');
+			return retVal;
+		}
+
+		var rmtInf = isXmlNodePresent4(Document, "CdtTrfTxInf", "RmtInf");
+    	logger.info("CtgyPurpDBBPacs008Rule: rmtInf = " + rmtInf);
+ 
+    	if(!rmtInf) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("1110", "7191", map);
+			logger.info('CtgyPurpDBBPacs008Rule: If CtgyPurp is "FCOL", "INTE" or "FCIN", Remittance information must be used.');
+			return retVal;
+		}
+		
+		var ustrd = isXmlNodePresent(Document, "CdtTrfTxInf", "RmtInf", "Ustrd");
+    	logger.info("CtgyPurpDBBPacs008Rule: ustrd = " + ustrd);
+ 
+    	if(ustrd) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("1111", "7192", map);
+			logger.info('CtgyPurpDBBPacs008Rule: If Category Purpose is "FCOL", "INTE" or "FCIN", Unstructured remittance information must NOT be used.');
+			return retVal;
+		}
+		
+		var strd = isXmlNodePresent(Document, "CdtTrfTxInf", "RmtInf", "Strd");
+    	logger.info("CtgyPurpDBBPacs008Rule: strd = " + strd);
+ 
+    	if(!strd) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("1112", "7194", map);
+			logger.info('CtgyPurpDBBPacs008Rule: If Category Purpose is "FCOL", "INTE" or "FCIN", Structured remittance information must be used.');
+			return retVal;
+		}
+		
+		var cdtrRefInf = isXmlNodePresent(Document, "CdtTrfTxInf", "RmtInf", "CdtrRefInf");
+    	logger.info("CtgyPurpDBBPacs008Rule: cdtrRefInf = " + cdtrRefInf);
+ 
+    	if(!cdtrRefInf) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("1201", "7195", map);
+			logger.info('CtgyPurpDBBPacs008Rule: If Category Purpose is "FCOL", "INTE" or "FCIN", Creditor Reference Information must be used.');
+			return retVal;
+		}
+    }
+	return retVal;
+}
+
+function ttlIntrBkSttlmAmtDBBPacs008Rule(exchange) {
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);	
+	var retVal = 0;
+
+	logger.info("In ttlIntrBkSttlmAmtDBBPacs008Rule");
+
+    var ttlIntrBkSttlmAmtPath = "/Document/FIToFICstmrCdtTrf/GrpHdr/TtlIntrBkSttlmAmt";
+    var ttlIntrBkSttlmAmt = getValueFromPath(Document, ttlIntrBkSttlmAmtPath);
+    ttlIntrBkSttlmAmt = Number(ttlIntrBkSttlmAmt);
+    logger.info("ttlIntrBkSttlmAmtDBBPacs008Rule: ttlIntrBkSttlmAmt = " + ttlIntrBkSttlmAmt);
+
+    var intrBkSttlmAmtPath = "/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/IntrBkSttlmAmt";
+    var intrBkSttlmAmt = getValueFromPath(Document, intrBkSttlmAmtPath);
+    intrBkSttlmAmt = Number(intrBkSttlmAmt);
+    logger.info("ttlIntrBkSttlmAmtDBBPacs008Rule: intrBkSttlmAmt = " + intrBkSttlmAmt);
+
+    if(ttlIntrBkSttlmAmt != intrBkSttlmAmt) {
+		setHeader(map, "PLCN_validMessage",false);
+		retVal = setCommentsForTransaction("122", "5707", map);
+		logger.info('ttlIntrBkSttlmAmtDBBPacs008Rule: The total amount given must equal the sum of the single transactions in the bulk.');
+		return retVal;
+    }
+
+	return retVal;
+}
+
+function nbOfTxsDBBRule(exchange) {
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);	
+	var retVal = 0;
+	var messageString = inMsg.getBody(java.lang.String.class);
+
+	logger.info("In nbOfTxsDBBRule");
+
+	if(isPatternPresent(messageString, "</FIToFICstmrCdtTrf>")) {
+
+    	var nbOfTxsPath = "/Document/FIToFICstmrCdtTrf/GrpHdr/NbOfTxs";
+    	var nbOfTxs = getValueFromPath(Document, nbOfTxsPath);
+    	nbOfTxs = parseInt(nbOfTxs);
+   		logger.info("nbOfTxsDBBRule: nbOfTxs = " + nbOfTxs);
+	
+	    if(nbOfTxs > 100000) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("120", "7199", map);
+			logger.info('nbOfTxsDBBRule: Total number of single transactions in the bulk. Must not exceed 100,000 (maximum parameter of data records in the bulk)');
+			//return retVal;    	
+	    }
+	}
+
+	if(isPatternPresent(messageString, "</PmtRtr>")) {
+
+    	var nbOfTxsPath = "/Document/PmtRtr/GrpHdr/NbOfTxs";
+    	var nbOfTxs = getValueFromPath(Document, nbOfTxsPath);
+    	nbOfTxs = parseInt(nbOfTxs);
+   		logger.info("nbOfTxsDBBRule: nbOfTxs = " + nbOfTxs);
+	
+	    if(nbOfTxs > 100000) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("122", "7199", map);
+			logger.info('nbOfTxsDBBRule: Total number of single transactions in the bulk. Must not exceed 100,000 (maximum parameter of data records in the bulk)');
+			//return retVal;    	
+	    }
+	}
+
+	if(isPatternPresent(messageString, "</FIToFIPmtCxlReq>")) {
+
+    	var nbOfTxsPath = "/Document/FIToFIPmtCxlReq/CtrlData/NbOfTxs";
+    	var nbOfTxs = getValueFromPath(Document, nbOfTxsPath);
+    	nbOfTxs = parseInt(nbOfTxs);
+   		logger.info("nbOfTxsDBBRule: nbOfTxs = " + nbOfTxs);
+
+   		if(!nbOfTxs) {
+			elements = Document.getElementsByTagName("TxInf");
+			logger.info("nbOfTxsDBBRule: elements = " + elements);
+
+			nbOfTxs = elements.length;
+			logger.info("nbOfTxsDBBRule: nbOfTxs = " + nbOfTxs);
+		}
+	
+	    if(nbOfTxs > 100000) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("155", "7199", map);
+			logger.info('nbOfTxsDBBRule: Total number of single transactions in the bulk. Must not exceed 100,000 (maximum parameter of data records in the bulk)');
+			//return retVal;    	
+	    }
+	}
+
+	if(isPatternPresent(messageString, "</RsltnOfInvstgtnRs>")) {
+
+    	var elements = Document.getElementsByTagName("TxInfAndSts");
+		logger.info("nbOfTxsDBBRule: elements = " + elements);
+
+		var nbOfTxs = elements.length;
+				
+		logger.info("nbOfTxsDBBRule: noOfTxn = " + nbOfTxs );
+
+	    if(nbOfTxs > 100000) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("00", "7199", map);
+			logger.info('nbOfTxsDBBRule: Total number of single transactions in the bulk. Must not exceed 100,000 (maximum parameter of data records in the bulk)');
+			//return retVal;    	
+	    }
+	}
+	//pacs.007
+	if(isPatternPresent(messageString, "</FIToFIPmtRvsl>")) {
+
+    	var nbOfTxsPath = "/Document/FIToFIPmtRvsl/GrpHdr/NbOfTxs";
+    	var nbOfTxs = getValueFromPath(Document, nbOfTxsPath);
+    	nbOfTxs = parseInt(nbOfTxs);
+   		logger.info("nbOfTxsDBBRule: nbOfTxs = " + nbOfTxs);
+	
+	    if(nbOfTxs > 100000) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("122", "7199", map);
+			logger.info('nbOfTxsDBBRule: Total number of single transactions in the bulk. Must not exceed 100,000 (maximum parameter of data records in the bulk)');
+			//return retVal;    	
+	    }
+	}
+	return retVal;	
+}
+
+function rmtInfStrdDBBPacs008Rule(exchange) {
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var messageString = inMsg.getBody(java.lang.String.class);	
+	var retVal = 0;
+
+	logger.info("In rmtInfStrdDBBPacs008Rule");
+
+	var strd = isXmlNodePresent2(Document, "Strd"); //Document.getElementsByTagName("Strd");
+	logger.info("rmtInfStrdDBBPacs008Rule: <Strd> node present = " + strd);
+	
+	if(strd) {
+		var data = dataBetweenTokens("<Strd>", "</Strd>", messageString);
+		logger.info("rmtInfStrdDBBPacs008Rule: <Strd> node data = " + data);
+		
+		data = data.replace(/\s+/g, "");
+		logger.info("rmtInfStrdDBBPacs008Rule: <Strd> node data = " + data);
+		
+		var dataLength = data.length;
+		logger.info("rmtInfStrdDBBPacs008Rule: dataLength = " + dataLength);
+		
+		if(dataLength > 140) {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("1112", "7193", map);
+			logger.info('rmtInfStrdDBBPacs008Rule: Each Structured element must appear only once, and its total content—including tags—must not exceed 140 characters.');
+			return retVal;			
+		}
+	}  
+	
+	return retVal;
+}
+
+function wrapperSepaPacs002Mx(exchange) {
+	var retVal;
+	var commentsB2b;
+	var pacs02ValdFlagMx;
+	var txnComments;
+	var inMsg;
+	var map;
+	var Document;
+	var tenantName;
+	var tenantNamePath;
+	var manualMode;
+
+	logger.info('In wrapperSepaPacs002Mx');
+	inMsg = exchange.getIn();
+	map = inMsg.getHeaders();
+	Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	pacs02ValdFlagMx = memTblGetTableValue(map, "FLAG-TABLE", "PACS02_VALD_FLAG_MX");
+	pacs02ValdFlagMx = pacs02ValdFlagMx?.trim();
+	logger.info("pacs02ValdFlagMx = " + pacs02ValdFlagMx);
+	var institutionId = getHeader(map, "PLCN_institutionId");
+	tenantName = getHeader(map, "PLCN_tenantName");
+	logger.info("wrapperSepaPacs002Mx: tenantName = " + tenantName);
+	if(!tenantName){
+		var tenantNamePath = institutionId + ".INSTITUTION_DETAILS.TENANT_NAME";
+		logger.info("wrapperSepaPacs002Mx: tenantName = " + tenantNamePath);
+		tenantName = memTblGetTableValue(map, "INST_PARAM",tenantNamePath);
+		logger.info("wrapperSepaPacs002Mx: tenantName = " + tenantName);
+	}
+	manualMode = getHeader(map, "PLCN_manualMode");
+	logger.info("wrapperSepaPacs002Mx: manualMode " +manualMode);
+
+	if(pacs02ValdFlagMx == 'ERROR') {		
+
+		logger.info("wrapperSepaPacs002Mx: Calling sepaValidationRulesPacs002");
+		retVal = sepaValidationRulesPacs002(pacs02ValdFlagMx, exchange);
+		logger.info("wrapperSepaPacs002Mx: retVal from sepaValidationRulesPacs002 = " + retVal);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaPacs002Mx: txnComments = " + txnComments);
+		
+		if(retVal == 0) {
+			var dbbFlag = getHeader(map, "PLCN_xsdCheckFlag");
+			logger.info("wrapperSepaPacs002Mx: dbbFlag = " + dbbFlag);
+			
+			if(dbbFlag == "DBB") {
+				logger.info("wrapperSepaPacs002Mx: Calling sepaValidationDBBRulesPacs002");
+				retVal = sepaValidationDBBRulesPacs002(pacs02ValdFlagMx, exchange);
+				logger.info("wrapperSepaPacs002Mx: retVal from sepaValidationDBBRulesPacs002 = " + retVal);
+				txnComments = getHeader(map, 'PLCN_txnComments');
+				logger.info("wrapperSepaPacs002Mx: txnComments = " + txnComments);
+			}		
+		}
+	}
+
+	if(pacs02ValdFlagMx == 'WARNING') {
+
+		logger.info("wrapperSepaPacs003Mx: Calling sepaValidationRulesPacs002");
+		retVal = sepaValidationRulesPacs002(pacs02ValdFlagMx, exchange);
+		logger.info("wrapperSepaPacs003Mx: retVal from sepaValidationRulesPacs002 = " + retVal);
+		txnComments = getHeader(map, "PLCN_txnComments");
+		logger.info("wrapperSepaPacs003Mx: txnComments = " + txnComments);
+		
+		var dbbFlag = getHeader(map, "PLCN_xsdCheckFlag");
+		logger.info("wrapperSepaPacs002Mx: dbbFlag = " + dbbFlag);
+		
+		if(dbbFlag == "DBB") {
+			logger.info("wrapperSepaPacs002Mx: Calling sepaValidationDBBRulesPacs002");
+			retVal = sepaValidationDBBRulesPacs002(pacs02ValdFlagMx, exchange);
+			logger.info("wrapperSepaPacs002Mx: retVal from sepaValidationDBBRulesPacs002 = " + retVal);
+			txnComments = getHeader(map, 'PLCN_txnComments');
+			logger.info("wrapperSepaPacs002Mx: txnComments = " + txnComments);
+		}
+	}
+}
+
+function sepaValidationDBBRulesPacs002(pacs02ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaValidationDBBRulesPacs002");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(pacs02ValdFlagMx == "ERROR") {
+
+		retVal = grpStsDBBPacs002Rule(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+
+	if(pacs02ValdFlagMx == "WARNING") {
+		retVal = grpStsDBBPacs002Rule(exchange);
+	}
+	return retVal;
+}
+
+function grpStsDBBPacs002Rule(exchange) {
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);	
+	var retVal = 0;
+	
+	logger.info("In grpStsDBBPacs002Rule");
+
+	var grpStsPath = "/Document/FIToFIPmtStsRptSCL/OrgnlGrpInfAndSts/GrpSts";
+    var grpSts = getValueFromPath(Document, grpStsPath);
+    logger.info("grpStsDBBPacs002Rule: grpSts = " + grpSts);
+
+	var dtldNbOfTxsPath = "/Document/FIToFIPmtStsRptSCL/OrgnlGrpInfAndSts/NbOfTxsPerSts/DtldNbOfTxs";
+    var dtldNbOfTxs = getValueFromPath(Document, dtldNbOfTxsPath);
+    logger.info("grpStsDBBPacs002Rule: dtldNbOfTxs = " + dtldNbOfTxs);
+
+	var dtldCtrlSumPath = "/Document/FIToFIPmtStsRptSCL/OrgnlGrpInfAndSts/NbOfTxsPerSts/DtldCtrlSum";
+    var dtldCtrlSum = getValueFromPath(Document, dtldCtrlSumPath);
+    logger.info("grpStsDBBPacs002Rule: dtldCtrlSum = " + dtldCtrlSum);
+
+	var dtldStsPath = "/Document/FIToFIPmtStsRptSCL/OrgnlGrpInfAndSts/NbOfTxsPerSts/DtldSts";
+    var dtldSts = getValueFromPath(Document, dtldStsPath);
+    logger.info("grpStsDBBPacs002Rule: dtldSts = " + dtldSts);
+
+    if(dtldNbOfTxs && grpSts != "PART") {
+		setHeader(map, "PLCN_validMessage",false);
+		retVal = setCommentsForTransaction("122", "7196", map);
+		logger.info('grpStsDBBPacs002Rule: Number of transactions that were rejected. Only given when "GrpSts" contains the code “PART”.');
+		return retVal;    	
+    }
+
+    if(dtldCtrlSum && grpSts != "PART") {
+		setHeader(map, "PLCN_validMessage",false);
+		retVal = setCommentsForTransaction("122", "7198", map);
+		logger.info('grpStsDBBPacs002Rule: Total amount of the rejected transactions. Only given when the <GrpSts> contains the code “PART”');
+		return retVal;    	
+    }
+
+    if(dtldSts) {
+    	if(dtldSts != "RJCT" || grpSts != "PART") {
+			setHeader(map, "PLCN_validMessage",false);
+			retVal = setCommentsForTransaction("122", "7197", map);
+			logger.info('grpStsDBBPacs002Rule: Status of transactions. Only given when the Group Status contains the code “PART”. Here only the code “RJCT” is possible.');
+			return retVal;    		
+    	}
+    }
+
+    return retVal; 
+}
+
+function instgAndInstdAgtDBBPacs008Rule(exchange) {
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var messageString = inMsg.getBody(java.lang.String.class);	
+	var retVal = 0;
+
+	logger.info("In instgAndInstdAgtDBBPacs008Rule");
+
+	var msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	if(!msgFamily){
+		var msgFamily = getHeader(map, "PLCN_msgFamily");
+	}
+    
+    var messageDirection = getHeader(map, "PLCN_msgDirection");
+    
+	grpHdrInstgAgt = isXmlNodePresent(Document,"FIToFICstmrCdtTrf", "GrpHdr", "<InstgAgt>");
+	logger.info("grpHdr_CdtTrfTxInf_FldCompRulePacs008: grpHdrInstgAgt " + grpHdrInstgAgt);
+
+	cdtrTrfInstgAgt = isXmlNodePresent(Document,"FIToFICstmrCdtTrf", "CdtTrfTxInf", "<InstgAgt>");
+	logger.info("grpHdr_CdtTrfTxInf_FldCompRulePacs008: cdtrTrfInstgAgt =" + cdtrTrfInstgAgt);
+	
+	grpHdrInstdAgt = isXmlNodePresent(Document,"FIToFICstmrCdtTrf", "GrpHdr", "<InstdAgt>");
+	logger.info("grpHdr_CdtTrfTxInf_FldCompRulePacs008: grpHdrInstdAgt " + grpHdrInstdAgt);
+
+	cdtrTrfInstdAgt = isXmlNodePresent(Document,"FIToFICstmrCdtTrf", "CdtTrfTxInf", "<InstdAgt>");
+	logger.info("grpHdr_CdtTrfTxInf_FldCompRulePacs008: cdtrTrfInstdAgt =" + cdtrTrfInstdAgt);
+
+    //outbound - only InstgAgt in GrpHdr mandatory, other combinations not allowed
+    //inbound - InstdAgt in GrpHdr mandatory & InstgAgt in CdtTrfTxInf, other combinations not allowed
+    //dont need to check for InstdAgt in CdTrfTxInf as its invalid by XSD
+    if(messageDirection == "I"){
+        if(!grpHdrInstgAgt){
+            setHeader(map, "PLCN_validMessage",false);
+            retVal = setCommentsForTransaction("295", "7061", map);
+            logger.info("InstgAgt tag is mandatory in Group Header")
+        }
+        if(grpHdrInstdAgt){
+            setHeader(map, "PLCN_validMessage",false);
+            retVal = setCommentsForTransaction("296", "7062", map);
+            logger.info("InstdAgt is not allowed in Group Header")
+        }
+        if(cdtrTrfInstgAgt){
+            setHeader(map, "PLCN_validMessage",false);
+            retVal = setCommentsForTransaction("523", "7063", map);
+            logger.info("InstgAgt is not allowed in transaction sequence")
+        }
+        
+    } else if(messageDirection == "O"){
+        if(!cdtrTrfInstgAgt){
+            setHeader(map, "PLCN_validMessage",false);
+            retVal = setCommentsForTransaction("523", "7064", map);
+            logger.info("InstgAgt tag is mandatory in transaction sequence")
+        }
+        if(!grpHdrInstdAgt){
+            setHeader(map, "PLCN_validMessage",false);
+            retVal = setCommentsForTransaction("296", "7065", map);
+            logger.info("InstdAgt tag is mandatory in Group Header")
+        }
+        if(grpHdrInstgAgt){
+            setHeader(map, "PLCN_validMessage",false);
+            retVal = setCommentsForTransaction("295", "7066", map);
+            logger.info("InstgAgt is not allowed in Group Header")
+        }
+    }
+	
+	return retVal;
+}
+
+function instgAndInstdAgtDBBPacs004Rule(exchange) {
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var messageString = inMsg.getBody(java.lang.String.class);	
+	var retVal = 0;
+
+	logger.info("In instgAndInstdAgtDBBPacs004Rule");
+
+	var msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	if(!msgFamily){
+		var msgFamily = getHeader(map, "PLCN_msgFamily");
+	}
+    
+    var messageDirection = getHeader(map, "PLCN_msgDirection");
+    
+	grpHdrInstgAgt = isXmlNodePresent(Document,"PmtRtr", "GrpHdr", "<InstgAgt>");
+	logger.info("grpHdr_CdtTrfTxInf_FldCompRulePacs008: grpHdrInstgAgt " + grpHdrInstgAgt);
+
+	txInfInstgAgt = isXmlNodePresent(Document,"PmtRtr", "TxInf", "<InstgAgt>");
+	logger.info("grpHdr_CdtTrfTxInf_FldCompRulePacs008: txInfInstgAgt =" + txInfInstgAgt);
+	
+	grpHdrInstdAgt = isXmlNodePresent(Document,"PmtRtr", "GrpHdr", "<InstdAgt>");
+	logger.info("grpHdr_CdtTrfTxInf_FldCompRulePacs008: grpHdrInstdAgt " + grpHdrInstdAgt);
+
+	txInfInstdAgt = isXmlNodePresent(Document,"PmtRtr", "TxInf", "<InstdAgt>");
+	logger.info("grpHdr_CdtTrfTxInf_FldCompRulePacs008: txInfInstdAgt =" + txInfInstdAgt);
+
+	//InstructingAgent
+    
+    //outbound - only InstgAgt in GrpHdr mandatory, other combinations not allowed
+    //inbound - InstdAgt in GrpHdr mandatory & InstgAgt in CdtTrfTxInf, other combinations not allowed
+    //dont need to check for InstdAgt in TxInf as its invalid by XSD
+    if(messageDirection == "I"){
+        if(!grpHdrInstgAgt){
+            setHeader(map, "PLCN_validMessage",false);
+            retVal = setCommentsForTransaction("162", "7061", map);
+            logger.info("InstgAgt tag is mandatory in Group Header")
+        }
+        if(grpHdrInstdAgt){
+        	//commented for Demo
+            //setHeader(map, "PLCN_validMessage",false);
+            //retVal = setCommentsForTransaction("163", "7062", map);
+            logger.info("InstdAgt is not allowed in Group Header")
+        }
+        if(txInfInstgAgt){
+            setHeader(map, "PLCN_validMessage",false);
+            retVal = setCommentsForTransaction("231", "7063", map);
+            logger.info("InstgAgt is not allowed at transaction level")
+        }
+        
+    } else if(messageDirection == "O"){
+        if(!txInfInstgAgt){
+            setHeader(map, "PLCN_validMessage",false);
+            retVal = setCommentsForTransaction("231", "7064", map);
+            logger.info("InstgAgt tag is mandatory at transaction level")
+        }
+        if(!grpHdrInstdAgt){
+            setHeader(map, "PLCN_validMessage",false);
+            retVal = setCommentsForTransaction("163", "7065", map);
+            logger.info("InstdAgt tag is mandatory in Group Header")
+        }
+        if(grpHdrInstgAgt){
+            setHeader(map, "PLCN_validMessage",false);
+            retVal = setCommentsForTransaction("162", "7066", map);
+            logger.info("InstgAgt is not allowed in Group Header")
+        }
+    }
+	
+	return retVal;
+}
+
+function orgIdRuleSepaPacs003(exchange) {
+	logger.info("In orgIdRuleSepaPacs003");
+	var retVal = 0;
+	
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+
+	var Date1 = memTblGetTableValue(map, "USER_CONFIG_MAP", "SEPA_LIB2025_DATE");
+	logger.info("orgIdRuleSepaPacs8: Date1 = " + Date1);
+
+	var sysDate = getDate();
+	logger.info("orgIdRuleSepaPacs8: sysDate = " + sysDate);
+	
+	//Debtor/OrgId
+	var dbtrOrgId =  isXmlNodePresent3(Document , "DrctDbtTxInf", "Dbtr","Id", "<OrgId>");
+	logger.info("orgIdRuleSepaPacs003 dbtrOrgId : " + dbtrOrgId);
+	
+	var dbtrOrgIdAnyBICPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/Id/OrgId/AnyBIC';
+	var dbtrOrgIdAnyBIC = getValueFromPath(Document, dbtrOrgIdAnyBICPath);
+	logger.info("orgIdRuleSepaPacs003 dbtrOrgIdAnyBIC : " + dbtrOrgIdAnyBIC);
+
+	var dbtrOrgIdLEIPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/Id/OrgId/LEI';
+	var dbtrOrgIdLEI = getValueFromPath(Document, dbtrOrgIdLEIPath);
+	logger.info("orgIdRuleSepaPacs003 dbtrOrgIdLEI : " + dbtrOrgIdLEI);
+
+	var dbtrOrgIdOthrPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/Id/OrgId/Othr';
+	var dbtrOrgIdOthr = getValueFromPath(Document, dbtrOrgIdOthrPath);
+	logger.info("orgIdRuleSepaPacs003 dbtrOrgIdOthr : " + dbtrOrgIdOthr);
+	
+	
+	if(sysDate < Date1){
+	if(isPatternPresent(Document1, "<Dbtr>")){
+		logger.info("Inside 1st IF");
+		if(dbtrOrgId){
+			logger.info("Inside 2nd IF");
+				if(dbtrOrgIdAnyBIC && dbtrOrgIdLEI && dbtrOrgIdOthr){
+				setHeader(map, "PLCN_validMessage", false);
+					logger.info("Dbtr-If PstlAddr is used & if OrgId is present then Either ‘AnyBIC', 'LEI’ or one occurrence of ‘Other’ is allowed");
+					retVal = setCommentsForTransaction("146", "7135", map);
+				return retVal;
+			}
+		}
+	}
+	}
+	
+	//UltmtDbtr/OrgId
+	var ultmtDbtrOrgId =  isXmlNodePresent3(Document , "DrctDbtTxInf", "UltmtDbtr","Id", "<OrgId>");
+	logger.info("orgIdRuleSepaPacs003 ultmtDbtrOrgId : " + ultmtDbtrOrgId);
+	
+	var ultmtDbtrOrgIdAnyBICPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtDbtr/Id/OrgId/AnyBIC';
+	var ultmtDbtrOrgIdAnyBIC = getValueFromPath(Document, ultmtDbtrOrgIdAnyBICPath);
+	logger.info("orgIdRuleSepaPacs003 ultmtDbtrOrgIdAnyBIC : " + ultmtDbtrOrgIdAnyBIC);
+
+	var ultmtDbtrOrgIdLEIPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtDbtr/Id/OrgId/LEI';
+	var ultmtDbtrOrgIdLEI = getValueFromPath(Document, ultmtDbtrOrgIdLEIPath);
+	logger.info("orgIdRuleSepaPacs003 ultmtDbtrOrgIdLEI : " + ultmtDbtrOrgIdLEI);
+
+	var ultmtDbtrOrgIdOthrPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtDbtr/Id/OrgId/Othr';
+	var ultmtDbtrOrgIdOthr = getValueFromPath(Document, ultmtDbtrOrgIdOthrPath);
+	logger.info("orgIdRuleSepaPacs003 ultmtDbtrOrgIdOthr : " + ultmtDbtrOrgIdOthr);
+	
+	
+	if(sysDate < Date1){
+	if(isPatternPresent(Document1, "<UltmtDbtr>")){
+		logger.info("Inside 1st IF");
+		if(ultmtDbtrOrgId){
+			logger.info("Inside 2nd IF");
+				if(ultmtDbtrOrgIdAnyBIC && ultmtDbtrOrgIdLEI && ultmtDbtrOrgIdOthr){
+					setHeader(map, "PLCN_validMessage", false);
+					logger.info("UltmtDbtr-If PstlAddr is used & if OrgId is present then Either ‘AnyBIC', 'LEI’ or one occurrence of ‘Other’ is allowed");
+					retVal = setCommentsForTransaction("173", "7135", map);
+					return retVal;
+				}
+			}
+		}
+	}
+	
+	//UltmtCdtr/OrgId
+	var ultmtCdtrOrgId =  isXmlNodePresent3(Document , "DrctDbtTxInf", "UltmtCdtr","Id", "<OrgId>");
+	logger.info("orgIdRuleSepaPacs003 ultmtCdtrOrgId : " + ultmtCdtrOrgId);
+	
+	var ultmtCdtrOrgIdAnyBICPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtCdtr/Id/OrgId/AnyBIC';
+	var ultmtCdtrOrgIdAnyBIC = getValueFromPath(Document, ultmtCdtrOrgIdAnyBICPath);
+	logger.info("orgIdRuleSepaPacs003 ultmtCdtrOrgIdAnyBIC : " + ultmtCdtrOrgIdAnyBIC);
+
+	var ultmtCdtrOrgIdLEIPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtCdtr/Id/OrgId/LEI';
+	var ultmtCdtrOrgIdLEI = getValueFromPath(Document, ultmtCdtrOrgIdLEIPath);
+	logger.info("orgIdRuleSepaPacs003 ultmtCdtrOrgIdLEI : " + ultmtCdtrOrgIdLEI);
+
+	var ultmtCdtrOrgIdOthrPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtCdtr/Id/OrgId/Othr';
+	var ultmtCdtrOrgIdOthr = getValueFromPath(Document, ultmtCdtrOrgIdOthrPath);
+	logger.info("orgIdRuleSepaPacs003 ultmtCdtrOrgIdOthr : " + ultmtCdtrOrgIdOthr);
+	
+	if(isPatternPresent(Document1, "<UltmtCdtr>")){
+		if(ultmtCdtrOrgId){
+            if(sysDate < Date1){
+			if(ultmtCdtrOrgIdAnyBIC && ultmtCdtrOrgIdLEI && ultmtCdtrOrgIdOthr){
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("UltmtCdtr-If PstlAddr is used & if OrgId is present then Either ‘AnyBIC', 'LEI’ or one occurrence of ‘Other’ is allowed");
+				retVal = setCommentsForTransaction("129", "7135", map);
+				return retVal;
+			}
+            }else {
+                if((ultmtCdtrOrgIdAnyBIC && ultmtCdtrOrgIdLEI && ultmtCdtrOrgIdOthr) || (ultmtCdtrOrgIdAnyBIC && ultmtCdtrOrgIdLEI) || (ultmtCdtrOrgIdLEI && ultmtCdtrOrgIdOthr) || (ultmtCdtrOrgIdAnyBIC && ultmtCdtrOrgIdOthr)){
+                    setHeader(map, "PLCN_validMessage", false);
+                    logger.info("UltmtCdtr-If PstlAddr is used & if OrgId is present then Either ‘AnyBIC', 'LEI’ or one occurrence of ‘Other’ is allowed");
+                    retVal = setCommentsForTransaction("173", "7135", map);
+                    return retVal;
+                }
+		}
+	}
+	}
+    
+    return retVal;
+}
+
+function hybridAddressRuleSepaPacs003(exchange){ 
+	logger.info("hybridAddressRuleSepaPacs003");
+
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	var Date1 = memTblGetTableValue(map, "USER_CONFIG_MAP", "SEPA_LIB2025_DATE");
+	logger.info("hybridAddressRuleSepaPacs003: Date1 = " + Date1);
+
+	var sysDate = getDate();
+	logger.info("hybridAddressRuleSepaPacs003: sysDate = " + sysDate);
+	
+	if(sysDate >= Date1){
+		//CREDITOR
+		var cdtrPstlAdr =  isXmlNodePresent(Document, "DrctDbtTxInf", "Cdtr", "<PstlAdr>");
+
+		var cdtrAddrLinePath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/AdrLine';
+		var cdtrAddrLine = getValueFromPath(Document, cdtrAddrLinePath);
+
+		var cdtrTwnNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/TwnNm';
+		var cdtrTwnNm = getValueFromPath(Document, cdtrTwnNmPath);
+
+		var cdtrCtryPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/Ctry';
+		var cdtrCtry = getValueFromPath(Document, cdtrCtryPath);
+		
+        var cdtrDeptPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/Dept';
+        var cdtrDept = getValueFromPath(Document, cdtrDeptPath);
+
+        var cdtrSubDeptPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/SubDept';
+        var cdtrSubDept = getValueFromPath(Document, cdtrSubDeptPath);
+
+        var cdtrStrtNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/StrtNm';
+        var cdtrStrtNm = getValueFromPath(Document, cdtrStrtNmPath);
+
+        var cdtrBldgNbPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/BldgNb';
+        var cdtrBldgNb = getValueFromPath(Document, cdtrBldgNbPath);
+
+        var cdtrBldgNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/BldgNm';
+        var cdtrBldgNm = getValueFromPath(Document, cdtrBldgNmPath);
+
+        var cdtrFlrPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/Flr';
+        var cdtrFlr = getValueFromPath(Document, cdtrFlrPath);
+
+        var cdtrPstBxPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/PstBx';
+        var cdtrPstBx = getValueFromPath(Document, cdtrPstBxPath);
+
+        var cdtrRoomPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/Room';
+        var cdtrRoom = getValueFromPath(Document, cdtrRoomPath);
+
+        var cdtrPstCdPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/PstCd';
+        var cdtrPstCd = getValueFromPath(Document, cdtrPstCdPath);
+
+        var cdtrTwnLctnNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/TwnLctnNm';
+        var cdtrTwnLctnNm = getValueFromPath(Document, cdtrTwnLctnNmPath);
+
+        var cdtrDstrctNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/DstrctNm';
+        var cdtrDstrctNm = getValueFromPath(Document, cdtrDstrctNmPath);
+
+        var cdtrCtrySubDvsnPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/CtrySubDvsn';
+        var cdtrCtrySubDvsn = getValueFromPath(Document, cdtrCtrySubDvsnPath);
+        
+		/*if(isPatternPresent(Document1, "<Cdtr>")){
+			if(cdtrPstlAdr){
+				if(cdtrAddrLine && (!cdtrTwnNm || !cdtrCtry)){
+					setHeader(map, "PLCN_validMessage", false);
+					logger.info("hybridAddressRuleSepaPacs003:Cdtr-If PstlAddr is used & if Adrline is present then then Country and Town name must be present");
+					retVal = setCommentsForTransaction("106", "7620", map);
+					return retVal;
+				}
+			}
+		}*/
+        
+		if(isPatternPresent(Document1, "<Cdtr>")){
+			if(cdtrPstlAdr){
+                if(cdtrAddrLine && (cdtrDept||cdtrSubDept||cdtrStrtNm||cdtrBldgNb||cdtrBldgNm||cdtrFlr||cdtrPstBx||cdtrRoom||cdtrPstCd||cdtrTwnLctnNm ||cdtrDstrctNm||cdtrCtrySubDvsn||cdtrTwnNm)){
+                    if((!cdtrTwnNm || !cdtrCtry)){
+                        setHeader(map, "PLCN_validMessage", false);
+                        logger.info("hybridAddressRuleSepaPacs8:Cdtr-If PstlAddr is used & if Adrline is present then then Country and Town name must be present");
+                        retVal = setCommentsForTransaction("104", "7620", map);
+                        return retVal;
+                    }
+                }
+			}
+		}	
+		
+		//DEBTOR
+		var dbtrPstlAdr =  isXmlNodePresent(Document, "DrctDbtTxInf", "Dbtr", "<PstlAdr>");
+
+		var dbtrAddrLinePath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/AdrLine';
+		var dbtrAddrLine = getValueFromPath(Document, dbtrAddrLinePath);
+
+		var dbtrTwnNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/TwnNm';
+		var dbtrTwnNm = getValueFromPath(Document, dbtrTwnNmPath);
+
+		var dbtrCtryPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/Ctry';
+		var dbtrCtry = getValueFromPath(Document, dbtrCtryPath);
+
+        var dbtrDeptPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/Dept';
+        var dbtrDept = getValueFromPath(Document, dbtrDeptPath);
+
+        var dbtrSubDeptPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/SubDept';
+        var dbtrSubDept = getValueFromPath(Document, dbtrSubDeptPath);
+
+        var dbtrStrtNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/StrtNm';
+        var dbtrStrNm = getValueFromPath(Document, dbtrStrtNmPath);
+
+        var dbtrBldgNbPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/BldgNb';
+        var dbtrBldgNb = getValueFromPath(Document, dbtrBldgNbPath);
+
+        var dbtrBldgNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/BldgNm';
+        var dbtrBldgNm = getValueFromPath(Document, dbtrBldgNmPath);
+
+        var dbtrFlrPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/Flr';
+        var dbtrFlr = getValueFromPath(Document, dbtrFlrPath);
+
+        var dbtrPstBxPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/PstBx';
+        var dbtrPstBx = getValueFromPath(Document, dbtrPstBxPath);
+
+        var dbtrRoomPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/Room';
+        var dbtrRoom = getValueFromPath(Document, dbtrRoomPath);
+
+        var dbtrPstCdPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/PstCd';
+        var dbtrPstCd = getValueFromPath(Document, dbtrPstCdPath);
+
+        var dbtrTwnLctnNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/TwnLctnNm';
+        var dbtrTwnLctnNm = getValueFromPath(Document, dbtrTwnLctnNmPath);
+
+        var dbtrDstrctNmPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/DstrctNm';
+        var dbtrDstrctNm = getValueFromPath(Document, dbtrDstrctNmPath);
+
+        var dbtrCtrySubDvsnPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/CtrySubDvsn';
+        var dbtrCtrySubDvsn = getValueFromPath(Document, dbtrCtrySubDvsnPath);
+        
+		/*if(isPatternPresent(Document1, "<Dbtr>")){
+			if(dbtrPstlAdr){
+				if(dbtrAddrLine && (!dbtrTwnNm || !dbtrCtry)){
+					setHeader(map, "PLCN_validMessage", false);
+					logger.info("hybridAddressRuleSepaPacs003:Dbtr-If PstlAddr is used & if Adrline is present then then Country and Town name must be present");
+					retVal = setCommentsForTransaction("148", "7620", map);
+					return retVal;
+				}
+			}
+		}*/
+        
+		if(isPatternPresent(Document1, "<Dbtr>")){
+			if(dbtrPstlAdr){
+                if(dbtrAddrLine && (dbtrDept||dbtrSubDept||dbtrStrNm||dbtrBldgNb||dbtrBldgNm||dbtrFlr||dbtrPstBx||dbtrRoom||dbtrPstCd||dbtrTwnLctnNm ||dbtrDstrctNm||dbtrCtrySubDvsn||dbtrTwnNm)){
+                    if((!dbtrTwnNm || !dbtrCtry)){
+                        setHeader(map, "PLCN_validMessage", false);
+                        logger.info("hybridAddressRuleSepaPacs8:Dbtr-If PstlAddr is used & if Adrline is present then then Country and Town name must be present");
+                        retVal = setCommentsForTransaction("146", "7620", map);
+                        return retVal;
+                    }
+                }
+			}
+		}
+        
+	}
+	return retVal;
+}
+
+function originalMsgNameIdRulePacs007(Document, map) {
+	
+	var originalMsgNameIdPath;
+	var originalMsgNameId;
+	
+	var retVal = 0;
+	logger.info("In originalMsgNameIdRulePacs007");
+	
+	originalMsgNameIdPath = '/Document/FIToFIPmtRvsl/OrgnlGrpInf/OrgnlMsgNmId';
+	originalMsgNameId = getValueFromPath(Document, originalMsgNameIdPath);
+	if(!originalMsgNameId) {
+		originalMsgNameIdPath = '/Document/FIToFIPmtRvsl/TxInf/OrgnlGrpInf/OrgnlMsgNmId';
+		originalMsgNameId = getValueFromPath(Document, originalMsgNameIdPath);
+	}
+	logger.info("originalMsgNameIdRulePacs007: originalMsgNameId = " + originalMsgNameId );
+	logger.info("originalMsgNameIdRulePacs007: type of originalMsgNameId = " + typeof originalMsgNameId );
+	
+	if(originalMsgNameId) {
+		originalMsgNameId = originalMsgNameId?.slice(0, 8);
+		logger.info("originalMsgNameIdRulePacs007: originalMsgNameId after trim = " + originalMsgNameId );
+	}
+	
+	const values = ["pacs.003"];
+
+	if(originalMsgNameId) {
+		if(values.includes(originalMsgNameId)){
+			logger.info("originalMsgNameIdRulePacs007: originalMsgNameId value is begin with 'pacs.003'");
+		}else {
+			setHeader(map, "PLCN_validMessage",false);
+			logger.info("originalMsgNameIdRulePacs007: originalMsgNameId value is must begin with 'pacs.003'");
+			retVal = setCommentsForTransaction("028", "7619", map);
+			//return retVal;			
+		}
+	}
+	return retVal;
+}
+
+function hybridAddressRuleSepaPacs8(exchange){ 
+	logger.info("hybridAddressRuleSepaPacs8");
+
+	var retVal = 0;
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	var Date1 = memTblGetTableValue(map, "USER_CONFIG_MAP", "SEPA_LIB2025_DATE");
+	logger.info("hybridAddressRuleSepaPacs8: Date1 = " + Date1);
+
+	var sysDate = getDate();
+	logger.info("hybridAddressRuleSepaPacs8: sysDate = " + sysDate);
+	
+	if(sysDate >= Date1){
+		//CREDITOR
+		var cdtrPstlAdr =  isXmlNodePresent(Document, "CdtTrfTxInf", "Cdtr", "<PstlAdr>");
+
+		var cdtrAddrLinePath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/AdrLine';
+		var cdtrAddrLine = getValueFromPath(Document, cdtrAddrLinePath);
+
+		var cdtrTwnNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/TwnNm';
+		var cdtrTwnNm = getValueFromPath(Document, cdtrTwnNmPath);
+
+		var cdtrCtryPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/Ctry';
+		var cdtrCtry = getValueFromPath(Document, cdtrCtryPath);
+		
+        var cdtrDeptPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/Dept';
+        var cdtrDept = getValueFromPath(Document, cdtrDeptPath);
+
+        var cdtrSubDeptPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/SubDept';
+        var cdtrSubDept = getValueFromPath(Document, cdtrSubDeptPath);
+
+        var cdtrStrtNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/StrtNm';
+        var cdtrStrtNm = getValueFromPath(Document, cdtrStrtNmPath);
+
+        var cdtrBldgNbPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/BldgNb';
+        var cdtrBldgNb = getValueFromPath(Document, cdtrBldgNbPath);
+
+        var cdtrBldgNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/BldgNm';
+        var cdtrBldgNm = getValueFromPath(Document, cdtrBldgNmPath);
+
+        var cdtrFlrPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/Flr';
+        var cdtrFlr = getValueFromPath(Document, cdtrFlrPath);
+
+        var cdtrPstBxPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/PstBx';
+        var cdtrPstBx = getValueFromPath(Document, cdtrPstBxPath);
+
+        var cdtrRoomPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/Room';
+        var cdtrRoom = getValueFromPath(Document, cdtrRoomPath);
+
+        var cdtrPstCdPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/PstCd';
+        var cdtrPstCd = getValueFromPath(Document, cdtrPstCdPath);
+
+        var cdtrTwnLctnNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/TwnLctnNm';
+        var cdtrTwnLctnNm = getValueFromPath(Document, cdtrTwnLctnNmPath);
+
+        var cdtrDstrctNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/DstrctNm';
+        var cdtrDstrctNm = getValueFromPath(Document, cdtrDstrctNmPath);
+
+        var cdtrCtrySubDvsnPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/CtrySubDvsn';
+        var cdtrCtrySubDvsn = getValueFromPath(Document, cdtrCtrySubDvsnPath);
+        
+		if(isPatternPresent(Document1, "<Cdtr>")){
+			if(cdtrPstlAdr){
+                if(cdtrAddrLine && (cdtrDept||cdtrSubDept||cdtrStrtNm||cdtrBldgNb||cdtrBldgNm||cdtrFlr||cdtrPstBx||cdtrRoom||cdtrPstCd||cdtrTwnLctnNm ||cdtrDstrctNm||cdtrCtrySubDvsn||cdtrTwnNm)){
+                    if((!cdtrTwnNm || !cdtrCtry)){
+					setHeader(map, "PLCN_validMessage", false);
+					logger.info("hybridAddressRuleSepaPacs8:Cdtr-If PstlAddr is used & if Adrline is present then then Country and Town name must be present");
+                        retVal = setCommentsForTransaction("945", "7620", map);
+					return retVal;
+				}
+			}
+		}	
+		}
+		
+		//DEBTOR
+		var dbtrPstlAdr =  isXmlNodePresent(Document, "CdtTrfTxInf", "Dbtr", "<PstlAdr>");
+
+		var dbtrAddrLinePath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/AdrLine';
+		var dbtrAddrLine = getValueFromPath(Document, dbtrAddrLinePath);
+
+		var dbtrTwnNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/TwnNm';
+		var dbtrTwnNm = getValueFromPath(Document, dbtrTwnNmPath);
+
+		var dbtrCtryPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/Ctry';
+		var dbtrCtry = getValueFromPath(Document, dbtrCtryPath);
+
+        var dbtrDeptPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/Dept';
+        var dbtrDept = getValueFromPath(Document, dbtrDeptPath);
+
+        var dbtrSubDeptPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/SubDept';
+        var dbtrSubDept = getValueFromPath(Document, dbtrSubDeptPath);
+
+        var dbtrStrtNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/StrtNm';
+        var dbtrStrNm = getValueFromPath(Document, dbtrStrtNmPath);
+
+        var dbtrBldgNbPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/BldgNb';
+        var dbtrBldgNb = getValueFromPath(Document, dbtrBldgNbPath);
+
+        var dbtrBldgNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/BldgNm';
+        var dbtrBldgNm = getValueFromPath(Document, dbtrBldgNmPath);
+
+        var dbtrFlrPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/Flr';
+        var dbtrFlr = getValueFromPath(Document, dbtrFlrPath);
+
+        var dbtrPstBxPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/PstBx';
+        var dbtrPstBx = getValueFromPath(Document, dbtrPstBxPath);
+
+        var dbtrRoomPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/Room';
+        var dbtrRoom = getValueFromPath(Document, dbtrRoomPath);
+
+        var dbtrPstCdPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/PstCd';
+        var dbtrPstCd = getValueFromPath(Document, dbtrPstCdPath);
+
+        var dbtrTwnLctnNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/TwnLctnNm';
+        var dbtrTwnLctnNm = getValueFromPath(Document, dbtrTwnLctnNmPath);
+
+        var dbtrDstrctNmPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/DstrctNm';
+        var dbtrDstrctNm = getValueFromPath(Document, dbtrDstrctNmPath);
+
+        var dbtrCtrySubDvsnPath = '/Document/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/CtrySubDvsn';
+        var dbtrCtrySubDvsn = getValueFromPath(Document, dbtrCtrySubDvsnPath);
+
+		if(isPatternPresent(Document1, "<Dbtr>")){
+			if(dbtrPstlAdr){
+                if(dbtrAddrLine && (dbtrDept||dbtrSubDept||dbtrStrNm||dbtrBldgNb||dbtrBldgNm||dbtrFlr||dbtrPstBx||dbtrRoom||dbtrPstCd||dbtrTwnLctnNm ||dbtrDstrctNm||dbtrCtrySubDvsn||dbtrTwnNm)){
+                    if((!dbtrTwnNm || !dbtrCtry)){
+					setHeader(map, "PLCN_validMessage", false);
+					logger.info("hybridAddressRuleSepaPacs8:Dbtr-If PstlAddr is used & if Adrline is present then then Country and Town name must be present");
+                        retVal = setCommentsForTransaction("779", "7620", map);
+					return retVal;
+				}
+			}
+		}
+	}
+	}
+
+	return retVal;
+}
+
+function sepacamt056OriginalMsgNameIdRule(Document, map) {
+	
+	var originalMsgNameIdPath;
+	var originalMsgNameId;
+	
+	var retVal = 0;
+	logger.info("In sepacamt056originalMsgNameIdRule");
+	
+	originalMsgNameIdPath = '/Document/FIToFIPmtCxlReq/Undrlyg/TxInf/OrgnlGrpInf/OrgnlMsgNmId';
+	originalMsgNameId = getValueFromPath(Document, originalMsgNameIdPath);
+	
+	logger.info("sepacamt056originalMsgNameIdRule: originalMsgNameId = " + originalMsgNameId );
+	logger.info("sepacamt056originalMsgNameIdRule: type of originalMsgNameId = " + typeof originalMsgNameId );
+	
+	originalMsgNameId = originalMsgNameId?.slice(0, 8);
+	logger.info("sepacamt056originalMsgNameIdRule: originalMsgNameId after trim = " + originalMsgNameId );
+
+	const values = ["pacs.008"];
+
+	if(originalMsgNameId) {
+		if(values.includes(originalMsgNameId)){
+			logger.info("sepacamt056originalMsgNameIdRule: originalMsgNameId value is begin with 'pacs.008'");
+		}else {
+			setHeader(map, "PLCN_validMessage",false);
+			logger.info("sepacamt056originalMsgNameIdRule: originalMsgNameId value is must begin with 'pacs.008'");
+			retVal = setCommentsForTransaction("182", "7624", map);	//NEW violations to be defined..
+			//return retVal;			
+		}
+	}
+	return retVal;
+}
+
+function sepaCamt029OriginalMsgNameIdRule(Document, map) {
+	
+	var originalMsgNameIdPath;
+	var originalMsgNameId;
+	
+	var retVal = 0;
+	logger.info("In sepaCamt029originalMsgNameIdRule");
+	
+	originalMsgNameIdPath = '/Document/RsltnOfInvstgtn/CxlDtls/TxInfAndSts/OrgnlGrpInf/OrgnlMsgNmId';
+	originalMsgNameId = getValueFromPath(Document, originalMsgNameIdPath);
+	
+	logger.info("sepaCamt029originalMsgNameIdRule: originalMsgNameId = " + originalMsgNameId );
+	logger.info("sepaCamt029originalMsgNameIdRule: type of originalMsgNameId = " + typeof originalMsgNameId );
+	
+	originalMsgNameId = originalMsgNameId?.slice(0, 8);
+	logger.info("sepaCamt029originalMsgNameIdRule: originalMsgNameId after trim = " + originalMsgNameId );
+
+	const values = ["pacs.008"];
+
+	if(originalMsgNameId) {
+		if(values.includes(originalMsgNameId)){
+			logger.info("sepaCamt029originalMsgNameIdRule: originalMsgNameId value is begin with 'pacs.008'");
+		}else {
+			setHeader(map, "PLCN_validMessage",false);
+			logger.info("sepaCamt029originalMsgNameIdRule: originalMsgNameId value is must begin with 'pacs.008'");
+			retVal = setCommentsForTransaction("161", "7624", map);	//NEW violations to be defined..
+			//return retVal;			
+		}
+	}
+	return retVal;
+}
+
+function Camt056TimelineCheck(exchange){
+	
+	logger.info("In Camt056TimelineCheck");
+	
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var holidayFlagC56;
+	
+	var retVal = 0;
+	var rsnCdPath = "/Document/FIToFIPmtCxlReq/Undrlyg/TxInf/CxlRsnInf/Rsn/Cd";
+	var rsnCd = getValueFromPath(Document, rsnCdPath);
+	
+	var msgDatePath = "/Document/FIToFIPmtCxlReq/Undrlyg/TxInf/OrgnlIntrBkSttlmDt";
+	var msgDate = getValueFromPath(Document, msgDatePath);
+	msgDate = replaceAllPattern(msgDate, "-", "");
+	logger.info("Camt056TimelineCheck: msgDate = " + msgDate);
+	
+	var sysDate = getDate();
+	logger.info("Camt056TimelineCheck: sysDate = " + sysDate);
+	
+	var currency = getHeaderWithLogging(map, "PLCN_currency");
+	
+	var clrgId = mxClearingId(map);
+	logger.info("Camt056TimelineCheck: clrgId = " + clrgId);
+	
+	var orgtrAnyBIC =  isXmlNodePresent(Document, "TxInf", "CxlRsnInf", "<AnyBIC>");
+	logger.info("Camt056TimelineCheck: orgtrAnyBIC = " + orgtrAnyBIC);
+	
+	var orgtrNm =  isXmlNodePresent(Document, "TxInf", "CxlRsnInf", "<Nm>");
+	logger.info("Camt056TimelineCheck: orgtrNm = " + orgtrNm);
+	
+	if((rsnCd == "DUPL" && orgtrAnyBIC) || (rsnCd == "TECH" && orgtrAnyBIC)) {
+		var currWorkDay = 0;
+		var tempDate = msgDate;//28-11-2024
+		var workDaysToAdd = 10;
+		var x = 0;
+		
+		logger.info("Camt056TimelineCheck: workDaysToAdd = " + workDaysToAdd);
+		logger.info("Camt056TimelineCheck: msgDate = " + tempDate);
+		logger.info("Camt056TimelineCheck: todaysDate = " + sysDate);
+		
+		while(currWorkDay < workDaysToAdd){
+			var temp1Date = getDateFromNumOfDays(tempDate, x);
+			logger.info("Camt056TimelineCheck: temp1Date = " + temp1Date);
+			
+			holidayFlagC56 = "N";
+			var holiday = checkHoliday(clrgId, temp1Date, map);
+			if(holiday > 0) {
+				logger.info("Camt056TimelineCheck: holiday > 0");
+				holidayFlagC56 = "Y";
+				logger.info("Camt056TimelineCheck: holidayFlagC56 = Y");
+			}else {
+				deriveClgsysTableValuesMx(clrgId, map);
+				var tmpDateW = convertDateFormat(temp1Date, "CCYYMMDD", "MMDDCCYY");
+		
+				var actValDay = getWeekday(tmpDateW);
+				logger.info("Camt056TimelineCheck: actValDay = " + actValDay);
+				
+				if((actValDay == "Thursday" && getHeader(map, "PLCN_clThursday") == "Y") || (actValDay == "Friday" && getHeader(map, "PLCN_clFriday") == "Y") || (actValDay == "Saturday" && getHeader(map, "PLCN_clSaturday") == "Y") || (actValDay == "Sunday" && getHeader(map, "PLCN_clSunday") == "Y")) {
+					holidayFlagC56 = "Y";
+					logger.info("Camt056TimelineCheck: weekendHolidayFlag = " + holidayFlagC56);
+				}
+
+			}
+			
+			setHeader(map, "PLCN_validFlag", true);
+			setHeader(map, 'PLCN_txnComments', "");
+			setHeader(map, 'PLCNAPI_txnComments', "");
+
+			logger.info("Camt056TimelineCheck: holidayFlag = " + holidayFlagC56);
+			if(holidayFlagC56 == "Y"){
+				logger.info("Camt056TimelineCheck: in holiday loop");
+				if(sysDate == temp1Date){
+					logger.info("Camt056TimelineCheck: date is holiday");
+				}
+				currWorkDay = currWorkDay;
+				x++;
+				logger.info("Camt056TimelineCheck: currWorkDay in holiday loop = " + currWorkDay);
+			}else{
+				if(sysDate == temp1Date){
+					logger.info("Camt056TimelineCheck: in 2nd loop");
+					return retVal;
+				}else{
+					logger.info("Camt056TimelineCheck: in 3rd loop");
+					currWorkDay++;
+					x++;
+					logger.info("Camt056TimelineCheck: currWorkDay in 3rd loop = " + currWorkDay);
+				}
+			}	
+		}
+		
+		setHeader(map, "PLCN_validMessage", false);
+		retVal = setCommentsForTransaction("00", "8866", map);//new violation needs to be add
+		return retVal;
+	}
+	
+	if((rsnCd == "FRAD" && orgtrAnyBIC) || (rsnCd == "AC03" && orgtrNm) || (rsnCd == "AM09" && orgtrNm) || (rsnCd == "CUST" && orgtrNm)) {
+		var date = msgDate.substring(6, 8);
+		var month = msgDate.substring(4, 6);
+		var YY = msgDate.substring(2, 4);
+		var CC = msgDate.substring(0, 2);
+		
+		var year = CC + YY;
+		
+		year = Number(year);
+		
+		logger.info("Camt056TimelineCheck: date = " + date);
+		logger.info("Camt056TimelineCheck: month = " + month);
+		logger.info("Camt056TimelineCheck: year = " + year);
+		
+		if (month == 12) {
+			month = "01";
+			year = year + 2;
+		}else if(month < 12){
+			month = Number(month);
+			
+			month = month + 1;
+			year = year + 1;
+			
+			month = String(month);
+			if(month < 10){
+				month = "0" + month;
+			}
+		}
+		
+		year = String(year);
+	
+		logger.info("Camt056TimelineCheck: date after change = " + date);
+		logger.info("Camt056TimelineCheck: month after change = " + month);
+		logger.info("Camt056TimelineCheck: year after change = " + year);
+		
+		tempDate = year + month + date;
+		logger.info("Camt056TimelineCheck: tempDate = " + tempDate);
+		
+		if(sysDate >= tempDate){
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("00", "8932", map);//new violation needs to be add
+			return retVal;
+		}
+		
+		return retVal;
+	}	
+}
+
+function pacs004TimelineCheck(exchange){
+	
+	logger.info("In pacs004TimelineCheck");
+	
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var holidayFlag;
+	
+	var retVal = 0;
+
+	var orgnlMsgNmIdPath = "/Document/PmtRtr/OrgnlGrpInf/OrgnlMsgNmId";
+	var orgnlMsgNmId = getValueFromPath(Document, orgnlMsgNmIdPath);
+	logger.info("pacs004TimelineCheck: orgnlMsgNmId = " + orgnlMsgNmId);
+
+	var messageDirection = getHeader(map, "PLCN_msgDirection");
+	logger.info("pacs004TimelineCheck: messageDirection = " + messageDirection);
+
+	if(orgnlMsgNmId != "pacs.003.001.08" && messageDirection != "I") {
+		return retVal;
+	}
+	
+	var msgDatePath = "/Document/PmtRtr/TxInf/OrgnlTxRef/IntrBkSttlmDt";
+	var msgDate = getValueFromPath(Document, msgDatePath);
+	logger.info("pacs004TimelineCheck: msgDate = " + msgDate);
+	msgDate = replaceAllPattern(msgDate, "-", "");
+	logger.info("pacs004TimelineCheck: msgDate = " + msgDate);
+	
+	var sysDate = getDate();
+	logger.info("pacs004TimelineCheck: sysDate = " + sysDate);
+	
+	var currency = getHeaderWithLogging(map, "PLCN_currency");
+	
+	var clrgId = mxClearingId(map);
+	logger.info("pacs004TimelineCheck: clrgId = " + clrgId);
+	
+	var orgtrAnyBIC =  isXmlNodePresent(Document, "TxInf", "CxlRsnInf", "<AnyBIC>");
+	logger.info("pacs004TimelineCheck: orgtrAnyBIC = " + orgtrAnyBIC);
+	
+	var orgtrNm =  isXmlNodePresent(Document, "TxInf", "CxlRsnInf", "<Nm>");
+	logger.info("pacs004TimelineCheck: orgtrNm = " + orgtrNm);
+	
+	//5 BBD
+		var currWorkDay = 0;
+		var tempDate = msgDate;//28-11-2024
+		var workDaysToAdd = 5;
+		var x = 0;
+		
+		logger.info("pacs004TimelineCheck: workDaysToAdd = " + workDaysToAdd);
+		logger.info("pacs004TimelineCheck: msgDate = " + tempDate);
+		logger.info("pacs004TimelineCheck: todaysDate = " + sysDate);
+		
+		while(currWorkDay < workDaysToAdd){
+			var temp1Date = getDateFromNumOfDays(tempDate, x);
+			logger.info("pacs004TimelineCheck: temp1Date = " + temp1Date);
+			
+			holidayFlag = "N";
+			var holiday = checkHoliday(clrgId, temp1Date, map);
+			if(holiday > 0) {
+				logger.info("pacs004TimelineCheck: holiday > 0");
+				holidayFlag = "Y";
+				logger.info("pacs004TimelineCheck: holidayFlag = Y");
+			}else {
+				deriveClgsysTableValuesMx(clrgId, map);
+				var tmpDateW = convertDateFormat(temp1Date, "CCYYMMDD", "MMDDCCYY");
+		
+				var actValDay = getWeekday(tmpDateW);
+				logger.info("pacs004TimelineCheck: actValDay = " + actValDay);
+				
+				if((actValDay == "Thursday" && getHeader(map, "PLCN_clThursday") == "Y") || (actValDay == "Friday" && getHeader(map, "PLCN_clFriday") == "Y") || (actValDay == "Saturday" && getHeader(map, "PLCN_clSaturday") == "Y") || (actValDay == "Sunday" && getHeader(map, "PLCN_clSunday") == "Y")) {
+					holidayFlag = "Y";
+					logger.info("pacs004TimelineCheck: weekendHolidayFlag = " + holidayFlag);
+				}
+
+			}
+			
+			setHeader(map, "PLCN_validFlag", true);
+			setHeader(map, 'PLCN_txnComments', "");
+			setHeader(map, 'PLCNAPI_txnComments', "");
+
+			logger.info("pacs004TimelineCheck: holidayFlag = " + holidayFlag);
+			if(holidayFlag == "Y"){
+				logger.info("pacs004TimelineCheck: in holiday loop");
+				if(sysDate == temp1Date){
+					logger.info("pacs004TimelineCheck: date is holiday");
+				}
+				currWorkDay = currWorkDay;
+				x++;
+				logger.info("pacs004TimelineCheck: currWorkDay in holiday loop = " + currWorkDay);
+			}else{
+				if(sysDate == temp1Date){
+					logger.info("pacs004TimelineCheck: Date is within 5 BBD");
+					return retVal;
+				}else{
+					logger.info("pacs004TimelineCheck: Date is not within 5 BBD");
+					currWorkDay++;
+					x++;
+					logger.info("pacs004TimelineCheck: currWorkDay in 3rd loop = " + currWorkDay);
+				}
+			}
+		}
+		
+		//setHeader(map, "PLCN_validMessage", false);
+		//retVal = setCommentsForTransaction("00", "8866", map);//new violation needs to be add
+		//return retVal;
+
+	//13 months
+		var date = msgDate.substring(6, 8);
+		var month = msgDate.substring(4, 6);
+		var YY = msgDate.substring(2, 4);
+		var CC = msgDate.substring(0, 2);
+		
+		var year = CC + YY;
+		
+		year = Number(year);
+		
+		logger.info("pacs004TimelineCheck: date = " + date);
+		logger.info("pacs004TimelineCheck: month = " + month);
+		logger.info("pacs004TimelineCheck: year = " + year);
+		
+		if (month == 12) {
+			month = "01";
+			year = year + 2;
+		}else if(month < 12){
+			month = Number(month);
+			
+			month = month + 1;
+			year = year + 1;
+			
+			month = String(month);
+			if(month < 10){
+				month = "0" + month;
+			}
+		}
+		
+		year = String(year);
+	
+		logger.info("pacs004TimelineCheck: date after change = " + date);
+		logger.info("pacs004TimelineCheck: month after change = " + month);
+		logger.info("pacs004TimelineCheck: year after change = " + year);
+		
+		tempDate = year + month + date;
+		logger.info("pacs004TimelineCheck: tempDate = " + tempDate);
+		
+		if(sysDate >= tempDate){
+			logger.info("pacs004TimelineCheck: Date is not within 13 Months");
+			setHeader(map, "PLCN_validMessage", false);
+			retVal = setCommentsForTransaction("00", "8038", map);//new violation needs to be add
+			return retVal;
+		}else{
+			logger.info("pacs004TimelineCheck: Date is within 13 Months");
+		}
+		
+		return retVal;	
+}
+
+function Pacs028TimelineCheck(exchange){
+	
+	logger.info("In Pacs028TimelineCheck");
+	
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var holidayFlagP28;
+	
+	var retVal = 0;
+	
+	var msgDatePath = "Document/FIToFIPmtStsReq/TxInf/OrgnlTxRef/IntrBkSttlmAmt";
+	var msgDate = getValueFromPath(Document, msgDatePath);
+	msgDate = replaceAllPattern(msgDate, "-", "");
+	logger.info("Pacs028TimelineCheck: msgDate = " + msgDate);
+	
+	var sysDate = getDate();
+	logger.info("Pacs028TimelineCheck: sysDate = " + sysDate);
+		
+	var clrgId = mxClearingId(map);
+	logger.info("Pacs028TimelineCheck: clrgId = " + clrgId);
+	
+		var currWorkDay = 0;
+		var tempDate = msgDate;//28-11-2024
+		var workDaysToAdd = 15;
+		var x = 0;
+		
+		logger.info("Pacs028TimelineCheck: workDaysToAdd = " + workDaysToAdd);
+		logger.info("Pacs028TimelineCheck: msgDate = " + tempDate);
+		logger.info("Pacs028TimelineCheck: todaysDate = " + sysDate);
+		
+		while(currWorkDay < workDaysToAdd){
+			var temp1Date = getDateFromNumOfDays(tempDate, x);
+			logger.info("Pacs028TimelineCheck: temp1Date = " + temp1Date);
+			
+			holidayFlagP28 = "N";
+			var holiday = checkHoliday(clrgId, temp1Date, map);
+			if(holiday > 0) {
+				logger.info("Pacs028TimelineCheck: holiday > 0");
+				holidayFlagP28 = "Y";
+				logger.info("Pacs028TimelineCheck: holidayFlagP28 = Y");
+			}else {
+				deriveClgsysTableValuesMx(clrgId, map);
+				var tmpDateW = convertDateFormat(temp1Date, "CCYYMMDD", "MMDDCCYY");
+		
+				var actValDay = getWeekday(tmpDateW);
+				logger.info("Pacs028TimelineCheck: actValDay = " + actValDay);
+				
+				if((actValDay == "Thursday" && getHeader(map, "PLCN_clThursday") == "Y") || (actValDay == "Friday" && getHeader(map, "PLCN_clFriday") == "Y") || (actValDay == "Saturday" && getHeader(map, "PLCN_clSaturday") == "Y") || (actValDay == "Sunday" && getHeader(map, "PLCN_clSunday") == "Y")) {
+					holidayFlagP28 = "Y";
+					logger.info("Pacs028TimelineCheck: weekendHolidayFlag = " + holidayFlagP28);
+				}
+
+			}
+			
+			setHeader(map, "PLCN_validFlag", true);
+			setHeader(map, 'PLCN_txnComments', "");
+			setHeader(map, 'PLCNAPI_txnComments', "");
+
+			logger.info("Pacs028TimelineCheck: holidayFlag = " + holidayFlagP28);
+			if(holidayFlagP28 == "Y"){
+				logger.info("Pacs028TimelineCheck: in holiday loop");
+				if(sysDate == temp1Date){
+					logger.info("Pacs028TimelineCheck: date is holiday");
+				}
+				currWorkDay = currWorkDay;
+				x++;
+				logger.info("Pacs028TimelineCheck: currWorkDay in holiday loop = " + currWorkDay);
+			}else{
+				if(sysDate == temp1Date){
+					logger.info("Pacs028TimelineCheck: in 2nd loop");
+					return retVal;
+				}else{
+					logger.info("Pacs028TimelineCheck: in 3rd loop");
+					currWorkDay++;
+					x++;
+					logger.info("Pacs028TimelineCheck: currWorkDay in 3rd loop = " + currWorkDay);
+				}
+			}	
+		}
+		
+		setHeader(map, "PLCN_validMessage", false);
+		retVal = setCommentsForTransaction("00", "8866", map);//new violation needs to be add
+		return retVal;
+}
+
+function sepaValidationRulesPacs002(pacs02ValdFlagMx, exchange) {
+	logger.info("sepaValidationRulesPacs002");
+	var retVal;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(pacs02ValdFlagMx == "ERROR") {
+		retVal = originalMsgNameIdRulePacs002(Document, map);
+		if(retVal != 0) {
+			return retVal;
+		}
+	}
+	
+	if(pacs02ValdFlagMx == "WARNING") {
+		
+		retVal = originalMsgNameIdRulePacs002(Document, map);
+		
+	}
+	return retVal;
+}
+
+function originalMsgNameIdRulePacs002(Document, map) {
+	var originalMsgNameIdPath;
+	var originalMsgNameId;
+	
+	var retVal = 0;
+	logger.info("In originalMsgNameIdRulePacs002");
+	
+	originalMsgNameIdPath = '/Document/FIToFIPmtStsRpt/OrgnlGrpInfAndSts/OrgnlMsgNmId';
+	originalMsgNameId = getValueFromPath(Document, originalMsgNameIdPath);
+	if(!originalMsgNameId) {
+		originalMsgNameIdPath = '/Document/FIToFIPmtStsRpt/TxInfAndSts/OrgnlGrpInfAndSts/OrgnlMsgNmId';
+		originalMsgNameId = getValueFromPath(Document, originalMsgNameIdPath);
+	}
+	logger.info("originalMsgNameIdRulePacs002: originalMsgNameId = " + originalMsgNameId );
+	logger.info("originalMsgNameIdRulePacs002: type of originalMsgNameId = " + typeof originalMsgNameId );
+	
+	var dbbFlag = getHeader(map, "PLCN_xsdCheckFlag");
+	logger.info("wrapperSepaPacs008Mx: dbbFlag = " + dbbFlag);
+			
+	if(dbbFlag == "DBB") {
+		originalMsgNameIdPath = '/Document/FIToFIPmtStsRptSCL/OrgnlGrpInfAndSts/OrgnlMsgNmId';
+		originalMsgNameId = getValueFromPath(Document, originalMsgNameIdPath);
+		if(!originalMsgNameId) {
+			originalMsgNameIdPath = '/Document/FIToFIPmtStsRptSCL/TxInfAndSts/OrgnlGrpInfAndSts/OrgnlMsgNmId';
+			originalMsgNameId = getValueFromPath(Document, originalMsgNameIdPath);
+		}
+		logger.info("originalMsgNameIdRulePacs002: originalMsgNameId = " + originalMsgNameId );
+		logger.info("originalMsgNameIdRulePacs002: type of originalMsgNameId = " + typeof originalMsgNameId );
+		
+	}
+	
+	//const values = ["pacs.008","pacs.003"];
+
+	if(originalMsgNameId) {
+		originalMsgNameId = originalMsgNameId?.slice(0, 8);
+		logger.info("originalMsgNameIdRulePacs002: originalMsgNameId after trim = " + originalMsgNameId );
+
+		if(dbbFlag == "DBB") {
+			const values1 = ["pacs.008","pacs.003","pacs.004","camt.029"];
+			if(values1.includes(originalMsgNameId)){
+				logger.info("originalMsgNameIdRulePacs002: originalMsgNameId value is begin with 'pacs.003' or 'pacs.008'");
+			}else {
+				setHeader(map, "PLCN_validMessage",false);
+				logger.info("originalMsgNameIdRulePacs002: originalMsgNameId value is must begin with 'pacs.008' or 'pacs.003'");
+				retVal = setCommentsForTransaction("127", "7636", map);	//NEW violations to be defined..
+				//return retVal;			
+			}
+		}else {
+			const values = ["pacs.008","pacs.003"];
+			if(values.includes(originalMsgNameId)){
+				logger.info("originalMsgNameIdRulePacs002: originalMsgNameId value is begin with 'pacs.003' or 'pacs.008'");
+			}else {
+				setHeader(map, "PLCN_validMessage",false);
+				logger.info("originalMsgNameIdRulePacs002: originalMsgNameId value is must begin with 'pacs.008' or 'pacs.003'");
+				retVal = setCommentsForTransaction("127", "7636", map);
+				//return retVal;			
+			}
+		}
+	}
+	return retVal;
+}
+
+function msgValidationSepaCamt056SDD(exchange) {
+	var result;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+
+	logger.info("In msgValidationSepaCamt056SDD");
+	logger.info("msgValidationSepaCamt056SDD: exchange = " + exchange);
+	logger.info("msgValidationSepaCamt056SDD: typeof exchange = " + typeof exchange);
+
+	setHeader(map, "PLCN_txnForceStopCounter", 0);
+	setHeader(map, "PLCN_errorCountAdd", "Y"); 
+	setHeader(map, "PLCN_validMessage", true);
+	//setHeader(map, "validFlag", true);
+
+	var plcnInternalcall = getHeader(map,"PLCN_call");
+	logger.info("msgValidationSepaCamt056SDD: plcnInternalcall = " + plcnInternalcall);
+	logger.info("msgValidationSepaCamt056SDD: typeof plcnInternalcall = " + typeof plcnInternalcall);
+	plcnInternalcall = plcnInternalcall.toString();
+
+	var creationCall = getHeader(map,"PLCN_creationCall");
+	logger.info("msgValidationSepaCamt056SDD: creationCall = " + creationCall);
+	logger.info("msgValidationSepaCamt056SDD: typeof creationCall = " + typeof creationCall);
+	creationCall = creationCall.toString();
+
+	var msgFamily = getHeader(map, "PLCN_msgFamilyDB");
+	msgFamily = msgFamily?.toUpperCase();
+	//msgFamily = getHeader(map, "PLCN_msgFamily");
+	logger.info("msgValidationSepaCamt056SDD: msgFamily = " + msgFamily);
+
+	var custom13 = getHeader(map, "PLCN_custom13");
+	logger.info("msgValidationSepaCamt056SDD: custom13 = " + custom13);	
+
+	if(isPatternPresent(msgFamily,"SEPA")  && plcnInternalcall == "true"){
+		logger.info("msgValidationSepaCamt056SDD: inside 1st loop");
+		if(isPatternPresent(custom13, "VALIDATE=Y")){
+			wrapperSepaCamt056MxSDD(exchange);
+			custom13 = replacePattern(custom13, "VALIDATE=Y", "VALIDATE=D");
+			logger.info("msgValidationSepaCamt056SDD: custom13 = " + custom13);
+			setHeader(map, "PLCN_custom13", custom13);
+			setHeader(map, "PLCNAPI_custom13", custom13);
+		}
+	}else{
+		logger.info("msgValidationSepaCamt056SDD: External call");
+		wrapperSepaCamt056MxSDD(exchange);
+		//wrapperTimelineCheck(exchange);
+	}
+
+	result = getHeader(map, "PLCN_validMessage");
+	//result = true; //for testing
+	logger.info("msgValidationSepaCamt056SDD: PLCN_validMessage = " + result);
+	logger.info("msgValidationSepaCamt056SDD: typeof PLCN_validMessage = " + typeof result);
+
+	var flag = memTblGetTableValue(map, "FLAG-TABLE", "PROCESS_T2ONLY");
+	logger.info("msgValidationSepaCamt056SDD: flag = " + flag);
+
+	flag = flag?.trim();
+
+	if(result == true) {
+		setHeader(map, "status", "valid");
+	}else {
+		setHeader(map, "status", "error");
+
+		if(flag == "Y"){
+			//SEPA business rule failed
+			setCommentsForTransaction("00", "8183", map);
+		}
+	}
+}
+
+function sepaValidationDBBRulesPacs003(pacs03ValdFlagMx, exchange) {
+	
+	var retVal;
+
+	logger.info("In sepaValidationDBBRulesPacs003");
+
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	retVal = 0;
+
+	if(pacs03ValdFlagMx == "ERROR") {
+
+		retVal = numberOfTransactionsRulePacs003(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = intrbkSttlmDtPastDateRulePacs003(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = intrbkSttlmDt14DaysRulePacs003(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = reqdColltnDtRulePacs003(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+		
+		retVal = drctDbtTxInfCountRulePacs003(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}
+
+		retVal = orgnlDbtrAcctIdRulePacs003(exchange);
+		if(retVal != 0) {
+			return retVal;
+		}		
+	}
+
+	if(pacs03ValdFlagMx == "WARNING") {
+		retVal = numberOfTransactionsRulePacs003(exchange);
+		retVal = intrbkSttlmDtPastDateRulePacs003(exchange);
+		retVal = intrbkSttlmDt14DaysRulePacs003(exchange);
+		retVal = reqdColltnDtRulePacs003(exchange);
+		retVal = drctDbtTxInfCountRulePacs003(exchange);
+		retVal = orgnlDbtrAcctIdRulePacs003(exchange);		
+	}
+	return retVal;
+}
+
+// Validation: Number of Transactions must not exceed 100,000
+function numberOfTransactionsRulePacs003(exchange) {
+	logger.info("In numberOfTransactionsRulePacs003");
+	var retVal = 0;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	var nbOfTxsPath = '/Document/FIToFICstmrDrctDbt/GrpHdr/NbOfTxs';
+	var nbOfTxs = getValueFromPath(Document, nbOfTxsPath);
+	logger.info("numberOfTransactionsRulePacs003: NbOfTxs = " + nbOfTxs);
+	
+	if (nbOfTxs) {
+		var txCount = parseInt(nbOfTxs, 10);
+		if (txCount > 100000) {
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("numberOfTransactionsRulePacs003: Number of Transactions exceeds 100,000");
+			retVal = setCommentsForTransaction("007", "8209", map);
+			return retVal;
+		}
+	}
+	
+	return retVal;
+}
+
+// Validation: Interbank Settlement Date may not be in the past
+function intrbkSttlmDtPastDateRulePacs003(exchange) {
+	logger.info("In intrbkSttlmDtPastDateRulePacs003");
+	var retVal = 0;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	var intrBkSttlmDtPath = '/Document/FIToFICstmrDrctDbt/GrpHdr/IntrBkSttlmDt';
+	var intrBkSttlmDt = getValueFromPath(Document, intrBkSttlmDtPath);
+	logger.info("intrbkSttlmDtPastDateRulePacs003: IntrBkSttlmDt = " + intrBkSttlmDt);
+	
+	if (intrBkSttlmDt) {
+		// Parse date as YYYY-MM-DD format to avoid timezone issues
+		var dateParts = String(intrBkSttlmDt).split('-');
+		var year = parseInt(dateParts[0]);
+		var month = parseInt(dateParts[1]) - 1; // JavaScript months are 0-indexed
+		var day = parseInt(dateParts[2]);
+		
+		var settlementDate = new Date(year, month, day);
+		logger.info("intrbkSttlmDtPastDateRulePacs003: Parsed settlementDate = " + settlementDate);
+		
+		var today = new Date();
+		today.setHours(0, 0, 0, 0);
+		
+		if (settlementDate < today) {
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("intrbkSttlmDtPastDateRulePacs003: Interbank Settlement Date is in the past");
+			retVal = setCommentsForTransaction("010", "8208", map);
+			return retVal;
+		}
+	}
+	
+	return retVal;
+}
+
+// Validation: Interbank Settlement Date must be at least one business day in the future
+function intrbkSttlmDtBusinessDayRulePacs003(exchange) {
+	logger.info("In intrbkSttlmDtBusinessDayRulePacs003");
+	var retVal = 0;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	var intrBkSttlmDtPath = '/Document/FIToFICstmrDrctDbt/GrpHdr/IntrBkSttlmDt';
+	var intrBkSttlmDt = getValueFromPath(Document, intrBkSttlmDtPath);
+	logger.info("intrbkSttlmDtBusinessDayRulePacs003: IntrBkSttlmDt = " + intrBkSttlmDt);
+	
+	if (intrBkSttlmDt) {
+		// Parse date as YYYY-MM-DD format to avoid timezone issues
+		var dateParts = String(intrBkSttlmDt).split('-');
+		var year = parseInt(dateParts[0]);
+		var month = parseInt(dateParts[1]) - 1;
+		var day = parseInt(dateParts[2]);
+		
+		var settlementDate = new Date(year, month, day);
+		logger.info("intrbkSttlmDtBusinessDayRulePacs003: Parsed settlementDate = " + settlementDate);
+		
+		var today = new Date();
+		today.setHours(0, 0, 0, 0);
+		
+		var nextBusinessDay = getNextBusinessDay(today, map);
+		logger.info("intrbkSttlmDtBusinessDayRulePacs003: Next business day = " + nextBusinessDay);
+		
+		// Settlement date must be >= next business day (can equal or be after)
+		if (settlementDate.getTime() < nextBusinessDay.getTime()) {
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("intrbkSttlmDtBusinessDayRulePacs003: Interbank Settlement Date must be at least one business day in the future");
+			retVal = setCommentsForTransaction("037", "8202", map);
+			return retVal;
+		}
+	}
+	
+	return retVal;
+}
+
+// Validation: Interbank Settlement Date may not be more than 14 calendar days in future
+function intrbkSttlmDt14DaysRulePacs003(exchange) {
+	logger.info("In intrbkSttlmDt14DaysRulePacs003");
+	var retVal = 0;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	var intrBkSttlmDtPath = '/Document/FIToFICstmrDrctDbt/GrpHdr/IntrBkSttlmDt';
+	var intrBkSttlmDt = getValueFromPath(Document, intrBkSttlmDtPath);
+	logger.info("intrbkSttlmDt14DaysRulePacs003: IntrBkSttlmDt = " + intrBkSttlmDt);
+	
+	if (intrBkSttlmDt) {
+		// Parse date as YYYY-MM-DD format to avoid timezone issues
+		var dateParts = String(intrBkSttlmDt).split('-');
+		var year = parseInt(dateParts[0]);
+		var month = parseInt(dateParts[1]) - 1;
+		var day = parseInt(dateParts[2]);
+		
+		var settlementDate = new Date(year, month, day);
+		logger.info("intrbkSttlmDt14DaysRulePacs003: Parsed settlementDate = " + settlementDate);
+		
+		var today = new Date();
+		today.setHours(0, 0, 0, 0);
+		var maxDate = new Date(today);
+		maxDate.setDate(maxDate.getDate() + 14);
+		logger.info("intrbkSttlmDt14DaysRulePacs003: maxDate = " + maxDate);
+		
+		if (settlementDate > maxDate) {
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("intrbkSttlmDt14DaysRulePacs003: Interbank Settlement Date exceeds 14 calendar days in future");
+			retVal = setCommentsForTransaction("010", "8203", map);
+			return retVal;
+		}
+	}
+	
+	return retVal;
+}
+
+// Validation: Interbank Settlement Date must be a T2 business day
+function intrbkSttlmDtT2BusinessDayRulePacs003(exchange) {
+	logger.info("In intrbkSttlmDtT2BusinessDayRulePacs003");
+	var retVal = 0;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	var intrBkSttlmDtPath = '/Document/FIToFICstmrDrctDbt/GrpHdr/IntrBkSttlmDt';
+	var intrBkSttlmDt = getValueFromPath(Document, intrBkSttlmDtPath);
+	logger.info("intrbkSttlmDtT2BusinessDayRulePacs003: IntrBkSttlmDt = " + intrBkSttlmDt);
+	
+	if (intrBkSttlmDt) {
+		// Parse date as YYYY-MM-DD format to avoid timezone issues
+		var dateParts = String(intrBkSttlmDt).split('-');
+		var year = parseInt(dateParts[0]);
+		var month = parseInt(dateParts[1]) - 1;
+		var day = parseInt(dateParts[2]);
+		
+		var settlementDate = new Date(year, month, day);
+		logger.info("intrbkSttlmDtT2BusinessDayRulePacs003: Parsed settlementDate = " + settlementDate);
+		
+		if (!isT2BusinessDay(settlementDate, map)) {
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("intrbkSttlmDtT2BusinessDayRulePacs003: Interbank Settlement Date is not a T2 business day");
+			retVal = setCommentsForTransaction("010", "8204", map);
+			return retVal;
+		}
+	}
+	
+	return retVal;
+}
+
+// Validation: Requested Collection Date validation
+function reqdColltnDtRulePacs003(exchange) {
+	logger.info("In reqdColltnDtRulePacs003");
+	var retVal = 0;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	var intrBkSttlmDtPath = '/Document/FIToFICstmrDrctDbt/GrpHdr/IntrBkSttlmDt';
+	var intrBkSttlmDt = getValueFromPath(Document, intrBkSttlmDtPath);
+	logger.info("reqdColltnDtRulePacs003: IntrBkSttlmDt = " + intrBkSttlmDt);
+	
+	var reqdColltnDtPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/ReqdColltnDt';
+	var reqdColltnDt = getValueFromPath(Document, reqdColltnDtPath);
+	logger.info("reqdColltnDtRulePacs003: ReqdColltnDt = " + reqdColltnDt);
+	
+	if (reqdColltnDt && intrBkSttlmDt) {
+		// Parse collection date
+		var collParts = String(reqdColltnDt).split('-');
+		var collYear = parseInt(collParts[0]);
+		var collMonth = parseInt(collParts[1]) - 1;
+		var collDay = parseInt(collParts[2]);
+		var collectionDate = new Date(collYear, collMonth, collDay);
+		
+		// Parse settlement date
+		var sttlParts = String(intrBkSttlmDt).split('-');
+		var sttlYear = parseInt(sttlParts[0]);
+		var sttlMonth = parseInt(sttlParts[1]) - 1;
+		var sttlDay = parseInt(sttlParts[2]);
+		var settlementDate = new Date(sttlYear, sttlMonth, sttlDay);
+		
+		logger.info("reqdColltnDtRulePacs003: Parsed collectionDate = " + collectionDate);
+		logger.info("reqdColltnDtRulePacs003: Parsed settlementDate = " + settlementDate);
+		
+		var today = new Date();
+		today.setHours(0, 0, 0, 0);
+		
+		// Check if date is more than D-14 calendar days
+		var minDate = new Date(today);
+		minDate.setDate(minDate.getDate() - 14);
+		logger.info("reqdColltnDtRulePacs003: minDate = " + minDate);
+		
+		if (collectionDate < minDate) {
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("reqdColltnDtRulePacs003: Requested Collection Date is more than D-14 calendar days");
+			retVal = setCommentsForTransaction("058", "8210", map);
+			return retVal;
+		}
+		
+		// Check if date is equal to or only one business day less than IntrBkSttlmDt
+		// Get one business day before settlement date (checking holidays)
+		var oneBusinessDayBefore = getPreviousBusinessDay(settlementDate, map);
+		logger.info("reqdColltnDtRulePacs003: One business day before settlement = " + oneBusinessDayBefore);
+		
+		// Collection date must be either equal to settlement date OR one business day before
+		var collTime = collectionDate.getTime();
+		var sttlTime = settlementDate.getTime();
+		var prevBizDayTime = oneBusinessDayBefore.getTime();
+		
+		if (collTime !== sttlTime && collTime !== prevBizDayTime) {
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("reqdColltnDtRulePacs003: Requested Collection Date must be equal to or only one business day less than IntrBkSttlmDt");
+			retVal = setCommentsForTransaction("058", "8205", map);
+			return retVal;
+		}
+	}
+	
+	return retVal;
+}
+
+// Validation: Direct Debit Transaction count must not exceed 100,000
+function drctDbtTxInfCountRulePacs003(exchange) {
+	logger.info("In drctDbtTxInfCountRulePacs003");
+	var retVal = 0;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	var count = countXmlNodes(Document, "FIToFICstmrDrctDbt", "DrctDbtTxInf", null);
+	logger.info("drctDbtTxInfCountRulePacs003: DrctDbtTxInf count = " + count);
+	
+	if (count > 100000) {
+		setHeader(map, "PLCN_validMessage", false);
+		logger.info("drctDbtTxInfCountRulePacs003: Maximum 100000 Direct Debit Transaction records are allowed");
+		retVal = setCommentsForTransaction("030", "8206", map);
+		return retVal;
+	}
+	
+	return retVal;
+}
+
+// Validation: Original Debtor Account ID must be "SMNDA"
+function orgnlDbtrAcctIdRulePacs003(exchange) {
+	logger.info("In orgnlDbtrAcctIdRulePacs003");
+	var retVal = 0;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	var orgnlDbtrAcctIdPath = '/Document/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Id/Othr/Id';
+	var orgnlDbtrAcctId = getValueFromPath(Document, orgnlDbtrAcctIdPath);
+	logger.info("orgnlDbtrAcctIdRulePacs003: OrgnlDbtrAcct/Id/Othr/Id = " + orgnlDbtrAcctId);
+	
+	if (isPatternPresent(String(Document1), "<OrgnlDbtrAcct>")) {
+		if (orgnlDbtrAcctId && orgnlDbtrAcctId !== "SMNDA") {
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("orgnlDbtrAcctIdRulePacs003: Original Debtor Account ID must be SMNDA");
+			retVal = setCommentsForTransaction("079", "8207", map);
+			return retVal;
+		}
+	}
+	
+	return retVal;
+}
+
+// Helper function: Check if a date is a weekend based on clearing calendar headers
+function isWeekend(date, map) {
+	var dayOfWeek = date.getDay(); // 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
+	
+	// Get clearing calendar headers
+	var clThursday = getHeaderWithLogging(map, "PLCN_clThursday");
+	var clFriday = getHeaderWithLogging(map, "PLCN_clFriday");
+	var clSaturday = getHeaderWithLogging(map, "PLCN_clSaturday");
+	var clSunday = getHeaderWithLogging(map, "PLCN_clSunday");
+	
+	// Check if the current day is marked as weekend (Y = non-working day)
+	if (dayOfWeek === 0 && clSunday === "Y") {
+		return true;
+	} else if (dayOfWeek === 4 && clThursday === "Y") {
+		return true;
+	} else if (dayOfWeek === 5 && clFriday === "Y") {
+		return true;
+	} else if (dayOfWeek === 6 && clSaturday === "Y") {
+		return true;
+	}
+	
+	return false;
+}
+
+// Helper function: Get previous business day (checks weekends and holidays)
+function getPreviousBusinessDay(date, map) {
+	var prevDay = new Date(date);
+	prevDay.setDate(prevDay.getDate() - 1);
+	
+	// Keep going back until we find a business day (not weekend, not holiday)
+	var maxAttempts = 10; // Prevent infinite loop
+	var attempts = 0;
+	
+	while (attempts < maxAttempts) {
+		// Check if it's a weekend based on clearing calendar
+		if (isWeekend(prevDay, map)) {
+			prevDay.setDate(prevDay.getDate() - 1);
+			attempts++;
+			continue;
+		}
+		
+		// Check if it's a holiday
+		var year = prevDay.getFullYear();
+		var month = (prevDay.getMonth() + 1).toString();
+		if (month.length === 1) {
+			month = "0" + month;
+		}
+		var day = prevDay.getDate().toString();
+		if (day.length === 1) {
+			day = "0" + day;
+		}
+		var dateStr = year.toString() + month + day;
+		
+		var isHoliday = checkHoliday("EUR", dateStr, map);
+		
+		if (isHoliday === 1) {
+			// It's a holiday, go back one more day
+			prevDay.setDate(prevDay.getDate() - 1);
+			attempts++;
+			continue;
+		}
+		
+		// Found a business day
+		break;
+	}
+	
+	return prevDay;
+}
+
+// Helper function: Get next business day (assumes Monday-Friday, no holidays)
+function getNextBusinessDay(date) {
+	var nextDay = new Date(date);
+	nextDay.setDate(nextDay.getDate() + 1);
+	
+	// Skip weekends
+	var dayOfWeek = nextDay.getDay();
+	if (dayOfWeek === 0) { // Sunday
+		nextDay.setDate(nextDay.getDate() + 1);
+	} else if (dayOfWeek === 6) { // Saturday
+		nextDay.setDate(nextDay.getDate() + 2);
+	}
+	
+	return nextDay;
+}
+
+// Helper function: Get next business day (checks weekends and holidays)
+function getNextBusinessDay(date, map) {
+	var nextDay = new Date(date);
+	nextDay.setDate(nextDay.getDate() + 1);
+	
+	// Keep going forward until we find a business day (not weekend, not holiday)
+	var maxAttempts = 10; // Prevent infinite loop
+	var attempts = 0;
+	
+	while (attempts < maxAttempts) {
+		// Check if it's a weekend based on clearing calendar
+		if (isWeekend(nextDay, map)) {
+			nextDay.setDate(nextDay.getDate() + 1);
+			attempts++;
+			continue;
+		}
+		
+		// Check if it's a holiday
+		var year = nextDay.getFullYear();
+		var month = (nextDay.getMonth() + 1).toString();
+		if (month.length === 1) {
+			month = "0" + month;
+		}
+		var day = nextDay.getDate().toString();
+		if (day.length === 1) {
+			day = "0" + day;
+		}
+		var dateStr = year.toString() + month + day;
+		
+		var isHoliday = checkHoliday("EUR", dateStr, map);
+		
+		if (isHoliday === 1) {
+			// It's a holiday, go forward one more day
+			nextDay.setDate(nextDay.getDate() + 1);
+			attempts++;
+			continue;
+		}
+		
+		// Found a business day
+		break;
+	}
+	
+	return nextDay;
+}
+
+// Helper function: Check if date is a T2 business day
+// Note: This is a simplified version. You'll need to implement proper T2 calendar checking
+// including TARGET2 holidays
+function isT2BusinessDay(date, map) {
+	var dayOfWeek = date.getDay();
+	logger.info("isT2BusinessDay: dayOfWeek = " + dayOfWeek);
+	
+	// Not a weekend
+	if (dayOfWeek === 0 || dayOfWeek === 6) {
+		return false;
+	}
+	
+	var year = date.getFullYear();
+	logger.info("isT2BusinessDay: year = " + year);
+	
+	var month = (date.getMonth() + 1).toString();
+	if (month.length === 1) {
+		month = "0" + month;
+	}
+	logger.info("isT2BusinessDay: month = " + month);
+	
+	var day = date.getDate().toString();
+	if (day.length === 1) {
+		day = "0" + day;
+	}
+	logger.info("isT2BusinessDay: day = " + day);
+	
+	var dateStr = year.toString() + month + day;
+	logger.info("isT2BusinessDay: dateStr = " + dateStr);
+	
+	var isHoliday = checkHoliday("TARGET2", dateStr, map);  // <-- THIS LINE CHECKS HOLIDAY
+	logger.info("isT2BusinessDay: isHoliday = " + isHoliday);
+	
+	if (isHoliday === 1) {
+		return false;
+	}
+	return true;
+	// TODO: Add T2 holiday calendar checking here
+	// This should check against TARGET2 holidays including:
+	// - New Year's Day (January 1)
+	// - Good Friday
+	// - Easter Monday
+	// - Labour Day (May 1)
+	// - Christmas Day (December 25)
+	// - Boxing Day (December 26)
+	
+	return true;
+}
+
+function compstnAmtRule(exchange) {
+	var retVal = 0;
+	var rtrRsnInfOrgtrNmPath;
+	var rtrRsnInfOrgtrNm;
+	var compstnAmtPath;
+	var compstnAmt;
+	
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	logger.info("inside compstnAmtRule");
+	
+	compstnAmtPath = '/Document/PmtRtr/TxInf/CompstnAmt';
+	compstnAmt = getValueFromPath(Document, compstnAmtPath);
+	logger.info("compstnAmtRule: compstnAmt = " + compstnAmt);
+	
+	rtrRsnInfOrgtrNmPath = '/Document/PmtRtr/TxInf/RtrRsnInf/Orgtr/Nm';
+	rtrRsnInfOrgtrNm = getValueFromPath(Document, rtrRsnInfOrgtrNmPath);
+	logger.info("compstnAmtRule: rtrRsnInfOrgtrNm = " + rtrRsnInfOrgtrNm);
+	
+	if(compstnAmt && !rtrRsnInfOrgtrNm) {
+		setHeader(map, "PLCN_validMessage",false);
+		logger.info("compstnAmtRule:Compensation Amount only applies to refunds, which is indicated by the presence of Name in Return Originator");
+		retVal = setCommentsForTransaction("192", "8043", map);
+		return retVal;
+	}
+	return retVal;
+}
+
+function rtrRsnInfOrgtrRule(exchange) {
+	var retVal = 0;
+	var rtrRsnInfOrgtrNmPath;
+	var rtrRsnInfOrgtrNm;
+	var lclInstrmCdPath;
+	var lclInstrmCd;
+	
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	logger.info("inside rtrRsnInfOrgtrRule");
+	
+	lclInstrmCdPath = '/Document/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/LclInstrm/Cd';
+	lclInstrmCd = getValueFromPath(Document, lclInstrmCdPath);
+	logger.info("rtrRsnInfOrgtrRule: lclInstrmCd = " + lclInstrmCd);
+	
+	rtrRsnInfOrgtrNmPath = '/Document/PmtRtr/TxInf/RtrRsnInf/Orgtr/Nm';
+	rtrRsnInfOrgtrNm = getValueFromPath(Document, rtrRsnInfOrgtrNmPath);
+	logger.info("rtrRsnInfOrgtrRule: rtrRsnInfOrgtrNm = " + rtrRsnInfOrgtrNm);
+	
+	if(lclInstrmCd == "B2B"){
+		if(rtrRsnInfOrgtrNm){
+			setHeader(map, "PLCN_validMessage",false);
+			logger.info("rtrRsnInfOrgtrRule:Under the B2B scheme, name of the return originator is not allowed");
+			retVal = setCommentsForTransaction("779", "8044", map);
+			return retVal;
+		}
+	}
+	return retVal;
+}
+
+function rsnCodeRulePacs004(exchange) {
+	var retVal = 0;
+	var lclInstrmCdPath;
+	var lclInstrmCd;
+	var reasonCdPath;
+	var reasonCd;
+	var rtrRsnInfOrgtrNmPath;
+	var rtrRsnInfOrgtrNm;
+	var rtrRsnInfOrgtrAnyBICPath;
+	var rtrRsnInfOrgtrAnyBIC;
+	
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	logger.info("inside rsnCodeRulePacs004");
+	
+	lclInstrmCdPath = '/Document/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/LclInstrm/Cd';
+	lclInstrmCd = getValueFromPath(Document, lclInstrmCdPath);
+	logger.info("rsnCodeRulePacs004: lclInstrmCd = " + lclInstrmCd);
+	
+	rtrRsnInfOrgtrNmPath = '/Document/PmtRtr/TxInf/RtrRsnInf/Orgtr/Nm';
+	rtrRsnInfOrgtrNm = getValueFromPath(Document, rtrRsnInfOrgtrNmPath);
+	logger.info("rsnCodeRulePacs004: rtrRsnInfOrgtrNm = " + rtrRsnInfOrgtrNm);
+	
+	rtrRsnInfOrgtrAnyBICPath = '/Document/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/OrgId/AnyBIC';
+	rtrRsnInfOrgtrAnyBIC = getValueFromPath(Document, rtrRsnInfOrgtrAnyBICPath);
+	logger.info("rsnCodeRulePacs004: rtrRsnInfOrgtrAnyBIC = " + rtrRsnInfOrgtrAnyBIC);
+	
+	reasonCdPath = '/Document/PmtRtr/TxInf/RtrRsnInf/Rsn/Cd';
+	reasonCd = getValueFromPath(Document, reasonCdPath);
+	logger.info("rsnCodeRulePacs004: reasonCd = " + reasonCd );
+
+	if(lclInstrmCd == "CORE"){
+		//Return
+		if(rtrRsnInfOrgtrAnyBIC){
+			const values1 = ["AC01","AC04","AC06","AG01","AG02","AM04","AM05","BE05","MD01","MD07","MS02","MS03","RC01","RR01","RR02","RR03","RR04","SL01"];
+			if(values1.includes(reasonCd)){
+				logger.info("rsnCodeRulePacs004: CORE Return reasonCd value is valid");
+			}else {
+				setHeader(map, "PLCN_validMessage",false);
+				logger.info("rsnCodeRulePacs004:Under the CORE scheme for Return, only AC01,AC04,AC06,AG01,AG02,AM04,AM05,BE05,MD01,MD07,MS02,MS03,RC01,RR01,RR02,RR03,RR04,SL01 are allowed");
+				retVal = setCommentsForTransaction("822", "8045", map);
+				return retVal;
+			}
+		}
+		
+		//Refund
+		if(rtrRsnInfOrgtrNm){
+			const values2 = ["MD01","MD06"];
+			if(values2.includes(reasonCd)){
+				logger.info("rsnCodeRulePacs004: CORE Refund reasonCd value is valid");
+			}else {
+				setHeader(map, "PLCN_validMessage",false);
+				logger.info("rsnCodeRulePacs004:Under the CORE scheme for Refund, only MD01,MD06 are allowed");
+				retVal = setCommentsForTransaction("822", "8046", map);
+				return retVal;
+			}
+		}
+	}
+	
+	if(lclInstrmCd == "B2B"){
+		if(reasonCd == "MD06"){
+			const values3 = ["AC01","AC04","AC06","AG01","AG02","AM04","AM05","BE05","MD01","MD07","MS02","MS03","RC01","RR01","RR02","RR03","RR04","SL01","AC13"];
+			if(values3.includes(reasonCd)){
+				logger.info("rsnCodeRulePacs004: B2B reasonCd value is valid");
+			}else {
+				setHeader(map, "PLCN_validMessage",false);
+				logger.info("rsnCodeRulePacs004:Under the B2B scheme, only AC01,AC04,AC06,AG01,AG02,AM04,AM05,BE05,MD01,MD07,MS02,MS03,RC01,RR01,RR02,RR03,RR04,SL01,AC13 are allowed");
+				retVal = setCommentsForTransaction("822", "8048", map);
+				return retVal;
+			}
+		}
+	}
+	return retVal;
+}
+
+function orgnlTxRefGrpHdrDateCheckPacs004(exchange) {
+	var retVal = 0;
+	
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	logger.info("inside orgnlTxRefGrpHdrDateCheckPacs004");
+	
+	var grpHdrDatePath = "/Document/PmtRtr/GrpHdr/IntrBkSttlmDt";
+	var grpHdrDate = getValueFromPath(Document, grpHdrDatePath);
+	logger.info("orgnlTxRefGrpHdrDateCheckPacs004: grpHdrDate = " + grpHdrDate);
+	if(grpHdrDate){
+		grpHdrDate = replaceAllPattern(grpHdrDate, "-", "");
+		logger.info("orgnlTxRefGrpHdrDateCheckPacs004: grpHdrDate = " + grpHdrDate);
+	}
+	
+	var orgnlTxRefDatePath = "/Document/PmtRtr/TxInf/OrgnlTxRef/IntrBkSttlmDt";
+	var orgnlTxRefDate = getValueFromPath(Document, orgnlTxRefDatePath);
+	logger.info("orgnlTxRefGrpHdrDateCheckPacs004: orgnlTxRefDate = " + orgnlTxRefDate);
+	if(orgnlTxRefDate){
+		orgnlTxRefDate = replaceAllPattern(orgnlTxRefDate, "-", "");
+		logger.info("orgnlTxRefGrpHdrDateCheckPacs004: orgnlTxRefDate = " + orgnlTxRefDate);
+	}
+	
+	if(grpHdrDate < orgnlTxRefDate){
+		setHeader(map, "PLCN_validMessage",false);
+		logger.info("orgnlTxRefGrpHdrDateCheckPacs004: IntrBkSttlmDt in GrpHdr must be equal to or greater than IntrBkSttlmDt in OrgnlTxRef");
+		retVal = setCommentsForTransaction("126", "8047", map);
+		return retVal;
+	}
+	return retVal;
+}
+
+function TtlRvsdIntrBkSttlmAmtRulePacs007(Document, map){
+	var ttlRvsdIntrBkSttlmAmtPath;
+	var ttlRvsdIntrBkSttlmAmt;
+	
+	var retVal = 0;
+	logger.info("In TtlRvsdIntrBkSttlmAmtRulePacs007");
+	
+	var minLimit = 0.01;
+	logger.info("TtlRvsdIntrBkSttlmAmtRulePacs007: minLimit = " + minLimit );
+	logger.info("TtlRvsdIntrBkSttlmAmtRulePacs007: typeof minLimit = " + typeof minLimit );
+	
+	ttlRvsdIntrBkSttlmAmtPath = '/Document/FIToFIPmtRvsl/GrpHdr/TtlRvsdIntrBkSttlmAmt';
+	ttlRvsdIntrBkSttlmAmt = getValueFromPath(Document, ttlRvsdIntrBkSttlmAmtPath);
+	logger.info("TtlRvsdIntrBkSttlmAmtRulePacs007: ttlRvsdIntrBkSttlmAmt = " + ttlRvsdIntrBkSttlmAmt );
+	logger.info("TtlRvsdIntrBkSttlmAmtRulePacs007: typeof ttlRvsdIntrBkSttlmAmt = " + typeof ttlRvsdIntrBkSttlmAmt );
+	
+	if(ttlRvsdIntrBkSttlmAmt < minLimit){
+		logger.info("TtlRvsdIntrBkSttlmAmtRulePacs007: Amount should not be less than 0.01");
+		setHeader(map,"PLCN_validMessage",false);
+		retVal = setCommentsForTransaction("010","8040", map);
+		return retVal;
+	}
+	return retVal;
+}
+
+// Validation: Number of Transactions must not exceed 100,000
+function nbOfTxsRuleCamt056(exchange) {
+	logger.info("In nbOfTxsRuleCamt056");
+	var retVal = 0;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	var nbOfTxsPath = '/Document/FIToFIPmtCxlReq/CtrlData/NbOfTxs';
+	var nbOfTxs = getValueFromPath(Document, nbOfTxsPath);
+	logger.info("nbOfTxsRuleCamt056: NbOfTxs = " + nbOfTxs);
+	
+	if (nbOfTxs) {
+		var txCount = parseInt(nbOfTxs, 10);
+		if (txCount > 100000) {
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("nbOfTxsRuleCamt056: Number of Transactions exceeds 100,000");
+			retVal = setCommentsForTransaction("115", "8206", map);
+			return retVal;
+		}
+	}
+	
+	return retVal;
+}
+
+// Validation: Original Interbank Settlement Date must be a T2 business day and within current SEPA business day or future up to 14 calendar days
+function orgnlIntrBkSttlmDtRuleCamt056(exchange) {
+	logger.info("In orgnlIntrBkSttlmDtRuleCamt056");
+	var retVal = 0;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	var orgnlIntrBkSttlmDtPath = '/Document/FIToFIPmtCxlReq/Undrlyg/TxInf/OrgnlIntrBkSttlmDt';
+	var orgnlIntrBkSttlmDt = getValueFromPath(Document, orgnlIntrBkSttlmDtPath);
+	logger.info("orgnlIntrBkSttlmDtRuleCamt056: OrgnlIntrBkSttlmDt = " + orgnlIntrBkSttlmDt);
+	
+	if (orgnlIntrBkSttlmDt) {
+		// Parse date as YYYY-MM-DD format to avoid timezone issues
+		var dateParts = String(orgnlIntrBkSttlmDt).split('-');
+		var year = parseInt(dateParts[0]);
+		var month = parseInt(dateParts[1]) - 1;
+		var day = parseInt(dateParts[2]);
+		
+		var settlementDate = new Date(year, month, day);
+		logger.info("orgnlIntrBkSttlmDtRuleCamt056: Parsed settlementDate = " + settlementDate);
+		
+		var today = new Date();
+		today.setHours(0, 0, 0, 0);
+		
+		// Check if date is in the past (before today)
+		if (settlementDate < today) {
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("orgnlIntrBkSttlmDtRuleCamt056: Original Interbank Settlement Date is in the past");
+			retVal = setCommentsForTransaction("186", "8208", map);
+			return retVal;
+		}
+		
+		// Check if date is more than 14 calendar days in future
+		var maxDate = new Date(today);
+		maxDate.setDate(maxDate.getDate() + 14);
+		
+		if (settlementDate > maxDate) {
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("orgnlIntrBkSttlmDtRuleCamt056: Original Interbank Settlement Date exceeds 14 calendar days in future");
+			retVal = setCommentsForTransaction("186", "8211", map);
+			return retVal;
+		}
+		
+		// Check if it's a T2 business day
+		if (!isT2BusinessDay(settlementDate, map)) {
+			setHeader(map, "PLCN_validMessage", false);
+			logger.info("orgnlIntrBkSttlmDtRuleCamt056: Original Interbank Settlement Date is not a T2 business day");
+			retVal = setCommentsForTransaction("186", "8204", map);
+			return retVal;
+		}
+	}
+	
+	return retVal;
+}
+
+// Validation: All OrgnlIntrBkSttlmDt in bulk must be identical (if no GrpHdr settlement date)
+function orgnlIntrBkSttlmDtIdentityRuleCamt056(exchange) {
+	logger.info("In orgnlIntrBkSttlmDtIdentityRuleCamt056");
+	var retVal = 0;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	// Check if GrpHdr has settlement date
+	var grpHdrSttlmDtPath = '/Document/FIToFIPmtCxlReq/GrpHdr/SttlmDt';
+	var grpHdrSttlmDt = getValueFromPath(Document, grpHdrSttlmDtPath);
+	logger.info("orgnlIntrBkSttlmDtIdentityRuleCamt056: GrpHdr SttlmDt = " + grpHdrSttlmDt);
+	
+	// If GrpHdr has settlement date, skip this validation
+	if (grpHdrSttlmDt) {
+		logger.info("orgnlIntrBkSttlmDtIdentityRuleCamt056: GrpHdr settlement date present, skipping identity check");
+		return retVal;
+	}
+	
+	// Get all TxInf elements
+	var docElement = Document.getDocumentElement();
+	var txInfElements = docElement.getElementsByTagName("TxInf");
+	
+	if (txInfElements && txInfElements.getLength() > 0) {
+		logger.info("orgnlIntrBkSttlmDtIdentityRuleCamt056: Total TxInf elements = " + txInfElements.getLength());
+		
+		var firstOrgnlIntrBkSttlmDt = null;
+		
+		// Check all OrgnlIntrBkSttlmDt values
+		for (var i = 0; i < txInfElements.getLength(); i++) {
+			var txInf = txInfElements.item(i);
+			var orgnlIntrBkSttlmDtNodes = txInf.getElementsByTagName("OrgnlIntrBkSttlmDt");
+			
+			if (orgnlIntrBkSttlmDtNodes && orgnlIntrBkSttlmDtNodes.getLength() > 0) {
+				var currentDate = orgnlIntrBkSttlmDtNodes.item(0).getTextContent();
+				logger.info("orgnlIntrBkSttlmDtIdentityRuleCamt056: TxInf[" + i + "] OrgnlIntrBkSttlmDt = " + currentDate);
+				
+				if (i === 0) {
+					firstOrgnlIntrBkSttlmDt = currentDate;
+				} else {
+					// Compare with first transaction's date
+					if (currentDate !== firstOrgnlIntrBkSttlmDt) {
+						setHeader(map, "PLCN_validMessage", false);
+						logger.info("orgnlIntrBkSttlmDtIdentityRuleCamt056: OrgnlIntrBkSttlmDt not identical across all transactions. First: " + firstOrgnlIntrBkSttlmDt + ", Current: " + currentDate);
+						retVal = setCommentsForTransaction("186", "8212", map);
+						return retVal;
+					}
+				}
+			} else {
+				// Missing OrgnlIntrBkSttlmDt in one of the transactions
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("orgnlIntrBkSttlmDtIdentityRuleCamt056: Missing OrgnlIntrBkSttlmDt in TxInf[" + i + "]");
+				retVal = setCommentsForTransaction("186", "8213", map);
+				return retVal;
+			}
+		}
+		
+		logger.info("orgnlIntrBkSttlmDtIdentityRuleCamt056: All OrgnlIntrBkSttlmDt are identical: " + firstOrgnlIntrBkSttlmDt);
+	}
+	
+	return retVal;
+}
+
+// Validation: Cancellation Reason Code must be one of the allowed values
+function cxlRsnCdRuleCamt056(exchange) {
+	logger.info("In cxlRsnCdRuleCamt056");
+	var retVal = 0;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	
+	var allowedCodes = ["AGNT", "CURR", "CUST", "CUTA", "DUPL", "FRAD", "TECH", "UPAY"];
+	
+	// Get all CxlRsnInf/Rsn/Cd elements
+	var docElement = Document.getDocumentElement();
+	var cxlRsnCdElements = docElement.getElementsByTagName("Cd");
+	
+	if (cxlRsnCdElements && cxlRsnCdElements.getLength() > 0) {
+		logger.info("cxlRsnCdRuleCamt056: Total Cd elements found = " + cxlRsnCdElements.getLength());
+		
+		for (var i = 0; i < cxlRsnCdElements.getLength(); i++) {
+			var cdElement = cxlRsnCdElements.item(i);
+			
+			// Check if this Cd is under CxlRsnInf/Rsn
+			var parentNode = cdElement.getParentNode();
+			if (parentNode && parentNode.getNodeName() === "Rsn") {
+				var grandParentNode = parentNode.getParentNode();
+				if (grandParentNode && grandParentNode.getNodeName() === "CxlRsnInf") {
+					var code = cdElement.getTextContent();
+					logger.info("cxlRsnCdRuleCamt056: Found CxlRsn Code = " + code);
+					
+					// Check if code is in allowed list
+					var isValid = false;
+					for (var j = 0; j < allowedCodes.length; j++) {
+						if (code === allowedCodes[j]) {
+							isValid = true;
+							break;
+						}
+					}
+					
+					if (!isValid) {
+						setHeader(map, "PLCN_validMessage", false);
+						logger.info("cxlRsnCdRuleCamt056: Invalid Cancellation Reason Code: " + code + ". Allowed codes: AGNT, CURR, CUST, CUTA, DUPL, FRAD, TECH, UPAY");
+						retVal = setCommentsForTransaction("177", "8214", map);
+						return retVal;
+					}
+				}
+			}
+		}
+	}
+	
+	return retVal;
+}
+
+// Validation: Payment Type Information must be CORE or B2B
+function pmtTpInfRuleCamt056(exchange) {
+	logger.info("In pmtTpInfRuleCamt056");
+	var retVal = 0;
+	var inMsg = exchange.getIn();
+	var map = inMsg.getHeaders();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var Document1 = inMsg.getBody(java.lang.String.class);
+	
+	// Check if PmtTpInf is present in OrgnlTxRef
+	if (isPatternPresent(String(Document1), "<PmtTpInf>")) {
+		var pmtTpInfPath = '/Document/FIToFIPmtCxlReq/Undrlyg/TxInf/OrgnlTxRef/PmtTpInf/SvcLvl/Cd';
+		var svcLvlCd = getValueFromPath(Document, pmtTpInfPath);
+		logger.info("pmtTpInfRuleCamt056: PmtTpInf/SvcLvl/Cd = " + svcLvlCd);
+		
+		if (svcLvlCd) {
+			if (svcLvlCd !== "CORE" && svcLvlCd !== "B2B") {
+				setHeader(map, "PLCN_validMessage", false);
+				logger.info("pmtTpInfRuleCamt056: Payment Type must be CORE or B2B, found: " + svcLvlCd);
+				retVal = setCommentsForTransaction("155", "8215", map);
+				return retVal;
+			}
+		}
+	}
+	
+	return retVal;
+}
+
+// Validation: Original Transaction Interbank Settlement Date - Return/Refund timeframe check
+function orgnlTxIntrBkSttlmDtRulePacs004(exchange) {
+      logger.info("In orgnlTxIntrBkSttlmDtRulePacs004");
+      var retVal = 0;
+      var inMsg = exchange.getIn();
+      var map = inMsg.getHeaders();
+      var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+      
+      // Get Original Transaction Interbank Settlement Date
+      var orgnlIntrBkSttlmDtPath = '/Document/PmtRtr/TxInf/OrgnlTxRef/IntrBkSttlmDt';
+      var orgnlIntrBkSttlmDt = getValueFromPath(Document, orgnlIntrBkSttlmDtPath);
+      logger.info("orgnlTxIntrBkSttlmDtRulePacs004: OrgnlTxRef IntrBkSttlmDt = " + orgnlIntrBkSttlmDt);
+      
+      // Get Return Reason to determine if it's Refund or Return
+      var rtrRsnCdPath = '/Document/PmtRtr/TxInf/RtrRsnInf/Rsn/Cd';
+      var rtrRsnCd = getValueFromPath(Document, rtrRsnCdPath);
+      logger.info("orgnlTxIntrBkSttlmDtRulePacs004: Return Reason Code = " + rtrRsnCd);
+      
+      // Get Service Level (CORE or B2B) from Original Transaction Reference
+      var svcLvlCdPath = '/Document/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/LclInstrm/Cd';
+      var svcLvlCd = getValueFromPath(Document, svcLvlCdPath);
+      logger.info("orgnlTxIntrBkSttlmDtRulePacs004: Service Level Code = " + svcLvlCd);
+      
+      if (orgnlIntrBkSttlmDt) {
+            // Parse original settlement date (from original direct debit)
+            var orgnlDateParts = String(orgnlIntrBkSttlmDt).split('-');
+            var orgnlYear = parseInt(orgnlDateParts[0]);
+            var orgnlMonth = parseInt(orgnlDateParts[1]) - 1;
+            var orgnlDay = parseInt(orgnlDateParts[2]);
+            var originalSettlementDate = new Date(orgnlYear, orgnlMonth, orgnlDay);
+            logger.info("orgnlTxIntrBkSttlmDtRulePacs004: Parsed originalSettlementDate = " + originalSettlementDate);
+            
+            // Get System Date (today)
+            var systemDate = new Date();
+            systemDate.setHours(0, 0, 0, 0);
+            logger.info("orgnlTxIntrBkSttlmDtRulePacs004: System Date = " + systemDate);
+            
+            // Determine if it's a Refund (MD01) or Return
+            var isRefund = (rtrRsnCd === "MD01");
+            logger.info("orgnlTxIntrBkSttlmDtRulePacs004: Is Refund (MD01) = " + isRefund);
+            
+            if (isRefund) {
+                  // Refund: difference = System Date - OrgnlTxRef/IntrBkSttlmDt must be ≤ 440 calendar days
+                  var calendarDaysDifference = Math.floor((systemDate.getTime() - originalSettlementDate.getTime()) / (1000 * 60 * 60 * 24));
+                  logger.info("orgnlTxIntrBkSttlmDtRulePacs004: Refund - Calendar days difference = " + calendarDaysDifference);
+                  
+                  if (calendarDaysDifference > 440) {
+                        setHeader(map, "PLCN_validMessage", false);
+                        logger.info("orgnlTxIntrBkSttlmDtRulePacs004: Refund - Difference exceeds 440 calendar days (difference = " + calendarDaysDifference + ")");
+                        retVal = setCommentsForTransaction("835", "8049", map);
+                        return retVal;
+                  }
+                  
+                  logger.info("orgnlTxIntrBkSttlmDtRulePacs004: Refund - Validation passed (difference = " + calendarDaysDifference + " days ≤ 440)");
+                  
+            } else {
+                 
+				orgnlIntrBkSttlmDt = replaceAllPattern(orgnlIntrBkSttlmDt, "-", "");
+				logger.info("orgnlTxIntrBkSttlmDtRulePacs004: orgnlIntrBkSttlmDt = " + orgnlIntrBkSttlmDt);
+				
+				var sysDate = getDate();
+				logger.info("orgnlTxIntrBkSttlmDtRulePacs004: sysDate = " + sysDate);
+					
+				var clrgId = "TARGET2";
+
+				var workDaysToAdd = 0;
+				if (svcLvlCd === "B2B") {
+					workDaysToAdd = 3; // B2B: 3 TARGET days (up to 5 from other CSMs)
+					logger.info("orgnlTxIntrBkSttlmDtRulePacs004: B2B Return - Checking 3 TARGET days (max 5 from other CSMs)");
+				} else {
+					workDaysToAdd = 5; // CORE: 5 TARGET days
+					logger.info("orgnlTxIntrBkSttlmDtRulePacs004: CORE Return - Checking 5 TARGET days");
+				}
+				
+				var currWorkDay = 0;
+				var tempDate = sysDate;//28-11-2024
+				var x = 0;
+				
+				logger.info("orgnlTxIntrBkSttlmDtRulePacs004: workDaysToAdd = " + workDaysToAdd);
+				logger.info("orgnlTxIntrBkSttlmDtRulePacs004: msgDate = " + tempDate);
+				logger.info("orgnlTxIntrBkSttlmDtRulePacs004: todaysDate = " + sysDate);
+				
+				while(currWorkDay <= workDaysToAdd){
+					var temp1Date = getDateFromNumOfDays(tempDate, x);
+					logger.info("orgnlTxIntrBkSttlmDtRulePacs004: temp1Date = " + temp1Date);
+					
+					holidayFlagP4DD = "N";
+					var holiday = checkHoliday(clrgId, temp1Date, map);
+					if(holiday > 0) {
+						logger.info("orgnlTxIntrBkSttlmDtRulePacs004: holiday > 0");
+						holidayFlagP4DD = "Y";
+						logger.info("orgnlTxIntrBkSttlmDtRulePacs004: holidayFlagP4DD = Y");
+					}else {
+						deriveClgsysTableValuesMx(clrgId, map);
+						var tmpDateW = convertDateFormat(temp1Date, "CCYYMMDD", "MMDDCCYY");
+				
+						var actValDay = getWeekday(tmpDateW);
+						logger.info("orgnlTxIntrBkSttlmDtRulePacs004: actValDay = " + actValDay);
+						
+						if((actValDay == "Thursday" && getHeader(map, "PLCN_clThursday") == "Y") || (actValDay == "Friday" && getHeader(map, "PLCN_clFriday") == "Y") || (actValDay == "Saturday" && getHeader(map, "PLCN_clSaturday") == "Y") || (actValDay == "Sunday" && getHeader(map, "PLCN_clSunday") == "Y")) {
+							holidayFlagP4DD = "Y";
+							logger.info("orgnlTxIntrBkSttlmDtRulePacs004: weekendHolidayFlag = " + holidayFlagP4DD);
+						}
+
+					}
+					
+					setHeader(map, "PLCN_validFlag", true);
+					setHeader(map, 'PLCN_txnComments', "");
+					setHeader(map, 'PLCNAPI_txnComments', "");
+
+					logger.info("orgnlTxIntrBkSttlmDtRulePacs004: holidayFlag = " + holidayFlagP4DD);
+					if(holidayFlagP4DD == "Y"){
+						logger.info("orgnlTxIntrBkSttlmDtRulePacs004: in holiday loop");
+						if(orgnlIntrBkSttlmDt == temp1Date){
+							logger.info("orgnlTxIntrBkSttlmDtRulePacs004: date is holiday");
+						}
+						currWorkDay = currWorkDay;
+						x--;
+						logger.info("orgnlTxIntrBkSttlmDtRulePacs004: currWorkDay in holiday loop = " + currWorkDay);
+					}else{
+						if(orgnlIntrBkSttlmDt == temp1Date){
+							logger.info("orgnlTxIntrBkSttlmDtRulePacs004: in 2nd loop");
+							return retVal;
+						}else{
+							logger.info("orgnlTxIntrBkSttlmDtRulePacs004: in 3rd loop");
+							currWorkDay++;
+							x--;
+							logger.info("orgnlTxIntrBkSttlmDtRulePacs004: currWorkDay in 3rd loop = " + currWorkDay);
+						}
+					}	
+				}
+				
+				setHeader(map, "PLCN_validMessage", false);
+				retVal = setCommentsForTransaction("835", "8050", map);//new violation needs to be add
+				return retVal;
+                  logger.info("orgnlTxIntrBkSttlmDtRulePacs004: Return - Validation passed (difference = " + targetDaysCount + " TARGET days ≤ " + targetDaysAllowed + ")");
+            }
+            
+            logger.info("orgnlTxIntrBkSttlmDtRulePacs004: Validation passed");
+      }
+      
+      return retVal;
+}
+
+function rtrdIntrbnkSttlmtAmtRule(exchange) {
+	
+	var inMsg = exchange.getIn();
+	
+	var map = inMsg.getHeaders();
+	//msgdbMap = new HashMap();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var messageString = inMsg.getBody(java.lang.String.class);
+
+	var orgnlIntrBkAmtPath;
+	var orgnlIntrBkAmt;
+	var rtrnIntrBkAmtPath;
+	var rtrnIntrBkAmt;
+	var chrgsInfAmtPath;
+	var chrgsInfAmt;
+	var reasonCdPath;
+	var reasonCd;
+	var totalAmount = 0;
+	var compstnAmtPath;
+	var compstnAmt;
+	
+	
+	var retVal = 0;
+	logger.info("In rtrdIntrbnkSttlmtAmtRule");
+	
+	orgnlIntrBkAmtPath = '/Document/PmtRtr/TxInf/OrgnlIntrBkSttlmAmt';
+	orgnlIntrBkAmt = getValueFromPath(Document, orgnlIntrBkAmtPath);
+	logger.info("rtrdIntrbnkSttlmtAmtRule: orgnlIntrBkAmt = " + orgnlIntrBkAmt );
+	orgnlIntrBkAmt = Number(orgnlIntrBkAmt);
+	logger.info("rtrdIntrbnkSttlmtAmtRule: type of orgnlIntrBkAmt = " + typeof orgnlIntrBkAmt );
+
+	rtrnIntrBkAmtPath = '/Document/PmtRtr/TxInf/RtrdIntrBkSttlmAmt';
+	rtrnIntrBkAmt = getValueFromPath(Document, rtrnIntrBkAmtPath);
+	logger.info("rtrdIntrbnkSttlmtAmtRule: rtrnIntrBkAmt = " + rtrnIntrBkAmt );
+	rtrnIntrBkAmt = Number(rtrnIntrBkAmt);
+	logger.info("rtrdIntrbnkSttlmtAmtRule: type of rtrnIntrBkAmt = " + typeof rtrnIntrBkAmt );
+
+	chrgsInfAmtPath = '/Document/PmtRtr/TxInf/ChrgsInf/Amt';
+	chrgsInfAmt = getValueFromPath(Document, chrgsInfAmtPath);
+	logger.info("rtrdIntrbnkSttlmtAmtRule: chrgsInfAmt = " + chrgsInfAmt );
+	chrgsInfAmt = Number(chrgsInfAmt);
+	logger.info("rtrdIntrbnkSttlmtAmtRule: type of chrgsInfAmt = " + typeof chrgsInfAmt );
+	
+	compstnAmtPath = '/Document/PmtRtr/TxInf/CompstnAmt';
+	compstnAmt = getValueFromPath(Document, compstnAmtPath);
+	compstnAmt = Number(compstnAmt);
+	logger.info("rtrdIntrbnkSttlmtAmtRule: compstnAmt = " + compstnAmt);
+		
+	totalAmount = orgnlIntrBkAmt + chrgsInfAmt + compstnAmt;
+	logger.info("rtrdIntrbnkSttlmtAmtRule: totalAmount = " + totalAmount);
+
+	if(rtrnIntrBkAmt != totalAmount){
+		setHeader(map, "PLCN_validMessage",false);
+		logger.info("rtrdIntrbnkSttlmtAmtRule: Amount must be equal to sum of OrgnlIntrBkSttlmAmt, Compensation Amount and Amount in Charges Information");
+		retVal = setCommentsForTransaction("179", "8041", map);
+		return retVal;
+	}
+	
+	return retVal;
+}
+
+function chrgsInfoAndRtrInstdAmtCheckRulePacs004SDD(exchange) {
+	
+	var inMsg = exchange.getIn();
+	
+	var map = inMsg.getHeaders();
+	//msgdbMap = new HashMap();
+	var Document = exchange.getIn().getBody(org.w3c.dom.Document.class);
+	var messageString = inMsg.getBody(java.lang.String.class);
+
+	var retVal = 0;
+	logger.info("In chrgsInfoAndRtrInstdAmtCheckRulePacs004SDD");
+	
+	var rtrdInstdAmtPath = '/Document/PmtRtr/TxInf/RtrdInstdAmt';
+	var rtrdInstdAmt = getValueFromPath(Document, rtrdInstdAmtPath);
+	logger.info("chrgsInfoAndRtrInstdAmtCheckRulePacs004SDD: rtrdInstdAmt = " + rtrdInstdAmt);
+	
+	var chrgsInfAmtPath = '/Document/PmtRtr/TxInf/ChrgsInf/Amt';
+	var chrgsInfAmt = getValueFromPath(Document, chrgsInfAmtPath);
+	logger.info("chrgsInfoAndRtrInstdAmtCheckRulePacs004SDD: chrgsInfAmt = " + chrgsInfAmt);
+	
+	if(rtrdInstdAmt && !chrgsInfAmt){
+		setHeader(map, "PLCN_validMessage",false);
+		logger.info("chrgsInfoAndRtrInstdAmtCheckRulePacs004SDD: Amount Only allowed in the case of Amount in Charges Information is included.");
+		retVal = setCommentsForTransaction("189", "8042", map);
+		return retVal;
+	}
+	return retVal;
+}

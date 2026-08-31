@@ -1,0 +1,655 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <routeContext id="validation" xmlns="http://camel.apache.org/schema/spring">
+	
+	<route id="licensepulse" startupOrder="1" autoStartup="true">
+		<from uri="timer://licensepulseTrigger?fixedRate=true&amp;period=15000" />
+		<log loggingLevel="DEBUG" message="License Check" />
+		<bean ref="licensePulse" method="start" />
+	</route>
+	
+	<route id="loggerRoute" startupOrder="2" autoStartup="true">
+		<from uri="timer://loggerRouteTrigger?fixedRate=true&amp;period=86400000" />
+		<log loggingLevel="WARN" message="Camel service is running." />
+	</route>
+	
+	<route id="rest-validation">
+		<from uri="direct://rest-validation" />
+		<bean id="xmlParserValidation" ref="xmlParser" />
+		<log loggingLevel="INFO" message="Body in rest-validation Befor validationRoute call = ${body}" />
+		<bean id="jspPopulateDataValidateHdr" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},validateHeader)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_headerFlag}</simple>
+				<log message="Valid msg type in header calling validationRoute${header.RevisedPaymentType}"/>
+				<toD uri="direct://validationRoute${header.RevisedPaymentType}"/>
+			</when>
+			<otherwise>
+				<log message="Invalid msg type in header"/>
+				<setHeader headerName="PLCN_exceptionFlag">
+					<constant>true</constant>
+				</setHeader>
+			</otherwise>
+		</choice>
+		<log loggingLevel="TRACE" message="Body in rest-validation after validationRoute call = ${body}" />
+		<log loggingLevel="INFO" message="Headers in rest-validation before remove headers = ${headers}" />
+		<log message="status in rest-validation = ${header.status}" />
+		<choice>
+			<when>
+				<simple>${header.PLCNAPI_call} != null or ${header.PLCN_call} != null </simple>
+				<bean id="jspPopulateDataSetResponseCode" ref="jspExecute"
+					method="executeWithHazelCastInstance(${exchange},setResponseCode)" />
+				<removeHeaders pattern="PLCN_responseCdsDoc" />
+				<removeHeaders pattern="PLCN_ParseRequest" />
+				<removeHeaders pattern="PLCN_originalMsgBody" />
+				<log message="PLCNAPI_call internal" />
+			</when>
+			<otherwise>
+				<bean id="jspPopulateDatacreateResponseValidation" ref="jspExecute"
+					method="executeWithHazelCastInstance(${exchange},createResponseValidation)" />
+				<removeHeaders pattern="*" excludePattern="status"/>
+				<!-- <removeHeaders pattern="PLCN_" /> -->
+			</otherwise>
+		</choice>
+		<log loggingLevel="INFO" message="Headers in rest-validation after remove headers ${headers}" />
+		<log loggingLevel="TRACE" message="Body in rest-validation after remove headers ${body}" />
+		<log message="status in rest-validation after remove headers ${header.status}" />
+	</route>
+	
+	<route id="validationRouteTARGET2Pacs002">
+		<from uri="direct://validationRouteTARGET2PACS.002.001.10" />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.t2.pacs.002.001.10}})" />
+		<!-- <to id="validatorRoute1"
+			uri="validator:classpath:/xsd/t2-pacs.002.001.10.xsd" /> -->
+		<log message="File XSD validation done successfully." />
+		<bean id="xmlParser1" ref="xmlParser" />
+		<bean id="jspPopulateData1.2" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationTarget2Pacs002)" />
+	</route>
+	
+	<route id="validationRouteTARGET2Pacs004">
+		<from uri="direct://validationRouteTARGET2PACS.004.001.09" />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.t2.pacs.004.001.09}})" />
+		<!-- <to id="validatorRoute4"
+                uri="validator:classpath:/xsd/t2-pacs.004.001.09.xsd" /> -->
+		<log message="File XSD validation done successfully." />
+		<bean id="xmlParserPacs004" ref="xmlParser" />
+		<bean id="jspPopulateDataPacs004" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationTarget2Pacs004)" />
+	</route>
+	
+	<route id="validationRouteTARGET2Pacs008">
+		<from uri="direct://validationRouteTARGET2PACS.008.001.08" />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location}})" />
+		<!-- <to id="validatorRoute2"
+                uri="validator:classpath:/xsd/t2-pacs.008.001.08.xsd" /> -->
+		<log message="File XSD validation done successfully." />
+		<log loggingLevel="TRACE" message="Header in validationRouteTarget2Pacs008 = ${headers}" />
+		<log loggingLevel="TRACE" message="Body in validationRouteTarget2Pacs008 = ${body}" />
+		<bean id="xmlParser2" ref="xmlParser" />
+		<bean id="jspPopulateData2.2" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationTarget2Pacs008)" />
+	</route>
+	
+	<route id="validationRouteTARGET2Pacs009">
+		<from uri="direct://validationRouteTARGET2PACS.009.001.08" />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.t2.pacs.009.001.08}})" />
+		<!-- <to id="validatorRoute3"
+                uri="validator:classpath:/xsd/t2-pacs.009.001.08.xsd" /> -->
+		<log message="File XSD validation done successfully." />
+		<bean id="xmlParser3" ref="xmlParser" />
+		<bean id="jspPopulateData3.2" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationTarget2Pacs009)" />
+	</route>
+	
+	<route id="validationRouteCBPRPacs002">
+		<from uri="direct://validationRouteCBPRPACS.002.001.10" />
+		<log message="before File XSD validation" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_CBPR2025_XSDCHECK} == true</simple>
+				<log message="CBPR2025 XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr2025.pacs.002.001.10}})" />
+			</when>
+			<otherwise>
+				<log message="DEFAULT XSD CHECK." />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.002.001.10}})" />
+			</otherwise>
+		</choice>
+		<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.002.001.10}})" /> -->
+		<!-- <to id="validatorRoute01"
+                uri="validator:classpath:/xsd/cbpr-pacs.002.001.10.xsd" /> -->
+		<log message="File XSD validation done successfully." />
+		<bean id="xmlParser01" ref="xmlParser" />
+		<bean id="jspPopulateData01.2" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationCbprPacs002)" />
+	</route>
+	
+	<route id="validationRouteCBPRPacs004">
+		<from uri="direct://validationRouteCBPRPACS.004.001.09" />
+		<log message="Before File XSD validation" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_CBPR2025_XSDCHECK} == true</simple>
+				<log message="CBPR2025 XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr2025.pacs.004.001.09}})" />
+			</when>
+			<otherwise>
+				<log message="DEFAULT XSD CHECK." />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.004.001.09}})" />
+			</otherwise>
+		</choice>
+		<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.004.001.09}})" /> -->
+		<!-- <to id="validatorRoute5"
+                uri="validator:classpath:/xsd/cbpr-pacs.004.001.09.xsd" /> -->
+		<log message="File XSD validation done successfully." />
+		<bean id="xmlParser6" ref="xmlParser" />
+		<bean id="jspPopulateData6.2" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationCbprPacs004)" />
+	</route>
+	
+	<route id="validationRouteCBPRPacs008">
+		<from uri="direct://validationRouteCBPRPACS.008.001.08" />
+		<log message="Before File XSD validation" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_CBPR2025_XSDCHECK} == true</simple>
+				<log message="CBPR2025 XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr2025.pacs.008.001.08}})" />
+			</when>
+			<otherwise>
+				<log message="DEFAULT XSD CHECK." />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.008.001.08}})" />
+			</otherwise>
+		</choice>
+		<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.008.001.08}})" /> -->
+		<!-- <to id="validatorRoute11"
+                uri="validator:classpath:/xsd/cbpr-pacs.008.001.08.xsd" /> -->
+		<log message="File XSD validation done successfully." />
+		<bean id="xmlParser7" ref="xmlParser" />
+		<bean id="jspPopulateData7.2" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationCbprPacs008)" />
+	</route>
+	
+	<route id="validationRouteCBPRPacs009">
+		<from uri="direct://validationRouteCBPRPACS.009.001.08" />
+		<log message="Before File XSD validation" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_CBPR2025_XSDCHECK} == true</simple>
+				<log message="CBPR2025 XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr2025.pacs.009.001.08}})" />
+			</when>
+			<otherwise>
+				<log message="DEFAULT XSD CHECK." />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.009.001.08}})" />
+			</otherwise>
+		</choice>
+		<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.009.001.08}})" /> -->
+		<!-- <to id="validatorRoute12"
+                uri="validator:classpath:/xsd/cbpr-pacs.009.001.08.xsd" /> -->
+		<log message="File XSD validation done successfully." />
+		<bean id="xmlParser8" ref="xmlParser" />
+		<bean id="jspPopulateData8.2" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationCbprPacs009)" />
+	</route>
+	
+	<route id="validationRouteCBPRPacs009Adv">
+		<from uri="direct://validationRouteCBPRPACS.009.001.08ADV" />
+		<log message="Before File XSD validation" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_CBPR2025_XSDCHECK} == true</simple>
+				<log message="CBPR2025 XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr2025.pacs.009.001.08adv}})" />
+			</when>
+			<otherwise>
+				<log message="DEFAULT XSD CHECK." />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.009.001.08adv}})" />
+			</otherwise>
+		</choice>
+		<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.009.001.08adv}})" /> -->
+		<!-- <to id="validatorRoute12"
+                uri="validator:classpath:/xsd/cbpr-pacs.009.001.08.xsd" /> -->
+		<log message="File XSD validation done successfully." />
+		<bean id="xmlParser9" ref="xmlParser" />
+		<bean id="jspPopulateData9.2" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationCbprPacs009)" />
+	</route>
+	
+	<route id="validationRouteCbprPacs009cov">
+		<from uri="direct://validationRouteCBPRPACS.009.001.08COV" />
+		<log message="Before File XSD validation" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_CBPR2025_XSDCHECK} == true</simple>
+				<log message="CBPR2025 P9COV XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr2025.pacs.009.001.08cov}})" />
+			</when>
+			<otherwise>
+				<log message="DEFAULT XSD CHECK." />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.009.001.08cov}})" />
+			</otherwise>
+		</choice>
+		<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.009.001.08cov}})" /> -->
+		<!-- <to id="validatorRoute13"
+                uri="validator:classpath:/xsd/cbpr-pacs.009.001.08cov.xsd" /> -->
+		<log message="File XSD validation done successfully." />
+		<choice>
+			<when>
+				<simple>${header.PLCN_exceptionFlag} != true</simple>
+				<bean ref="xmlParser" />
+				<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},msgValidationCbprPacs009)" />
+			</when>
+		</choice>
+	</route>	
+
+	<route id="validationRouteCBPRCamt057">
+		<from uri="direct://validationRouteCBPRCAMT.057.001.06" />
+		<log message="Before File XSD validation" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_CBPR2025_XSDCHECK} == true</simple>
+				<log message="CBPR2025 XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr2025.camt.057.001.06}})" />
+			</when>
+			<otherwise>
+				<log message="DEFAULT XSD CHECK." />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.camt.057.001.06}})" />
+			</otherwise>
+		</choice>
+		<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.camt.057.001.06}})" /> -->
+		<!-- <to id="validatorRoute7"
+				uri="validator:classpath:/xsd/cbpr-camt.057.001.06.xsd" />  -->
+		<log message="File XSD validation done successfully." />
+		<bean id="xmlParser11" ref="xmlParser" />
+		<bean id="jspPopulateDatacamt57" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationCbprCamt057)" />
+	</route>
+	
+	<route id="validationRouteCBPRCamt053">
+		<from uri="direct://validationRouteCBPRCAMT.053.001.08" />
+		<log message="Before File XSD validation" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_CBPR2025_XSDCHECK} == true</simple>
+				<log message="CBPR2025 XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr2025.camt.053.001.08}})" />
+			</when>
+			<otherwise>
+				<log message="DEFAULT XSD CHECK." />
+	    <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.camt.053.001.08}})" />
+			</otherwise>
+		</choice>
+	    <!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.camt.053.001.08}})" /> -->
+		<!-- <to id="validatorRoute7"
+				uri="validator:classpath:/xsd/cbpr-camt.057.001.06.xsd" />  -->
+		<log message="File XSD validation done successfully." />
+		<bean id="xmlParser53" ref="xmlParser" />
+		<bean id="jspPopulateDatacamt53" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationCbprCamt053)" />
+	</route>
+	
+	<route id="validationRouteCBPRPain001">
+		<from uri="direct://validationRouteCBPRPAIN.001.001.09" />
+		<log message="Before File XSD validation" />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pain.001.001.09}})" />
+		<log message="File XSD validation done successfully." />
+		<bean id="xmlParserP1" ref="xmlParser" />
+		<bean id="jspPopulateDataP1" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationCbprPain001)" />
+	</route>
+	
+	<route id="validationRouteCBPRPain002">
+		<from uri="direct://validationRouteCBPRPAIN.002.001.10" />
+		<log message="before File XSD validation" />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pain.002.001.10}})" />
+		<!-- <to id="validatorRoute01"
+                uri="validator:classpath:/xsd/cbpr-pain.002.001.10.xsd" /> -->
+		<log message="File XSD validation done successfully." />
+		<bean id="xmlParser13" ref="xmlParser" />
+		<bean id="jspPopulateDatapain002" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationCbprPain002)" />
+	</route>
+	
+	<route id="validationRouteLynxPacs008">
+		<from uri="direct://validationRouteLynxPacs008" />
+		<log loggingLevel="TRACE" message="Before File XSD validation" />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.lynx.pacs.008.001.08}})" />
+		<!-- <to id="validatorRoute14"
+                uri="validator:classpath:/xsd/lynx-pacs.008.001.08.xsd" /> -->
+		<log loggingLevel="TRACE" message="lynx File XSD validation done successfully." />
+				<bean id="xmlParser10" ref="xmlParser" />
+				<bean id="jspPopulateData10.2" ref="jspExecute"
+					method="executeWithHazelCastInstance(${exchange},msgValidationLynxPacs008)" />
+	</route>
+	
+	<route id="validationRouteLynxPacs009">
+		<from uri="direct://validationRouteLynxPacs009" />
+		<log loggingLevel="TRACE" message="Before File XSD validation" />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.lynx.pacs.009.001.08}})" />
+		<!-- <to id="validatorRoute15"
+                uri="validator:classpath:/xsd/lynx-pacs.009.001.08.xsd" /> -->
+		<log loggingLevel="TRACE" message="lynx File XSD validation done successfully." />
+				<bean id="xmlParser11.1" ref="xmlParser" />
+				<bean id="jspPopulateData11.2" ref="jspExecute"
+					method="executeWithHazelCastInstance(${exchange},msgValidationLynxPacs009)" />
+	</route>
+	
+		<route id="validationRouteFedNow008">
+			<from uri="direct://validationRouteFEDNOWPACS.008.001.08" />
+			<log message="Inside - validationRouteFedNow008" />
+			<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.008.001.08}})" /> -->
+			<log loggingLevel="INFO" message="status before in XSD_VALID = ${header.XSD_VALID}" />
+			<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.fednow.pacs.008.001.08}})" />
+			<!--<to id="validatorRoute1"
+			uri="validator:classpath:/xsd/fednow.pacs.008.001.08.xsd" />-->
+			<log loggingLevel="INFO" message="status after in XSD_VALID = ${header.XSD_VALID}" />
+			<choice>
+				<when>
+					<simple>${header.XSD_VALID}</simple>
+					<setHeader headerName="GENERATE_ADMI">
+						<constant>false</constant>
+					</setHeader>
+					<log loggingLevel="INFO" message="FedNow Processing Business Validation..." />
+					<bean id="jspPopulateData1.23" ref="jspExecute" method="executeWithHazelCastInstance(${exchange},msgValidationFedNowPacs008)" />
+				</when>
+				<otherwise>
+					<setHeader headerName="GENERATE_ADMI">
+						<constant>true</constant>
+					</setHeader>
+					<log loggingLevel="INFO" message="Creating ADMI Messages for XSD Validation Failure.." />
+					<bean id="jspPopulateData1.24" ref="jspExecute" method="executeWithHazelCastInstance(${exchange},createADMIMessageForXSDFailure)" />
+				</otherwise>
+			</choice>
+		</route>
+
+		<route id="validationRouteFedNow004">
+			<from uri="direct://validationRouteFEDNOWPACS.004.001.10" />
+			<log message="Inside - validationRouteFedNow004" />
+			<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.008.001.08}})" /> -->
+			<log loggingLevel="INFO" message="status before in XSD_VALID = ${header.XSD_VALID}" />
+			<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.fednow.pacs.004.001.10}})" />
+			<log loggingLevel="INFO" message="status after in XSD_VALID = ${header.XSD_VALID}" />
+			<choice>
+				<when>
+					<simple>${header.XSD_VALID}</simple>
+					<setHeader headerName="GENERATE_ADMI">
+						<constant>false</constant>
+					</setHeader>
+					<!--<to id="validatorRoute1"
+					uri="validator:classpath:/xsd/fednow.pacs.008.001.08.xsd" />-->
+					<log message="File XSD validation done successfully." />
+					<!--<bean id="xmlParser1" ref="xmlParser" />-->
+					<bean id="jspPopulateData1.3" ref="jspExecute" method="executeWithHazelCastInstance(${exchange},msgValidationFedNowPacs004)" />
+				</when>
+				<otherwise>
+					<setHeader headerName="GENERATE_ADMI">
+						<constant>true</constant>
+					</setHeader>
+					<log loggingLevel="INFO" message="Creating ADMI Messages for XSD Validation Failure.." />
+					<bean id="jspPopulateData1.25" ref="jspExecute" method="executeWithHazelCastInstance(${exchange},createADMIMessageForXSDFailure)" />
+				</otherwise>
+			</choice>
+		</route>
+
+		<route id="validationRouteFedNow002">
+			<from uri="direct://validationRouteFEDNOWPACS.002.001.10" />
+			<log message="Inside - validationRouteFedNow002" />
+			<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.008.001.08}})" /> -->
+			<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.fednow.pacs.002.001.10}})" />
+			<choice>
+				<when>
+					<simple>${header.XSD_VALID}</simple>
+					<setHeader headerName="GENERATE_ADMI">
+						<constant>false</constant>
+					</setHeader>
+			<!--<to id="validatorRoute1"
+			uri="validator:classpath:/xsd/fednow.pacs.008.001.08.xsd" />-->
+			<log message="File XSD validation done successfully." />
+			<!--<bean id="xmlParser1" ref="xmlParser" />-->
+			<bean id="jspPopulateData1.8" ref="jspExecute" method="executeWithHazelCastInstance(${exchange},msgValidationFedNowPacs002)" />
+				</when>
+				<otherwise>
+				<setHeader headerName="GENERATE_ADMI">
+						<constant>true</constant>
+					</setHeader>
+					<log loggingLevel="INFO" message="Creating ADMI Messages for XSD Validation Failure.." />
+					<bean id="jspPopulateData1.26" ref="jspExecute" method="executeWithHazelCastInstance(${exchange},createADMIMessageForXSDFailure)" />
+				</otherwise>
+			</choice>
+		</route>
+
+		<route id="validationRouteFednowCamt029">
+			<from uri="direct://validationRouteFEDNOWCAMT.029.001.09" />
+			<log message="Inside - validationRouteFednowCamt029" />
+			<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.008.001.08}})" /> -->
+			<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.fednow.camt.029.001.09}})" />
+			<choice>
+				<when>
+					<simple>${header.XSD_VALID}</simple>
+					<setHeader headerName="GENERATE_ADMI">
+						<constant>false</constant>
+					</setHeader>
+					<!--<to id="validatorRoute1"
+					uri="validator:classpath:/xsd/fednow.pacs.008.001.08.xsd" />-->
+					<log message="File XSD validation done successfully." />
+					<!--<bean id="xmlParser1" ref="xmlParser" />-->
+					<bean id="jspPopulateData1.4" ref="jspExecute" method="executeWithHazelCastInstance(${exchange},msgValidationFednowCamt029)" />
+				</when>
+				<otherwise>
+					<setHeader headerName="GENERATE_ADMI">
+						<constant>true</constant>
+					</setHeader>
+					<log loggingLevel="INFO" message="Creating ADMI Messages for XSD Validation Failure.." />
+					<bean id="jspPopulateData1.27" ref="jspExecute" method="executeWithHazelCastInstance(${exchange},createADMIMessageForXSDFailure)" />
+				</otherwise>
+			</choice>
+		</route>
+
+		<route id="validationRouteFednowCamt056">
+			<from uri="direct://validationRouteFEDNOWCAMT.056.001.08" />
+			<log message="Inside - validationRouteFednowCamt056" />
+			<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.008.001.08}})" /> -->
+			<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.fednow.camt.056.001.08}})" />
+			<choice>
+				<when>
+					<simple>${header.XSD_VALID}</simple>
+					<setHeader headerName="GENERATE_ADMI">
+						<constant>false</constant>
+					</setHeader>
+					<!--<to id="validatorRoute1"
+					uri="validator:classpath:/xsd/fednow.pacs.008.001.08.xsd" />-->
+					<log message="File XSD validation done successfully." />
+					<!--<bean id="xmlParser1" ref="xmlParser" />-->
+					<bean id="jspPopulateData1.5" ref="jspExecute" method="executeWithHazelCastInstance(${exchange},msgValidationFednowCamt056)" />
+				</when>
+				<otherwise>
+					<setHeader headerName="GENERATE_ADMI">
+						<constant>true</constant>
+					</setHeader>
+					<log loggingLevel="INFO" message="Creating ADMI Messages for XSD Validation Failure.." />
+					<bean id="jspPopulateData1.28" ref="jspExecute" method="executeWithHazelCastInstance(${exchange},createADMIMessageForXSDFailure)" />
+				</otherwise>
+			</choice>
+		</route>
+
+		<route id="validationRouteFedNow028">
+			<from uri="direct://validationRouteFEDNOWPACS.028.001.03" />
+			<log message="Inside - validationRouteFedNow028" />
+			<log loggingLevel="INFO" message="status before in XSD_VALID = ${header.XSD_VALID}" />
+			<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.fednow.pacs.028.001.03}})" />
+			<log loggingLevel="INFO" message="status after in XSD_VALID = ${header.XSD_VALID}" />
+			<choice>
+				<when>
+					<simple>${header.XSD_VALID}</simple>
+					<setHeader headerName="GENERATE_ADMI">
+						<constant>false</constant>
+					</setHeader>
+					<log loggingLevel="INFO" message="FedNow Processing Business Validation..." />
+					<bean id="jspPopulateData1.9" ref="jspExecute" method="executeWithHazelCastInstance(${exchange},msgValidationFedNowPacs028)" />
+				</when>
+				<otherwise>
+					<setHeader headerName="GENERATE_ADMI">
+						<constant>true</constant>
+					</setHeader>
+					<log loggingLevel="INFO" message="Creating ADMI Messages for XSD Validation Failure.." />
+					<bean id="jspPopulateData1.29" ref="jspExecute" method="executeWithHazelCastInstance(${exchange},createADMIMessageForXSDFailure)" />
+				</otherwise>
+			</choice>
+		</route>
+
+		<route id="validationRouteFednowpain013">
+			<from uri="direct://validationRouteFEDNOWPAIN.013.001.07" />
+			<log message="Inside - validationRouteFednowpain013" />
+			<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.008.001.08}})" /> -->
+			<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.fednow.pain.013.001.07}})" />
+			<!--<to id="validatorRoute1"
+			uri="validator:classpath:/xsd/fednow.pacs.008.001.08.xsd" />-->
+			<log loggingLevel="INFO" message="status after in XSD_VALID = ${header.XSD_VALID}" />
+			<choice>
+				<when>
+					<simple>${header.XSD_VALID}</simple>
+					<setHeader headerName="GENERATE_ADMI">
+						<constant>false</constant>
+					</setHeader>
+					<log loggingLevel="INFO" message="FedNow Processing Business Validation..." />
+					<bean id="jspPopulateData1.21" ref="jspExecute" method="executeWithHazelCastInstance(${exchange},msgValidationFednowPain013)" />
+				</when>
+				<otherwise>
+					<setHeader headerName="GENERATE_ADMI">
+						<constant>true</constant>
+					</setHeader>
+					<log loggingLevel="INFO" message="Creating ADMI Messages for XSD Validation Failure.." />
+					<bean id="jspPopulateData1.22" ref="jspExecute" method="executeWithHazelCastInstance(${exchange},createADMIMessageForXSDFailure)" />
+				</otherwise>
+			</choice>
+		</route>
+
+		<route id="validationRouteFednowPain014">
+			<from uri="direct://validationRouteFEDNOWPAIN.014.001.07" />
+			<log message="Inside - validationRouteFednowPain014" />
+			<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.pacs.008.001.08}})" /> -->
+			<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.fednow.pain.014.001.07}})" />
+			<!--<to id="validatorRoute1"
+			uri="validator:classpath:/xsd/fednow.pacs.008.001.08.xsd" />-->
+			<log message="File XSD validation done successfully." />
+			<!--<bean id="xmlParser1" ref="xmlParser" />-->
+			<choice>
+				<when>
+					<simple>${header.XSD_VALID}</simple>
+					<setHeader headerName="GENERATE_ADMI">
+						<constant>false</constant>
+					</setHeader>
+					<bean id="jspPopulateData1.7" ref="jspExecute" method="executeWithHazelCastInstance(${exchange},msgValidationFednowPain014)" />
+				</when>
+				<otherwise>
+					<setHeader headerName="GENERATE_ADMI">
+						<constant>true</constant>
+					</setHeader>
+					<log loggingLevel="INFO" message="Creating ADMI Messages for XSD Validation Failure.." />
+					<bean id="jspPopulateData1.30" ref="jspExecute" method="executeWithHazelCastInstance(${exchange},createADMIMessageForXSDFailure)" />
+				</otherwise>
+			</choice>
+		</route>
+	
+		<route id="validationRouteCBPRACKX">
+			<from uri="direct://validationRouteCBPRACKX" />
+			<log message="INSIDE validateHeader." />
+			<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.ackx}})" />
+			<log message="lynx File XSD validation done successfully." />
+			<bean ref="xmlParser" />
+			<bean id="jspPopulateData25" ref="jspExecute"
+				method="executeWithHazelCastInstance(${exchange},msgValidationCbprTransmissionReport)" />
+		</route>
+	
+		<route id="validationRouteCBPRNAKX">
+			<from uri="direct://validationRouteCBPRNAKX" />
+			<log message="INSIDE validateHeader NAKX ROUTE." />
+			<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.cbpr.nakx}})" />
+			<log message="lynx File XSD validation done successfully." />
+			<bean ref="xmlParser" />
+			<bean id="jspPopulateData27" ref="jspExecute"
+				method="executeWithHazelCastInstance(${exchange},msgValidationCbprTransmissionReport)" />
+		</route>
+		
+		<route id="validationRouteChipsPacs009">
+		<from uri="direct://validationRouteChipsPacs009" />
+		<log message="Before File XSD validation for ChipsPacs009" />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.chips.pacs.009.001.08}})" />
+		<!--<to id="validatorRoute16"
+                uri="validator:classpath:/xsd/chips-pacs.009.001.08.xsd" />	-->
+		<log message="ChipsPacs009 File XSD validation done successfully." />
+				<bean id="xmlParser150" ref="xmlParser" />
+				<log message="Before ChipsPacs009 Validation rules" />
+				<bean id="jspPopulateData16.2" ref="jspExecute"
+					method="executeWithHazelCastInstance(${exchange},msgValidationChipsPacs009)" />
+	</route>
+	
+	<route id="validationRouteChipsPacs008">
+		<from uri="direct://validationRouteChipsPacs008" />
+		<log message="Before File XSD validation for ChipsPacs008" />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.chips.pacs.008.001.08}})" />
+		<!--<to id="validatorRoute17"
+                uri="validator:classpath:/xsd/chips-pacs.008.001.08.xsd" />-->
+		<log message="ChipsPacs008 File XSD validation done successfully." />
+				<bean id="xmlParser130" ref="xmlParser" />
+				<log message="Before ChipsPacs008 Validation rules" />
+				<bean id="jspPopulateData17.2" ref="jspExecute"
+					method="executeWithHazelCastInstance(${exchange},msgValidationChipsPacs008)" />
+	</route>
+	
+	<route id="validationRouteChipsPacs004">
+		<from uri="direct://validationRouteChipsPacs004" />
+		<log message="Before File XSD validation for ChipsPacs004" />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.chips.pacs.004.001.10}})" />
+		<!--<to id="validatorRoute18"
+                uri="validator:classpath:/xsd/chips-pacs.004.001.10.xsd" />-->
+		<log message="ChipsPacs004 File XSD validation done successfully." />
+				<bean id="xmlParser140" ref="xmlParser" />
+				<log message="Before ChipsPacs004 Validation rules" />
+				<bean id="jspPopulateData18.2" ref="jspExecute"
+					method="executeWithHazelCastInstance(${exchange},msgValidationChipsPacs004)" />
+	</route>
+	<route id="validationRouteFEDPacs004">
+		<from uri="direct://validationRouteFEDPACS.004.001.10" />
+		<log message="Before File XSD validation" />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.fed.pacs.004.001.10}})" />
+		<!-- <to id="validatorRoute5"
+                uri="validator:classpath:/xsd/cbpr-pacs.004.001.09.xsd" /> -->
+		<log message="File XSD validation done successfully." />
+		<bean id="xmlParserFED1" ref="xmlParser" />
+		<bean id="jspPopulateDataFed1.1" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationFedPacs004)" />
+	</route>
+	
+	<route id="validationRouteFEDPacs008">
+		<from uri="direct://validationRouteFEDPACS.008.001.08" />
+		<log message="Before File XSD validation" />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.fed.pacs.008.001.08}})" />
+		<!-- <to id="validatorRoute11"
+                uri="validator:classpath:/xsd/cbpr-pacs.008.001.08.xsd" /> -->
+		<log message="File XSD validation done successfully." />
+		<bean id="xmlParserFED2" ref="xmlParser" />
+		<bean id="jspPopulateDataFed1.2" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationFedPacs008)" />
+	</route>
+	
+	<route id="validationRouteFEDPacs009">
+		<from uri="direct://validationRouteFEDPACS.009.001.08" />
+		<log message="Before File XSD validation" />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.fed.pacs.009.001.08}})" />
+		<!-- <to id="validatorRoute12"
+                uri="validator:classpath:/xsd/cbpr-pacs.009.001.08.xsd" /> -->
+		<log message="File XSD validation done successfully." />
+		<bean id="xmlParserFED3" ref="xmlParser" />
+		<bean id="jspPopulateDataFed1.3" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationFedPacs009)" />
+	</route>	
+</routeContext>
+</beans>

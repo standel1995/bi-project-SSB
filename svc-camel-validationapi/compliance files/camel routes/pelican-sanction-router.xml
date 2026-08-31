@@ -1,0 +1,69 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<routeContext id="sanction" xmlns="http://camel.apache.org/schema/spring">
+
+		<route id="sanctionHeaderCheck">
+			<from uri="direct://sanctionHeaderCheck" />
+			<bean id="xmlParserHeadersanc" ref="xmlParser" />
+			<log message="Calling sanctionHeaderCheck" />
+			<bean id="jspPopulationDatasanction1" ref="jspExecute" 
+				method="executeWithHazelCastInstance(${exchange},validateHeaderCompliance)" />
+			<choice>
+				<when>
+					<simple>${header.PLCN_headerFlag}</simple>
+					<toD uri="direct://sanctionCheck"/>
+				</when>
+				<otherwise>
+					<log message="Invalid msg type in header"/>
+					<setHeader headerName="PLCN_exceptionFlag">
+						<constant>true</constant>
+					</setHeader>
+				</otherwise>
+			</choice>
+			<choice>
+				<when>
+					<simple>${header.PLCN_call}</simple>
+					<log message="Internal Call" />
+					<removeHeaders pattern="PLCNXML*" />
+				</when>
+				<otherwise>
+					<removeHeaders pattern="*" excludePattern="status"/>
+				</otherwise>
+			</choice>
+			<log message="Headers after removeHeaders = ${headers}" />
+		</route>
+	
+		<route id="sanctionCheck">
+			<from uri="direct://sanctionCheck" />
+			<bean id="xmlParsersanction" ref="xmlParser" />
+			<log message="Calling sanctionCheck" />
+			<bean id="jspPopulationDatasanction" ref="jspExecute" 
+				method="executeWithHazelCastInstance(${exchange},sanctionCheck)" />
+			<setHeader headerName="PLCNXML_ofacRequest">
+				<constant>${body}</constant>
+			</setHeader>
+			<log loggingLevel="INFO" message="Request : ${header.PLCN_ofacRequest}" />
+<!-- 			<to id="sanctionCall"
+					uri="spring-ws:http://172.16.10.71:9081/PelicanWS/PelicanWebService?soapAction=PelicanWebServicePerformOperation" /> -->
+			<log message="Response : ${body}" />
+			<bean id="jspPopulationDatasanction" ref="jspExecute" 
+				method="executeWithHazelCastInstance(${exchange},enrichOFACMessage)" />
+			<log message="Headers after enrichOFACMessage = ${headers}" />
+			<choice>
+				<when>
+					<simple>${header.PLCN_call}</simple>
+					<log message="Internal Call" />
+					<removeHeaders pattern="PLCNXML*" />
+				</when>
+				<otherwise>
+					<removeHeaders pattern="*" excludePattern="status"/>
+				</otherwise>
+			</choice>
+			<log message="Headers after removeHeaders = ${headers}" />
+		</route>
+	</routeContext>
+</beans>

@@ -1,0 +1,15 @@
+<ResponseCds>
+<AddtlResponseCds>
+	<PlcnFldNum/>
+	<LnNum/>
+	<ColNum/>
+	<FldTag/>
+	<FldName/>
+	<CdTp>ERROR</CdTp>
+	<Cd>8000</Cd>
+	<Description/>
+</AddtlResponseCds>
+<ResponseCdsPlcnFmt>
+	<PlcnCodes/>
+</ResponseCdsPlcnFmt>
+</ResponseCds>

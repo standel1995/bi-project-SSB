@@ -1,0 +1,49 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <routeContext id="callout" xmlns="http://camel.apache.org/schema/spring">
+	
+			<route id="rest-validation">
+				<from uri="direct://rest-validation" />
+				<bean id="jspPopulateDataValidateHdr" ref="jspExecute"
+					method="executeWithHazelCastInstance(${exchange},validateHeader)" />
+				<log loggingLevel="TRACE" message="In Validation-service call PLCN_call = ${header.PLCN_call}" />
+				<choice>
+					<when>
+						<simple>${header.headerFlag}</simple>
+						<log loggingLevel="TRACE" message="Valid msg type in header calling validationRoute${header.PLCN_MsgType}"/>
+						<toD uri="direct://validationRoute${header.PLCN_MsgType}"/>
+					</when>
+					<otherwise>
+						<log loggingLevel="TRACE" message="Invalid msg type in header"/>
+						<setHeader headerName="PLCN_exceptionFlag">
+							<constant>true</constant>
+						</setHeader>
+					</otherwise>
+				</choice>				
+				<log loggingLevel="TRACE" message="After Validation-service call XSD_VALID = ${header.XSD_VALID}" />
+				<log loggingLevel="TRACE" message="After Validation-service headers = ${headers}" />
+				<choice>
+					<when>
+						<simple>${header.PLCN_call}</simple>
+						<bean id="jspPopulateDataSetResponseCode" ref="jspExecute"
+							method="executeWithHazelCastInstance(${exchange},setResponseCode)" />
+						<removeHeaders pattern="PLCN_responseCdsDoc" />
+				<removeHeaders pattern="*" excludePattern="PLCN_*"/>
+						<log loggingLevel="TRACE" message="PLCN_call internal" />
+					</when>
+					<otherwise>
+						<bean id="jspPopulateDatacreateResponseValidation" ref="jspExecute"
+							method="executeWithHazelCastInstance(${exchange},createResponseValidation)" />
+						<removeHeaders pattern="*" excludePattern="status"/>
+						<!-- <removeHeaders pattern="PLCN_" /> -->
+					</otherwise>
+				</choice>
+				<log loggingLevel="TRACE" message="header after Validation-service call : ${headers}" />
+			</route>
+
+	</routeContext>
+</beans>

@@ -1,0 +1,45 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:camel="http://camel.apache.org/schema/spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd   
+		http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd       
+		http://camel.apache.org/schema/spring 
+		http://camel.apache.org/schema/spring/camel-spring-2.18.1.xsd">
+
+	<bean id="credentialUtility" class="ai.pelican.camel.utils.ACESystem"/>
+	
+	<bean id="ds" class="com.zaxxer.hikari.HikariDataSource" destroy-method="">
+        <property name="driverClassName" value="${spring.datasource.driverClassName}"/>
+        <property name="jdbcUrl" value="${spring.datasource.url}"/>
+        <property name="username" value="#{credentialUtility.decrypt('${spring.datasource.username}')}" />
+        <property name="password" value="#{credentialUtility.decrypt('${spring.datasource.password}')}" />
+        <property name="autoCommit" value="${spring.datasource.hikari.auto-commit}" />
+        <property name="idleTimeout" value="${spring.datasource.hikari.idle-timeout}"/>
+        <property name="maxLifetime" value="${spring.datasource.hikari.max-lifetime}"/>
+        <property name="minimumIdle" value="${spring.datasource.hikari.minimum-idle}"/>
+        <property name="maximumPoolSize" value="${spring.datasource.hikari.maximum-pool-size}"/>
+    </bean>
+
+	<bean id="hazelcastInstanceFactory"
+		class="ai.pelican.camel.hazelcast.HazelCastInstanceFactory" />
+
+	<bean id="hazelCastInstance" class="com.hazelcast.core.Hazelcast"
+		factory-bean="hazelcastInstanceFactory"
+		factory-method="getHazelcastInstance">
+		<constructor-arg value="${hazelCast.ipaddress}" />
+        <constructor-arg value="true" />
+	</bean>
+
+	<!--<bean id="hazelCastNearCacheInstance"
+		class="com.hazelcast.core.Hazelcast"
+		factory-bean="hazelcastInstanceFactory"
+		factory-method="getHazelcastInstance">
+		<constructor-arg value="${hazelCast.ipaddress}" />
+		<constructor-arg value="true" />
+	</bean>-->
+
+
+</beans>

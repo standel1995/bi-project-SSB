@@ -1,0 +1,1223 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <routeContext id="main1" xmlns="http://camel.apache.org/schema/spring">
+	
+	<route id="licensepulse" startupOrder="1" autoStartup="true">
+			<from uri="timer://licensepulseTrigger?fixedRate=true&amp;period=15000" />
+		<log loggingLevel="DEBUG" message="License Check" />
+		<bean ref="licensePulse" method="start" />
+	</route>
+	
+	<route id="_pel_mainRoute" startupOrder="2" autoStartup="true">
+		<from
+			uri="timer://mainRouteTimer2?fixedRate=true&amp;period=30000" />
+		<bean ref="staticDataMaps" method="getCompletedFlag" />
+		<choice>
+			<when>
+				<simple>${header.completedFlag} == true</simple>
+				<bean ref="pelicanController" method="startRoutes" />
+				<log loggingLevel="DEBUG" message="Startup activity completed.." />
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Hazelcast data not loaded, waiting..." />
+			</otherwise>
+		</choice>
+	</route>
+	
+	<route id="route-1-db-cbprpacs004ob" autoStartup="false" streamCache="true">
+		<from id="readingDBRoute1" 
+			uri="aceq://route-1-db-cbprpacs004ob?queueID=CBPRFRTQ&amp;pollStatus=69&amp;configID=config1" />
+		<setHeader headerName="IdempotentKey">
+			<simple>CBPRFRTQ:${header.ACEQ_MSGDB_ID}</simple>
+        </setHeader>
+		<idempotentConsumer skipDuplicate="true" messageIdRepositoryRef="idempotentRepoHazel">
+		<header>IdempotentKey</header>
+		<bean method="validateMessage" ref="hashValidation" />
+		<to uri="direct://dbRoute" />
+		<to uri="direct://checkHeader" />
+		<log loggingLevel="INFO" message="validLAU = ${header.PLCN_validLAU}" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validLAU} == false</simple>
+				<log loggingLevel="INFO" message="Invalid LAU..." />
+				<to uri="direct://dbOperation" />
+				<to uri="genaudit://route1Audit" />
+				<to uri="aceq://endpointwrite?queueID=ERRORQ&amp;pollStatus=69" />
+				<stop />
+			</when>
+		</choice>
+		<to uri="direct://setValidationHeaderCbpr" />
+		<serviceCall
+			name="validation-service/payments/v1/validation?headerFilterStrategy=#aceqFilter" />
+		<to uri="direct://setOriginalBody" />
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<serviceCall
+			name="duplicate-check-service/duplicate?headerFilterStrategy=#aceqFilter" />
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<!-- <serviceCall
+			name="ibanBic-service/ibanBic?headerFilterStrategy=#aceqFilter" /> -->	
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<to uri="direct://repair" />
+		<to uri="direct://dynamicRoute" />
+		<choice>
+			<when>  
+				<simple>${header.PLCN_repairReqFinal} == false</simple>
+				<log loggingLevel="INFO" message="Message repair successfully.." />
+				<to uri="direct://authorize" />
+				<choice>
+					<when>
+						<simple>${header.PLCN_authReq} == false</simple>
+						<log loggingLevel="TRACE" message="Headers before schedule service call ${headers}." />
+						<serviceCall 
+							name="scheduling-service/scheduling?headerFilterStrategy=#aceqFilter" />
+						<log loggingLevel="INFO" message="schedulingReq flag = ${header.PLCN_schedulingReq}" />
+						<choice>
+							<when>
+							   <simple>${header.PLCN_schedulingReq} == false</simple>
+							   <log loggingLevel="INFO" message="Scheduling check successfully."/>
+							   <!-- <to uri="direct://headerOperation" /> -->
+							   <to uri="direct://dbOperation" />
+							   <to uri="aceq://endpointwrite?queueID=TMPMSGQ&amp;pollStatus=69" />
+							   <log loggingLevel="INFO" message="Updated record in DB with TMPMSGQ and Status=69" />							   
+							</when>
+							<otherwise>
+								<log loggingLevel="INFO" message="Message scheduled, writting out to DB.." />
+								<to uri="direct://dbOperation" />
+								<to uri="aceq://endpointwrite?queueID=MXHOLDQ&amp;pollStatus=69" />				
+								<log loggingLevel="INFO" message="Updated record in DB with QueueID=MXHOLDQ and Status=69" />								
+								<log loggingLevel="INFO" message="Message processed successfully.." />
+							</otherwise>
+						</choice>
+					</when>
+					<otherwise>
+						<log loggingLevel="INFO" message="Authorization Failed, writting out to DB.." />
+						<to uri="direct://dbOperation" />
+						<to uri="aceq://endpointwrite?queueID=MXMSGAH&amp;pollStatus=69" />				
+						<log loggingLevel="INFO" message="Updated record in DB with MXMSGAH and Status=69" />
+					</otherwise>
+				</choice>
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Repair Required, writing out to DB.." />
+				<to uri="direct://dbOperation" />
+				<to uri="direct://invalidRoute" />
+				<!-- <to uri="direct://setResponseCds" /> -->
+				<log loggingLevel="INFO" message="Updated record in DB with ${header.PLCN_queue} and Status=69" />
+		   </otherwise>
+		</choice>
+		<to uri="genaudit://route1Audit" />
+		<log loggingLevel="INFO" message="Updated to DB" />
+		<stop />
+		</idempotentConsumer>
+	</route>
+	
+	<route id="route-1-db-cbprpacs008ob" autoStartup="false" streamCache="true">
+		<from id="readingDBRoute1"
+			uri="aceq://route-1-db-cbprpacs008?queueID=CBPRCCTQ&amp;pollStatus=69&amp;configID=config1" />
+		<setHeader headerName="IdempotentKey">
+			<simple>CBPRCCTQ:${header.ACEQ_MSGDB_ID}</simple>
+        </setHeader>
+		<idempotentConsumer skipDuplicate="true" messageIdRepositoryRef="idempotentRepoHazel">
+		<header>IdempotentKey</header>	
+		
+		<log loggingLevel="INFO" message="before hashValidation..." />
+		<bean method="validateMessage" ref="hashValidation" />
+		<log loggingLevel="INFO" message="After hashValidation..." />
+		<to uri="direct://dbRoute" />
+		<to uri="direct://checkHeader" />
+		<log loggingLevel="INFO" message="validLAU = ${header.PLCN_validLAU}" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validLAU} == false</simple>
+				<log loggingLevel="INFO" message="Invalid LAU..." />
+				<to uri="direct://dbOperation" />
+				<to uri="genaudit://route1Audit" />
+				<to uri="aceq://endpointwrite?queueID=ERRORQ&amp;pollStatus=69" />
+				<stop />
+			</when>
+		</choice>
+		<to uri="direct://setValidationHeaderCbpr" />
+		<serviceCall
+			name="validation-service/payments/v1/validation?headerFilterStrategy=#aceqFilter" />
+		<log loggingLevel="INFO" message="PLCN_txnComments after validation = ${header.PLCN_txnComments}" />
+		<to uri="direct://setOriginalBody" />
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<serviceCall 
+			name="duplicate-check-service/duplicate?headerFilterStrategy=#aceqFilter" />
+		<log loggingLevel="INFO" message="PLCN_txnComments after duplicate = ${header.PLCN_txnComments}" />
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<!-- <serviceCall 
+			name="ibanBic-service/ibanBic?headerFilterStrategy=#aceqFilter" /> -->
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<to uri="direct://repair" />
+		<log loggingLevel="INFO" message="PLCN_txnComments after repair = ${header.PLCN_txnComments}" />
+		<to uri="direct://dynamicRoute" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_repairReqFinal} == false</simple>
+				<log loggingLevel="INFO" message="repair check successful." />					
+				<to uri="direct://authorize" />
+				<log loggingLevel="INFO" message="PLCN_txnComments after auth = ${header.PLCN_txnComments}" />
+				<choice>
+					<when>
+						<simple>${header.PLCN_authReq} == false</simple>
+						<log loggingLevel="INFO" message="Authorization check successful." />
+						<log loggingLevel="TRACE" message="Headers before schedule service call ${headers}." />
+						<serviceCall
+							name="scheduling-service/scheduling?headerFilterStrategy=#aceqFilter" />
+						<log loggingLevel="INFO" message="PLCN_txnComments after scheduling = ${header.PLCN_txnComments}" />
+						<choice>
+							<when>
+								<simple>${header.PLCN_schedulingReq} == false</simple>
+								<log loggingLevel="INFO" message="scheduling check successful." />
+								<!-- <to uri="direct://headerOperation" /> -->
+								<to uri="direct://dbOperation" />
+								<to uri="aceq://endpointwrite?queueID=TMPMSGQ&amp;pollStatus=69" />				
+								<log loggingLevel="INFO" message="Updated record in DB with QueueID=TMPMSGQ and Status=69" />
+							</when>	
+							<otherwise>
+								<log loggingLevel="INFO" message="Message scheduled, writting out to DB.." />
+								<to uri="direct://dbOperation" />
+								<to uri="aceq://endpointwrite?queueID=MXHOLDQ&amp;pollStatus=69" />				
+								<log loggingLevel="INFO" message="Updated record in DB with QueueID=MXHOLDQ and Status=69" />
+							</otherwise>
+						</choice>
+					</when>
+					<otherwise>
+						<log loggingLevel="INFO" message="Authorization Failed, writting out to DB.." />
+						<to uri="direct://dbOperation" />
+						<to uri="aceq://endpointwrite?queueID=MXMSGAH&amp;pollStatus=69" />
+						<log loggingLevel="INFO" message="Updated record in DB with MXMSGAH and Status=69" />
+					</otherwise>
+					</choice>
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Repair Required, writting out to DB.." />
+				<to uri="direct://dbOperation" />
+				<to uri="direct://invalidRoute" />
+				<!-- <to uri="direct://setResponseCds" /> -->
+				<log loggingLevel="INFO" message="Updated record in DB with ${header.PLCN_queue} and Status=69" />
+			</otherwise>
+		</choice>
+		<to uri="genaudit://route1Audit" />
+		<log loggingLevel="INFO" message="Updated to DB from route-1-DB-cbprpacs008" />
+		<log loggingLevel="INFO" message="Message processed successfully.." />
+		</idempotentConsumer>
+	</route>
+
+	<route id="route-1-db-cbprpacs009ob" autoStartup="false" streamCache="true">
+		<from id="readingDBRoute1"
+			uri="aceq://route-1-db-cbprpacs009ob?queueID=CBPRFCTQ&amp;pollStatus=69&amp;configID=config1" />
+		<setHeader headerName="IdempotentKey">
+			<simple>CBPRFCTQ:${header.ACEQ_MSGDB_ID}</simple>
+        </setHeader>
+		<idempotentConsumer skipDuplicate="true" messageIdRepositoryRef="idempotentRepoHazel">
+		<header>IdempotentKey</header>
+		<log loggingLevel="INFO" message="before hashValidation..." />
+		<bean method="validateMessage" ref="hashValidation" />
+		<log loggingLevel="INFO" message="after hashValidation..." />
+		<to uri="direct://dbRoute" />
+		<to uri="direct://checkHeader" />
+		<log loggingLevel="INFO" message="validLAU = ${header.PLCN_validLAU}" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validLAU} == false</simple>
+				<log loggingLevel="INFO" message="Invalid LAU..." />
+				<to uri="direct://dbOperation" />
+				<to uri="genaudit://route1Audit" />
+				<to uri="aceq://endpointwrite?queueID=ERRORQ&amp;pollStatus=69" />
+				<stop />
+			</when>
+		</choice>
+		<to uri="direct://setValidationHeaderCbpr" />
+		<serviceCall
+			name="validation-service/payments/v1/validation?headerFilterStrategy=#aceqFilter" />
+		<to uri="direct://setOriginalBody" />
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<serviceCall 
+			name="duplicate-check-service/duplicate?headerFilterStrategy=#aceqFilter" />
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<!-- <serviceCall 
+			name="ibanBic-service/ibanBic?headerFilterStrategy=#aceqFilter" /> -->
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<to uri="direct://repair" />
+		<to uri="direct://dynamicRoute" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_repairReqFinal} == false</simple>
+				<log loggingLevel="INFO" message="repair check successful." />					
+				<to uri="direct://authorize" />
+				<choice>
+					<when>
+						<simple>${header.PLCN_authReq} == false</simple>
+						<log loggingLevel="INFO" message="Authorization check successful." />
+						<log loggingLevel="TRACE" message="Headers before schedule service call ${headers}." />
+						<serviceCall
+							name="scheduling-service/scheduling?headerFilterStrategy=#aceqFilter" />
+						<choice>
+							<when>
+								<simple>${header.PLCN_schedulingReq} == false</simple>
+								<log loggingLevel="INFO" message="scheduling check successful." />
+								<!-- <to uri="direct://headerOperation" /> -->
+								<to uri="direct://dbOperation" />
+								<to uri="aceq://endpointwrite?queueID=TMPMSGQ&amp;pollStatus=69" />				
+								<log loggingLevel="INFO" message="Updated record in DB with QueueID=TMPMSGQ and Status=69" />
+							</when>	
+							<otherwise>
+								<log loggingLevel="INFO" message="Message scheduled, writting out to DB.." />
+								<to uri="direct://dbOperation" />
+								<to uri="aceq://endpointwrite?queueID=MXHOLDQ&amp;pollStatus=69" />				
+								<log loggingLevel="INFO" message="Updated record in DB with QueueID=MXHOLDQ and Status=69" />
+							</otherwise>
+						</choice>
+					</when>
+					<otherwise>
+						<log loggingLevel="INFO" message="Authorization Failed, writting out to DB.." />
+						<to uri="direct://dbOperation" />
+						<to uri="aceq://endpointwrite?queueID=MXMSGAH&amp;pollStatus=69" />
+						<log loggingLevel="INFO" message="Updated record in DB with MXMSGAH and Status=69" />
+					</otherwise>
+					</choice>
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Repair Required, writting out to DB.." />
+				<to uri="direct://dbOperation" />
+				<to uri="direct://invalidRoute" />
+				<!-- <to uri="direct://setResponseCds" /> -->
+				<log loggingLevel="INFO" message="Updated record in DB with ${header.PLCN_queue} and Status=69" />
+			</otherwise>
+		</choice>
+		<to uri="genaudit://route1Audit" />
+		<log loggingLevel="INFO" message="Updated to DB from route-1-DB-cbprpacs009ob" />
+		<log loggingLevel="INFO" message="Message processed successfully.." />
+		<stop />
+		</idempotentConsumer>
+	</route>
+
+	<route id="route-1-db-cbprcamt057ob" autoStartup="false" streamCache="true">
+		<from id="readingDBRoute1"
+			uri="aceq://route-1-db-cbprcamt057ob?queueID=CBPRNROQ&amp;pollStatus=69&amp;configID=config1" />
+		<setHeader headerName="IdempotentKey">
+			<simple>CBPRNROQ:${header.ACEQ_MSGDB_ID}</simple>
+        </setHeader>
+		<idempotentConsumer skipDuplicate="true" messageIdRepositoryRef="idempotentRepoHazel">
+		<header>IdempotentKey</header>
+		<bean method="validateMessage" ref="hashValidation" />
+		<to uri="direct://dbRoute" />
+		<to uri="direct://checkHeader" />
+		<log loggingLevel="INFO" message="validLAU = ${header.PLCN_validLAU}" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validLAU} == false</simple>
+				<log loggingLevel="INFO" message="Invalid LAU..." />
+				<to uri="direct://dbOperation" />
+				<to uri="genaudit://route1Audit" />
+				<to uri="aceq://endpointwrite?queueID=ERRORQ&amp;pollStatus=69" />
+				<stop />
+			</when>
+		</choice>		
+		<log loggingLevel="OFF" message="PLCN_originalBody after dbRoute ${header.PLCN_originalBody}" />
+		<to uri="direct://setValidationHeaderCbpr" />
+		<log loggingLevel="OFF" message="PLCN_originalBody after setValidationHeaderCbpr ${header.PLCN_originalBody}" />
+		<serviceCall
+			name="validation-service/payments/v1/validation?headerFilterStrategy=#aceqFilter" />
+		<to uri="direct://setOriginalBody" />
+		<log loggingLevel="OFF" message="PLCN_originalBody after validation ${header.PLCN_originalBody}" />
+		<log loggingLevel="OFF" message="ACEDB_originalBody after validation ${header.ACEDB_originalBody}" />
+		<log loggingLevel="OFF" message="Body after setOriginalBody = ${body}" />
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<!-- <serviceCall 
+			name="ibanBic-service/ibanBic?headerFilterStrategy=#aceqFilter" /> -->
+		<!-- <log loggingLevel="INFO" message="Body after ibanBic service call = ${body}" /> -->
+		<!-- <to uri="direct://setStatusHeader" /> -->
+	 	<serviceCall
+			name="duplicate-check-service/duplicate?headerFilterStrategy=#aceqFilter" />
+		<log loggingLevel="OFF" message="Body after duplicate service call = ${body}" />
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<to uri="direct://repair" />
+		<to uri="direct://dynamicRoute" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_repairReqFinal} == false</simple>
+				<log loggingLevel="INFO" message="repair check successful." />	
+				<to uri="direct://authorize" />
+				<choice>
+					<when>
+						<simple>${header.PLCN_authReq} == false</simple>
+						<log loggingLevel="INFO" message="Authorization check successful." />
+						<serviceCall
+							name="scheduling-service/scheduling?headerFilterStrategy=#aceqFilter" />
+						<choice>
+							<when>
+								<simple>${header.PLCN_schedulingReq} == false</simple>
+								<log loggingLevel="INFO" message="scheduling check successful." />
+								<!-- <to uri="direct://headerOperation" /> -->
+								<to uri="direct://dbOperation" />
+								<to uri="aceq://endpointwrite?queueID=TMPMSGQ&amp;pollStatus=69" />				
+								<log loggingLevel="INFO" message="Updated record in DB with QueueID=TMPMSGQ and Status=69" />
+							</when>	
+							<otherwise>
+								<log loggingLevel="INFO" message="Message scheduled, writting out to DB.." />
+								<to uri="direct://dbOperation" />
+								<to uri="aceq://endpointwrite?queueID=MXHOLDQ&amp;pollStatus=69" />				
+								<log loggingLevel="INFO" message="Updated record in DB with QueueID=MXHOLDQ and Status=69" />
+							</otherwise>
+						</choice>
+					</when>
+					<otherwise>
+						<log loggingLevel="INFO" message="Authorization Failed, writting out to DB.." />
+						<to uri="direct://dbOperation" />
+						<to uri="aceq://endpointwrite?queueID=MXMSGAH&amp;pollStatus=69" />
+						<log loggingLevel="INFO" message="Updated record in DB with MXMSGAH and Status=69" />
+					</otherwise>
+				</choice>
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Repair Required, writting out to DB.." />
+				<to uri="direct://dbOperation" />
+				<to uri="direct://invalidRoute" />
+				<!-- <to uri="direct://setResponseCds" /> -->
+				<log loggingLevel="INFO" message="Updated record in DB with ${header.PLCN_queue} and Status=69" />
+			</otherwise>
+		</choice>
+		<log loggingLevel="INFO" message="Going to update to DB" />
+		<to uri="genaudit://route1Audit" />
+		<log loggingLevel="INFO" message="Updated to DB from route-1-DB" />
+		<log loggingLevel="INFO" message="Message processed successfully.." />
+		<stop />
+		</idempotentConsumer>
+    </route>	
+	
+	<route id="route-1-db-cbprpain001ob" autoStartup="false" streamCache="true">
+		<from id="readingDBRoute1"
+			uri="aceq://route-1-db-cbprpain001ob?queueID=PAYINITQ&amp;pollStatus=69&amp;configID=config1" />
+		<setHeader headerName="IdempotentKey">
+			<simple>PAYINITQ:${header.ACEQ_MSGDB_ID}</simple>
+        </setHeader>
+		<log loggingLevel="INFO" message="In cbprpain001ob" />
+		<idempotentConsumer skipDuplicate="true" messageIdRepositoryRef="idempotentRepoHazel">
+		<header>IdempotentKey</header>
+		<!-- <bean method="validateMessage" ref="hashValidation"/> -->
+		<to uri="direct://dbRoute" />
+		<to uri="direct://checkHeader" />
+		<log loggingLevel="INFO" message="validLAU = ${header.PLCN_validLAU}" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validLAU} == false</simple>
+				<log loggingLevel="INFO" message="Invalid LAU..." />
+				<to uri="direct://dbOperation" />
+				<to uri="genaudit://route1Audit" />
+				<to uri="aceq://endpointwrite?queueID=ERRORQ&amp;pollStatus=69" />
+				<stop />
+			</when>
+		</choice>
+		<to uri="direct://setValidationHeaderCbpr" />
+		<serviceCall
+			name="validation-service/payments/v1/validation?headerFilterStrategy=#aceqFilter" />
+		<log loggingLevel="INFO" message="PLCN_txnComments after validation = ${header.PLCN_txnComments}" />
+		<to uri="direct://setOriginalBody" />
+		<serviceCall 
+			name="ibanBic-service/ibanBic?headerFilterStrategy=#aceqFilter" />
+		<log loggingLevel="INFO" message="PLCN_txnComments after ibanBic = ${header.PLCN_txnComments}" />
+		<serviceCall 
+			name="duplicate-check-service/duplicate?headerFilterStrategy=#aceqFilter" />
+		<log loggingLevel="INFO" message="PLCN_txnComments after duplicate = ${header.PLCN_txnComments}" />
+		<to uri="direct://repair" />
+		<log loggingLevel="INFO" message="PLCN_txnComments after repair = ${header.PLCN_txnComments}" />
+		<to uri="direct://dynamicRoute" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_repairReqFinal} == false</simple>
+				<log loggingLevel="INFO" message="repair check successful." />	
+				<serviceCall
+					name="scheduling-service/scheduling?headerFilterStrategy=#aceqFilter" />
+				<log loggingLevel="INFO" message="PLCN_txnComments after scheduling = ${header.PLCN_txnComments}" />
+				<choice>
+					<when>
+						<simple>${header.PLCN_schedulingReq} == false</simple>
+						<log loggingLevel="INFO" message="scheduling check successful." />
+						<log loggingLevel="TRACE" message="Headers before schedule service call ${headers}." />
+						<setHeader headerName="PLCN_ServiceType">
+							<constant>AML-SCREENING-FRAUD</constant>
+						</setHeader>
+						<serviceCall
+							name="sanction-service/sanction?headerFilterStrategy=#aceqFilter" />
+						<log loggingLevel="INFO" message="PLCN_txnComments after sanctions = ${header.PLCN_txnComments}" />
+						<choice>
+							<when>
+								<simple>${header.PLCN_sanctionFlag} == false</simple>
+								<log loggingLevel="INFO" message="Sanction check successful." />
+								<to uri="direct://authorize" />
+								<log loggingLevel="INFO" message="PLCN_txnComments after authorize = ${header.PLCN_txnComments}" />
+								<choice>
+									<when>
+										<simple>${header.PLCN_AuthReq} == false</simple>
+										<log loggingLevel="INFO" message="authorization check successful." />
+										<!-- <to uri="direct://headerOperation" /> -->
+										<to uri="direct://dbOperation" />
+										<to uri="aceq://endpointwrite?queueID=TMPMSGQ&amp;pollStatus=69" />				
+										<log loggingLevel="INFO" message="Updated record in DB with QueueID=TMPMSGQ and Status=69" />
+									</when>	
+									<otherwise>
+										<log loggingLevel="INFO" message="Authorization Failed, writting out to DB.." />
+										<to uri="direct://dbOperation" />
+										<to uri="aceq://endpointwrite?queueID=MXMSGAH&amp;pollStatus=69" />
+										<log loggingLevel="INFO" message="Updated record in DB with QueueID=MXMSGAH and Status=69" />
+									</otherwise>
+								</choice>
+							</when>	
+							<otherwise>
+								<log loggingLevel="INFO" message="Sanction Failed, writting out to DB.." />
+								<to uri="direct://dbOperation" />
+								<to uri="aceq://endpointwrite?queueID=MXHOLDQ&amp;pollStatus=69" />
+								<log loggingLevel="INFO" message="Updated record in DB with QueueID=MXHOLDQ and Status=69" />
+							</otherwise>
+						</choice>
+					</when>
+					<otherwise>
+						<log loggingLevel="INFO" message="Message scheduled, writting out to DB.." />
+						<to uri="direct://dbOperation" />
+						<to uri="aceq://endpointwrite?queueID=MXMSGAH&amp;pollStatus=69" />
+						<log loggingLevel="INFO" message="Updated record in DB with MXMSGAH and Status=69" />
+					</otherwise>
+					</choice>
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Repair Required, writting out to DB.." />
+				<to uri="direct://dbOperation" />
+				<to uri="direct://invalidRoute" />
+				<!-- <to uri="direct://setResponseCds" /> -->
+				<log loggingLevel="INFO" message="Updated record in DB with ${header.PLCN_queue} and Status=69" />
+			</otherwise>
+		</choice>
+		<to uri="genaudit://route1Audit" />
+		<log loggingLevel="INFO" message="Updated to DB from route-1-DB-cbprpain001ob" />
+		<log loggingLevel="INFO" message="Message processed successfully.." />
+		<stop />
+		</idempotentConsumer>
+	</route>
+	
+	<route id="route-1-db-cbprpacs002ib" autoStartup="false" streamCache="true">
+		<from id="readingDBRoute1"
+			uri="aceq://route-1-db-cbprpacs002?queueID=MXSRINFQ&amp;pollStatus=69&amp;configID=config1" />
+		<setHeader headerName="IdempotentKey">
+			<simple>MXSRINFQ:${header.ACEQ_MSGDB_ID}</simple>
+        </setHeader>
+		<idempotentConsumer skipDuplicate="true" messageIdRepositoryRef="idempotentRepoHazel">
+		<header>IdempotentKey</header>
+		<bean method="validateMessage" ref="hashValidation" />
+		<to uri="direct://dbRoute" />
+		<to uri="direct://checkHeader" />
+		<log loggingLevel="INFO" message="validLAU = ${header.PLCN_validLAU}" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validLAU} == false</simple>
+				<log loggingLevel="INFO" message="Invalid LAU..." />
+				<to uri="direct://dbOperation" />
+				<to uri="direct://invalidP2RouteCbpr" />
+				<stop />
+			</when>
+		</choice>
+		<to uri="direct://setValidationHeaderCbpr" />
+		<serviceCall
+			name="validation-service/payments/v1/validation?headerFilterStrategy=#aceqFilter" />
+		<to uri="direct://setOriginalBody" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validMessage}</simple>
+				<log loggingLevel="INFO" message="Business level Valid message.." />
+				<serviceCall
+					name="matching-service/matching?headerFilterStrategy=#aceqFilter" />
+				<setHeader headerName="PLCN_queue">
+					<simple>TMPTXVWQ</simple>
+				</setHeader>
+				<to uri="direct://dbOperation" />
+				<to uri="aceq://endpointwrite?queueID=TMPTXVWQ&amp;pollStatus=69" />
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Business level Invalid message, writting out to DB.." />
+				<to uri="direct://dbOperation" />
+				<to uri="direct://invalidP2RouteCbpr" />
+				<!-- <to uri="direct://setResponseCds" /> -->
+			</otherwise>
+		</choice>
+		<log loggingLevel="INFO" message="Going to update to DB" />
+		<to uri="genaudit://route1Audit" />
+		<log loggingLevel="INFO" message="Updated to DB from route-1-DB" />
+		<log loggingLevel="INFO" message="Message processed successfully.." />
+		<stop />
+		</idempotentConsumer>
+	</route>
+	
+	<route id="route1-db-cbprpacs004ib" autoStartup="false" streamCache="true">
+		<from id="readingDBRoute1"
+			uri="aceq://route1-db-cbprpacs004ib?queueID=CBPRFRIQ&amp;pollStatus=69&amp;configID=config1" />
+		<setHeader headerName="IdempotentKey">
+			<simple>CBPRFRIQ:${header.ACEQ_MSGDB_ID}</simple>
+        </setHeader>
+		<idempotentConsumer skipDuplicate="true" messageIdRepositoryRef="idempotentRepoHazel">
+		<header>IdempotentKey</header>
+		<bean method="validateMessage" ref="hashValidation" />
+		<to uri="direct://dbRoute" />
+		<to uri="direct://checkHeader" />
+		<log loggingLevel="INFO" message="validLAU = ${header.PLCN_validLAU}" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validLAU} == false</simple>
+				<log loggingLevel="INFO" message="Invalid LAU..." />
+				<to uri="direct://dbOperation" />
+				<to uri="genaudit://route1Audit" />
+				<to uri="aceq://endpointwrite?queueID=ERRORQ&amp;pollStatus=69" />
+				<stop />
+			</when>
+		</choice>		
+		<to uri="direct://setValidationHeaderCbpr" />
+		<serviceCall
+			name="validation-service/payments/v1/validation?headerFilterStrategy=#aceqFilter" />
+		<to uri="direct://setOriginalBody" />
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<serviceCall 
+			name="duplicate-check-service/duplicate?headerFilterStrategy=#aceqFilter" />
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<!-- <serviceCall
+			name="ibanBic-service/ibanBic?headerFilterStrategy=#aceqFilter" /> -->
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<to uri="direct://dynamicRoute" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validFlag} == true</simple>
+				<setHeader headerName="PLCN_queue">
+					<simple>PROCDQ</simple>
+				</setHeader>				
+				<!-- <to uri="direct://headerOperation" /> -->
+				<to uri="direct://dbOperation" />
+				<to uri="aceq://endpointwrite?queueID=PROCDQ&amp;pollStatus=79" />	
+				<log message = "valid message pacs004"/>
+				<log loggingLevel="INFO" message="Updated record in DB with QueueID=PROCDQ and Status=79" />
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Validation check failed, writting out to DB.." />
+				<to uri="direct://dbOperation" />
+				<to uri="direct://invalidRoute" />
+				<!-- <to uri="direct://setResponseCds" /> -->
+				<log loggingLevel="INFO" message="Updated record in DB with ${header.PLCN_queue} and Status=102" />
+			</otherwise>
+		</choice>								
+		<to uri="genaudit://route1Audit" />
+		<log loggingLevel="INFO" message="Updated to DB from in-cbprpacs004" />
+		<log loggingLevel="INFO" message="Message processed successfully.." />
+		<stop />
+		</idempotentConsumer>
+	</route>
+
+	<route id="route-1-db-Cbprpacs008ib" autoStartup="false" streamCache="true">
+		<from id="readingDBRoute1"
+			uri="aceq://route-1-db-Cbprpacs008ib?queueID=CBPRCCIQ&amp;pollStatus=69&amp;configID=config1" />
+		<setHeader headerName="IdempotentKey">
+			<simple>CBPRCCIQ:${header.ACEQ_MSGDB_ID}</simple>
+        </setHeader>
+		<idempotentConsumer skipDuplicate="true" messageIdRepositoryRef="idempotentRepoHazel">
+		<header>IdempotentKey</header>
+		<bean method="validateMessage" ref="hashValidation" />
+		<!-- <to uri="direct://checkHeader" /> -->
+		<to uri="direct://dbRoute" />
+		<to uri="direct://checkHeader" />
+		<log loggingLevel="INFO" message="validLAU = ${header.PLCN_validLAU}" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validLAU} == false</simple>
+				<log loggingLevel="INFO" message="Invalid LAU..." />
+				<to uri="direct://dbOperation" />
+				<to uri="genaudit://route1Audit" />
+				<to uri="aceq://endpointwrite?queueID=ERRORQ&amp;pollStatus=69" />
+				<stop />
+			</when>
+		</choice>		
+		<to uri="direct://setValidationHeaderCbpr" />
+		<serviceCall
+			name="validation-service/payments/v1/validation?headerFilterStrategy=#aceqFilter" />
+		<to uri="direct://setOriginalBody" />
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<serviceCall 
+			name="duplicate-check-service/duplicate?headerFilterStrategy=#aceqFilter" />
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<!-- <serviceCall 
+			name="ibanBic-service/ibanBic?headerFilterStrategy=#aceqFilter" /> -->
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<to uri="direct://dynamicRoute" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validFlag} == true</simple>
+				<setHeader headerName="PLCN_queue">
+					<simple>PROCDQ</simple>
+				</setHeader>
+				<!-- <to uri="direct://headerOperation" /> -->
+				<to uri="direct://dbOperation" />
+				<to uri="aceq://endpointwrite?queueID=PROCDQ&amp;pollStatus=79" />				
+				<log loggingLevel="INFO" message="Updated record in DB with QueueID=PROCDQ and Status=79" />
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Validation check failed, writting out to DB.." />
+				<to uri="direct://dbOperation" />
+				<to uri="direct://invalidRoute" />
+				<!-- <to uri="direct://setResponseCds" /> -->
+				<log loggingLevel="INFO" message="Updated record in DB with ${header.PLCN_queue} and Status=102" />
+			</otherwise>
+		</choice>
+		<to uri="genaudit://route1Audit" />
+		<log loggingLevel="INFO" message="Updated to DB from route-1-db-Cbprpacs008-ib" />
+		<log loggingLevel="INFO" message="Message processed successfully.." />
+		<stop />
+		</idempotentConsumer>
+	</route>
+	
+	<route id="route-1-db-Cbprpacs009ib" autoStartup="false" streamCache="true">
+		<from id="readingDBRoute1"
+			uri="aceq://route-1-db-Cbprpacs009ib?queueID=CBPRFCIQ&amp;pollStatus=69&amp;configID=config1" />
+		<setHeader headerName="IdempotentKey">
+			<simple>CBPRFCIQ:${header.ACEQ_MSGDB_ID}</simple>
+        </setHeader>
+		<idempotentConsumer skipDuplicate="true" messageIdRepositoryRef="idempotentRepoHazel">
+		<header>IdempotentKey</header>
+		<bean method="validateMessage" ref="hashValidation" />
+		<to uri="direct://dbRoute" />
+		<to uri="direct://checkHeader" />
+		<log loggingLevel="INFO" message="validLAU = ${header.PLCN_validLAU}" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validLAU} == false</simple>
+				<log loggingLevel="INFO" message="Invalid LAU..." />
+				<to uri="direct://dbOperation" />
+				<to uri="genaudit://route1Audit" />
+				<to uri="aceq://endpointwrite?queueID=ERRORQ&amp;pollStatus=69" />
+				<stop />
+			</when>
+		</choice>
+		<to uri="direct://setValidationHeaderCbpr" />
+		<serviceCall
+			name="validation-service/payments/v1/validation?headerFilterStrategy=#aceqFilter" />
+		<to uri="direct://setOriginalBody" />
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<serviceCall 
+			name="duplicate-check-service/duplicate?headerFilterStrategy=#aceqFilter" />
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<!-- <serviceCall 
+			name="ibanBic-service/ibanBic?headerFilterStrategy=#aceqFilter" /> -->
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<to uri="direct://dynamicRoute" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validFlag} == true</simple>
+				<setHeader headerName="PLCN_queue">
+					<simple>PROCDQ</simple>
+				</setHeader>
+				<!-- <to uri="direct://headerOperation" /> -->
+				<to uri="direct://dbOperation" />
+				<to uri="aceq://endpointwrite?queueID=PROCDQ&amp;pollStatus=79" />				
+				<log loggingLevel="INFO" message="Updated record in DB with QueueID=PROCDQ and Status=79" />
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Validation check failed, writting out to DB.." />
+				<to uri="direct://dbOperation" />
+				<to uri="direct://invalidRoute" />
+				<!-- <to uri="direct://setResponseCds" /> -->
+				<log loggingLevel="INFO" message="Updated record in DB with ${header.PLCN_queue} and Status=102" />
+			</otherwise>
+		</choice>
+		<to uri="genaudit://route1Audit" />
+		<log loggingLevel="INFO" message="Updated to DB from route-1-db-Cbprpacs009-ib" />
+		<log loggingLevel="INFO" message="Message processed successfully.." />
+		<stop />
+		</idempotentConsumer>
+	</route>
+	
+	<route id="route-1-db-cbprcamt057ib" autoStartup="false" streamCache="true">
+		<from id="readingDBRoute1"
+			uri="aceq://route-1-db-cbprcamt057ib?queueID=CBPRNRIQ&amp;pollStatus=69&amp;configID=config1" />
+		<setHeader headerName="IdempotentKey">
+			<simple>CBPRNRIQ:${header.ACEQ_MSGDB_ID}</simple>
+        </setHeader>
+		<idempotentConsumer skipDuplicate="true" messageIdRepositoryRef="idempotentRepoHazel">
+		<header>IdempotentKey</header>
+		<bean method="validateMessage" ref="hashValidation" />
+		<to uri="direct://dbRoute" />
+		<to uri="direct://checkHeader" />
+		<log loggingLevel="INFO" message="validLAU = ${header.PLCN_validLAU}" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validLAU} == false</simple>
+				<log loggingLevel="INFO" message="Invalid LAU..." />
+				<to uri="direct://dbOperation" />
+				<to uri="genaudit://route1Audit" />
+				<to uri="aceq://endpointwrite?queueID=ERRORQ&amp;pollStatus=69" />
+				<stop />
+			</when>
+		</choice>
+		<to uri="direct://setValidationHeaderCbpr" />
+		<log loggingLevel="TRACE" message="Header value before sevice call ${header.originalMessage}"/>
+		<serviceCall
+			name="validation-service/payments/v1/validation?headerFilterStrategy=#aceqFilter" />
+		<to uri="direct://setOriginalBody" />
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<!-- <serviceCall 
+			name="ibanBic-service/ibanBic?headerFilterStrategy=#aceqFilter" /> -->
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<serviceCall 
+			name="duplicate-check-service/duplicate?headerFilterStrategy=#aceqFilter" />
+		<!-- <to uri="direct://setStatusHeader" /> -->
+		<to uri="direct://dynamicRoute" />
+		<log loggingLevel="INFO" message="after dynamic route call"/>
+		<choice>
+			<when>
+				<simple>${header.PLCN_validFlag} == true</simple>
+				<setHeader headerName="PLCN_queue">
+					<simple>PROCDQ</simple>
+				</setHeader>				
+				<!-- <to uri="direct://headerOperation" /> -->
+				<to uri="direct://dbOperation" />
+				<to uri="aceq://endpointwrite?queueID=PROCDQ&amp;pollStatus=79" />	
+				<log loggingLevel="INFO" message="Updated record in DB with QueueID=PROCDQ and Status=79" />								
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Validation check failed, writting out to DB.." />
+				<to uri="direct://dbOperation" />
+				<to uri="direct://invalidRoute" />
+				<log loggingLevel="INFO" message="Updated record in DB with ${header.PLCN_queue} and Status=102" />
+			</otherwise>
+		</choice>
+		<log loggingLevel="INFO" message="Going to update to DB" />
+		<to uri="genaudit://route1Audit" />
+		<log loggingLevel="INFO" message="Updated to DB from route-1-cbprcamt057ib" />
+		<log loggingLevel="INFO" message="Message processed successfully.." />
+		<stop />
+		</idempotentConsumer>
+	</route>	
+
+	<route id="route-1-db-cbprpain001ib" autoStartup="false" streamCache="true">
+		<from id="readingDBRoute1"
+			uri="aceq://route-1-db-cbprpain001ib?queueID=PAYINIIQ&amp;pollStatus=69&amp;configID=config1" />
+		<setHeader headerName="IdempotentKey">
+			<simple>PAYINITQ:${header.ACEQ_MSGDB_ID}</simple>
+        </setHeader>
+		<log loggingLevel="INFO" message="In cbprpain001ib route" />
+		<idempotentConsumer skipDuplicate="true" messageIdRepositoryRef="idempotentRepoHazel">
+		<header>IdempotentKey</header>
+		<!-- <bean method="validateMessage" ref="hashValidation"/> -->
+		<to uri="direct://dbRoute" />
+		<to uri="direct://checkHeader" />
+		<log loggingLevel="INFO" message="validLAU = ${header.PLCN_validLAU}" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validLAU} == false</simple>
+				<log loggingLevel="INFO" message="Invalid LAU..." />
+				<to uri="direct://dbOperation" />
+				<to uri="genaudit://route1Audit" />
+				<to uri="aceq://endpointwrite?queueID=ERRORQ&amp;pollStatus=69" />
+				<stop />
+			</when>
+		</choice>
+		<to uri="direct://setValidationHeaderCbpr" />
+		<serviceCall
+			name="validation-service/payments/v1/validation?headerFilterStrategy=#aceqFilter" />
+		<log loggingLevel="INFO" message="PLCN_txnComments after validation = ${header.PLCN_txnComments}" />
+		<to uri="direct://setOriginalBody" />
+		<!-- <serviceCall 
+			name="ibanBic-service/ibanBic?headerFilterStrategy=#aceqFilter" />
+		<log loggingLevel="INFO" message="PLCN_txnComments after ibanBic = ${header.PLCN_txnComments}" /> -->
+		<serviceCall 
+			name="duplicate-check-service/duplicate?headerFilterStrategy=#aceqFilter" />
+		<log loggingLevel="INFO" message="PLCN_txnComments after duplicate = ${header.PLCN_txnComments}" />
+		<to uri="direct://repair" />
+		<log loggingLevel="INFO" message="PLCN_txnComments after repair = ${header.PLCN_txnComments}" />
+		<to uri="direct://dynamicRoute" />
+		<setHeader headerName="PLCN_ServiceType">
+			<constant>AML-SCREENING-FRAUD</constant>
+		</setHeader>
+		<serviceCall
+			name="sanction-service/sanction?headerFilterStrategy=#aceqFilter" />
+		<log loggingLevel="INFO" message="PLCN_txnComments after sanctions = ${header.PLCN_txnComments}" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_sanctionFlag} == false</simple>
+				<log loggingLevel="INFO" message="sanctions check successful." />					
+				<to uri="direct://authorize" />
+				<log loggingLevel="INFO" message="PLCN_txnComments after authorize = ${header.PLCN_txnComments}" />
+				<choice>
+					<when>
+						<simple>${header.PLCN_AuthReq} == false</simple>
+						<log loggingLevel="INFO" message="authorization check successful." />
+						<!-- <to uri="direct://headerOperation" /> -->
+						<to uri="direct://dbOperation" />
+						<to uri="aceq://endpointwrite?queueID=TMPMSGQ&amp;pollStatus=69" />				
+						<log loggingLevel="INFO" message="Updated record in DB with QueueID=TMPMSGQ and Status=69" />
+					</when>	
+					<otherwise>
+						<log loggingLevel="INFO" message="Authorization Failed, writting out to DB.." />
+						<to uri="direct://dbOperation" />
+						<to uri="aceq://endpointwrite?queueID=MXMSGAH&amp;pollStatus=69" />				
+						<log loggingLevel="INFO" message="Updated record in DB with QueueID=MXMSGAH and Status=69" />
+					</otherwise>
+				</choice>
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Sanction Failed, writting out to DB.." />
+				<to uri="direct://dbOperation" />
+				<to uri="direct://invalidRoute" />
+				<!-- <to uri="direct://setResponseCds" /> -->
+				<to uri="aceq://endpointwrite?queueID=TMPCXLWQ&amp;pollStatus=69" />
+				<log loggingLevel="INFO" message="Updated record in DB with QueueID=TMPCXLWQ and Status=69" />
+			</otherwise>
+		</choice>
+		<to uri="genaudit://route1Audit" />
+		<log loggingLevel="INFO" message="Updated to DB from route-1-DB-cbprpain001ib" />
+		<log loggingLevel="INFO" message="Message processed successfully.." />
+		<stop />
+		</idempotentConsumer>
+	</route>
+	
+	<route id="route-1-db-cbprpain002ib" autoStartup="false" streamCache="true">
+		<from id="readingDBRoute1"
+			uri="aceq://route-1-db-cbprpain002ib?queueID=PAYSTSIQ&amp;pollStatus=69&amp;configID=config1" />
+		<setHeader headerName="IdempotentKey">
+			<simple>PAYSTSIQ:${header.ACEQ_MSGDB_ID}</simple>
+        </setHeader>
+		<log loggingLevel="INFO" message="In cbprpain002ib route" />
+		<idempotentConsumer skipDuplicate="true" messageIdRepositoryRef="idempotentRepoHazel">
+		<header>IdempotentKey</header>
+		<bean method="validateMessage" ref="hashValidation" />
+		<to uri="direct://dbRoute" />
+		<to uri="direct://checkHeader" />
+		<log loggingLevel="INFO" message="validLAU = ${header.PLCN_validLAU}" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validLAU} == false</simple>
+				<log loggingLevel="INFO" message="Invalid LAU..." />
+				<to uri="direct://dbOperation" />
+				<to uri="direct://invalidP2RouteCbpr" />
+				<stop />
+			</when>
+		</choice>
+		<to uri="direct://setValidationHeaderCbpr" />
+		<serviceCall
+			name="validation-service/payments/v1/validation?headerFilterStrategy=#aceqFilter" />
+		<to uri="direct://setOriginalBody" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validMessage}</simple>
+				<log loggingLevel="INFO" message="Business level Valid message.." />
+				<serviceCall
+					name="matching-service/matching?headerFilterStrategy=#aceqFilter" />
+				<setHeader headerName="PLCN_queue">
+					<simple>TMPTXVWQ</simple>
+				</setHeader>
+				<to uri="direct://dbOperation" />
+				<to uri="aceq://endpointwrite?queueID=TMPTXVWQ&amp;pollStatus=69" />
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Business level Invalid message, writting out to DB.." />
+				<to uri="direct://dbOperation" />
+				<to uri="direct://invalidP2RouteCbpr" />
+				<!-- <to uri="direct://setResponseCds" /> -->
+			</otherwise>
+		</choice>
+		<log loggingLevel="INFO" message="Going to update to DB" />
+		<to uri="genaudit://route1Audit" />
+		<log loggingLevel="INFO" message="Updated to DB from route-1-DB" />
+		<log loggingLevel="INFO" message="Message processed successfully.." />
+		<stop />
+		</idempotentConsumer>
+	</route>
+
+	<route id="route-1-db-authorize" autoStartup="false" streamCache="true">
+		<from id="readingDBRoute1"
+			uri="aceq://route-1-db-authorize?queueID=AUTHIN&amp;pollStatus=69&amp;configID=config1&amp;whereClause=AND MSG_FAMILY=&apos;CBPR&apos;" />
+		<!-- <camel:endpoint id="fromEndpoint" uri="aceq://endpointRead">
+			<camel:property key="queueID" value="AUTHIN" />
+			<camel:property key="pollStatus" value="69" />
+			<camel:property key="configID" value="config1" />
+			<camel:property key="whereClause" value="AND MSG_FAMILY='CBPR'" />
+		</camel:endpoint> -->
+		<setHeader headerName="IdempotentKey">
+			<simple>AUTHIN:${header.ACEQ_MSGDB_ID}</simple>
+        </setHeader>
+		<idempotentConsumer skipDuplicate="true" messageIdRepositoryRef="idempotentRepoHazel">
+		<header>IdempotentKey</header>
+		<to uri="direct://checkHeader" />
+		<to uri="direct://dbRoute" />
+		<to uri="direct://authorize" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_authReq}</simple>				
+				<log loggingLevel="INFO" message="Authorization required.." />
+				<to uri="direct://dbOperation" />				
+				<to uri="aceq://endpointwrite?queueID=MXMSGAH&amp;pollStatus=69" />
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Authorization not required, writting out to DB.." />
+				<to uri="direct://dbOperation" />
+				<to uri="aceq://endpointwrite?queueID=SCHIN&amp;pollStatus=69" />
+				<log loggingLevel="INFO" message="Going to update to DB" />
+				<log loggingLevel="INFO" message="Updated record in DB with QueueID=SCHIN and Status=69" />
+			</otherwise>
+		</choice>
+		<log loggingLevel="INFO" message="Going to update to DB" />
+		<to uri="genaudit://route1Audit" />
+		<log loggingLevel="INFO" message="Updated to DB from authorize WF" />
+		<stop />
+		</idempotentConsumer>
+	</route>	
+	
+	<route id="route-1-db-scheduling" autoStartup="false" streamCache="true">
+		<from id="readingDBRoute1"
+			uri="aceq://route-1-db-scheduling?queueID=SCHIN&amp;pollStatus=69&amp;configID=config1&amp;whereClause=AND MSG_FAMILY=&apos;CBPR&apos;" />
+		<setHeader headerName="IdempotentKey">
+			<simple>SCHIN:${header.ACEQ_MSGDB_ID}</simple>
+        </setHeader>
+		<idempotentConsumer skipDuplicate="true" messageIdRepositoryRef="idempotentRepoHazel">
+		<header>IdempotentKey</header>
+		<to uri="direct://checkHeader" />
+		<to uri="direct://dbRoute" />
+		<serviceCall
+			name="scheduling-service/scheduling?headerFilterStrategy=#aceqFilter" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_schedulingReq}</simple>
+				<log loggingLevel="INFO" message="Scheduling Successful.." />
+				<to uri="direct://dbOperation" />				
+				<to uri="aceq://endpointwrite?queueID=MXHOLDQ&amp;pollStatus=69" />
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Scheduling not required, writting out to DB.." />
+				<!-- <to uri="direct://headerOperation" /> -->
+				<to uri="direct://dbOperation" />
+				<to uri="direct://validRoute" />
+			</otherwise>
+		</choice>
+		<log loggingLevel="INFO" message="Going to update to DB" />
+		<to uri="genaudit://route1Audit" />
+		<log loggingLevel="INFO" message="Updated to DB from scheduling WF" />
+		<stop />
+		</idempotentConsumer>
+	</route>
+
+	<route id="route-1-db-warehouse" autoStartup="false" streamCache="true">
+		<from id="readingDBRoute1"
+			uri="aceq://route-1-db-warehouse?queueID=MXHOLDQ&amp;pollStatus=69&amp;configID=config1&amp;whereClause=AND CUSTOM24&lt;=SYSDATE AND MSG_FAMILY=&apos;CBPR&apos;" />
+		<setHeader headerName="IdempotentKey">
+			<simple>MXHOLDQ:${header.ACEQ_MSGDB_ID}</simple>
+        </setHeader>
+		<idempotentConsumer skipDuplicate="true" messageIdRepositoryRef="idempotentRepoHazel">
+		<header>IdempotentKey</header>
+		<log loggingLevel="INFO" message="In warehouse workflow.." />
+		<to uri="direct://checkHeader" />
+		<to uri="direct://dbRoute" />
+		<serviceCall
+			name="scheduling-service/scheduling?headerFilterStrategy=#aceqFilter" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_schedulingReq}</simple>
+				<log loggingLevel="INFO" message="Scheduling Successful.." />
+				<to uri="direct://dbOperation" />				
+				<to uri="aceq://endpointwrite?queueID=MXHOLDQ&amp;pollStatus=69" />
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Scheduling not required, writting out to DB.." />
+				<!-- <to uri="direct://headerOperation" /> -->
+				<to uri="direct://dbOperation" />
+				<to uri="direct://validRoute" />
+			</otherwise>
+		</choice>
+		<log loggingLevel="INFO" message="Going to update to DB" />
+		<to uri="genaudit://route1Audit" />
+		<log loggingLevel="INFO" message="Updated to DB" />
+		<stop />
+		</idempotentConsumer>
+	</route>
+
+	<route id="authorize">
+		<from uri="direct://authorize" />
+		<bean id="jspPopulationDataAuthorize" ref="jspExecute" 
+			method="executeWithHazelCastInstance(${exchange},checkAuthorization)" />		
+	</route>
+	
+	<route id="repair">
+		<from uri="direct://repair" />
+		<bean id="jspPopulationDatarepair1" ref="jspExecute" 
+			method="executeWithHazelCastInstance(${exchange},messageRepair)" />		
+		
+	</route>
+	
+	<route id="dbRoute">
+		<from uri="direct://dbRoute" />
+		<log loggingLevel="TRACE" message="Body in dbRoute = ${body}" />
+		<bean id="xmlParserDBRoute" ref="xmlParser" />
+		<bean id="jspPopulateDataDBRoute" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},populateMetaData)" />
+		<bean id="jspPopulateDataEnrichIbanBic" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},enrichIbanBic)" />
+	</route>
+		
+	<route id="dbOperation">
+		<from uri="direct://dbOperation" />
+		<log loggingLevel="TRACE" message="Body in dbOperation is ${body}!" />
+		<bean id="xmlParserdbOperation" ref="xmlParser" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_validFlag} == true</simple>
+				<to uri="direct://headerOperation" />
+			</when>
+		</choice>
+		<bean id="jspPopulateDataCreateResponse" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},createResponse)" />
+		<bean id="jspPopulateDatadbOperation" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},dbOperation)" />
+	</route>	
+	
+	<route id="checkHeader">
+		<from uri="direct://checkHeader" />
+		<bean id="jspPopulateDatacheckHeader" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},checkHeader)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_headerPresent}</simple>
+				<log loggingLevel="INFO" message="Message with header"/>
+				<bean id="jspPopulateDatatruncateHeader1" ref="jspExecute"
+					method="executeWithHazelCastInstance(${exchange},truncateHeader)" />
+				<to uri="direct://validateLAU" />
+			</when>
+			<otherwise>
+				<log loggingLevel="INFO" message="Message without header"/>
+				<bean id="jspPopulateDatatruncateHeader2" ref="jspExecute"
+					method="executeWithHazelCastInstance(${exchange},setMsgBlocksData)" />
+			</otherwise>
+		</choice>
+	</route>	
+	
+	<route id="validateLAU" >
+		<from uri="direct://validateLAU" />
+		<log loggingLevel="INFO" message="validateLAU started" />
+		<bean id="jspvalidateLAU" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},validateLAU)" />
+	</route>
+
+	<route id="headerOperation" >
+		<from uri="direct://headerOperation" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_createHeader}</simple>
+				<bean id="xmlParserheaderOperation" ref="xmlParser" />
+				<bean id="jspcreateHeader" ref="jspExecute"
+					method="executeWithHazelCastInstance(${exchange},createHeader)" />	
+			</when>
+		</choice>
+	</route>
+	
+	<route id="setValidationHeaderCbpr">
+		<from uri="direct://setValidationHeaderCbpr" />
+		<bean id="xmlParserHdrCbpr" ref="xmlParser" />
+		<bean id="jspPopulateDataSetValidtnHdrCbpr" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},setValidationHeaderCbpr)" />
+	</route>
+	
+	<route id="invalidP2RouteCbpr">
+		<from uri="direct://invalidP2RouteCbpr" />
+		<log loggingLevel="INFO" message="In invalidP2RouteCbpr"/>				
+		<choice>
+			<when>
+				<simple>${header.PLCN_config1}</simple>
+				<to id = "dbwriteinvalidDBRouteT2P2" uri="aceq://dbwriteinvalidFileRoute1?queueID=TMPMSGQ&amp;pollStatus=69" /> 
+				<log loggingLevel="INFO" message="Updated record in DB with QueueID=TMPMSGQ and Status=69" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_errqFlag}</simple>
+						<to id = "dbwriteinvalidDBRouteT2P3" uri="aceq://dbwriteinvalidFileRoute1?queueID=ERRORQ&amp;pollStatus=69" />
+						<log loggingLevel="INFO" message="Updated record in DB with QueueID=ERRORQ and Status=69" />
+					</when>
+					<otherwise>
+						<to id = "dbwriteinvalidDBRouteT2P4" uri="aceq://dbwriteinvalidFileRoute1?queueID=PROCDQ&amp;pollStatus=102" />
+						<log loggingLevel="INFO" message="Updated record in DB with QueueID=PROCDQ and Status=102" />
+					</otherwise>
+				</choice>			
+			</otherwise>
+		</choice>
+	</route>	
+
+	<route id="invalidRoute">
+		<from uri="direct://invalidRoute" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_ERRORQ}</simple>
+				<to uri="aceq://endpointwrite?queueID=ERRORQ&amp;pollStatus=69" />
+				<log loggingLevel="INFO" message="Going to update to DB" />
+				<log loggingLevel="INFO" message="Updated record in DB with QueueID=ERRORQ and Status=69" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_MXDUPLQ}</simple>
+						<to uri="aceq://endpointwrite?queueID=MXDUPLQ&amp;pollStatus=69" />
+						<log loggingLevel="INFO" message="Going to update to DB" />
+						<log loggingLevel="INFO" message="Updated record in DB with QueueID=MXDUPLQ and Status=69" />
+					</when>
+				</choice>
+				<choice>
+					<when>
+						<simple>${header.PLCN_MXREPRQ}</simple>
+						<to uri="aceq://endpointwrite?queueID=MXREPRQ&amp;pollStatus=69" />
+						<log loggingLevel="INFO" message="Going to update to DB" />
+						<log loggingLevel="INFO" message="Updated record in DB with QueueID=MXREPRQ and Status=69" />
+					</when>
+				</choice>
+			</otherwise>
+		</choice>
+	</route>
+	
+	<route id="validRoute">
+		<from uri="direct://validRoute" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_inboundMessage}</simple>
+				<to uri="aceq://endpointwrite?queueID=PROCDQ&amp;pollStatus=79" />
+				<log loggingLevel="INFO" message="Going to update to DB" />
+				<log loggingLevel="INFO" message="Updated record in DB with QueueID=PROCDQ and Status=79" />
+			</when>
+			<otherwise>
+				<to uri="aceq://endpointwrite?queueID=TMPMSGQ&amp;pollStatus=69" />
+				<log loggingLevel="INFO" message="Going to update to DB" />
+				<log loggingLevel="INFO" message="Updated record in DB with QueueID=TMPMSGQ and Status=69" />
+			</otherwise>
+		</choice>
+	</route>	
+	
+	<route id="dynamicRoute">
+		<from uri="direct://dynamicRoute" />
+		<log message = "Inside dynamic route main router"/>
+		<bean id="jspPopulateDatasetDynamicRoute" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},dynamicRoute)" />
+	</route>
+	
+	<route id="setStatusHeader">
+		<from uri="direct://setStatusHeader" />
+		<bean id="jspPopulateDatasetStatusHeader" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},setStatusHeader)" />
+	</route>
+	
+	<route id="setOriginalBody">
+		<from uri="direct://setOriginalBody" />
+		<bean id="jspPopulationDataSetOriginalBody" ref="jspExecute" 
+			method="executeWithHazelCastInstance(${exchange},setOriginalBody)" />		
+	</route>
+
+	<route id="setResponseCds">
+		<from uri="direct://setResponseCds" />
+		<bean id="jspPopulationDataSetResponseCds" ref="jspExecute" 
+			method="executeWithHazelCastInstance(${exchange},setResponseCds)" />		
+	</route>
+</routeContext>
+</beans>

@@ -1,0 +1,26 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<routeContext id="ibanBic" xmlns="http://camel.apache.org/schema/spring">	
+		<route id="ibanBicRouter">
+			<from uri="direct://ibanBicRouter" />
+			<bean id="xmlParserIbanBicRouter" ref="xmlParser" />
+			<bean id="jspPopulationData1" ref="jspExecute" 
+					method="executeWithHazelCastInstance(${exchange},checkIbanBicConsistencyMX)" />
+			<log message="Consistency check successfully.."/>
+			<!-- <log message="Headers after ibanBic = ${headers}" />  -->
+			<choice>
+				<when>
+					<simple>${header.PLCNAPI_call}</simple>
+					<log message="PLCNAPI_call internal" />
+				</when>
+				<otherwise>
+					<removeHeaders pattern="*" excludePattern="status"/>
+				</otherwise>
+			</choice>
+		</route>
+	</routeContext>	
+</beans>	

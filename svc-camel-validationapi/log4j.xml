@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration PUBLIC "-//APACHE//DTD LOG4J 1.2//EN" "http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/xml/doc-files/log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+	
+	<appender name="logFile" class="uk.org.simonsite.log4j.appender.TimeAndSizeRollingAppender">
+	    <param name="File" value="/pelapp/software/pas_BUAT/usr/local/clo/app/pel/pas/ace.pelican/log/svc-validate-api-ppay.log"/>
+	    <param name="Threshold" value="info"/>
+	    <param name="DatePattern" value=".yyyyMMdd"/>
+	    <param name="MaxFileSize" value="250MB"/>
+	    <param name="MaxRollFileCount" value="2"/>
+	    <param name="ScavengeInterval" value="-1"/>
+	    <param name="BufferedIO" value="false"/>
+	    <layout class="org.apache.log4j.PatternLayout">
+	        <param name="ConversionPattern" value="[%d{dd.MM.yyyy HH:mm:ss.SSS}][%-5p][%-10t][%-10c{1}][%M] : %m%n"/>
+	    </layout>
+	</appender>
+	
+	<appender name="traceFile" class="uk.org.simonsite.log4j.appender.TimeAndSizeRollingAppender">
+	    <param name="File" value="/pelapp/software/pas_BUAT/usr/local/clo/app/pel/pas/ace.pelican/trace/svc-validate-api-ppay.trc"/>
+	    <param name="Threshold" value="trace"/>
+	    <param name="DatePattern" value=".yyyyMMdd"/>
+	    <param name="MaxFileSize" value="250MB"/>
+	    <param name="MaxRollFileCount" value="10"/>
+	    <param name="ScavengeInterval" value="-1"/>
+	    <param name="BufferedIO" value="false"/>
+	    <layout class="org.apache.log4j.PatternLayout">
+	        <param name="ConversionPattern" value="[%d{dd.MM.yyyy HH:mm:ss.SSS}][%-5p][%-10t][%-10c{1}][%M] : %m%n"/>
+	    </layout>	
+	</appender>
+    
+    <logger name="org.apache.ibatis">
+		<level value="TRACE"/>
+	</logger>
+	
+	<logger name="org.mybatis">
+		<level value="TRACE"/>
+	</logger>
+	
+	<logger name="org.springframework">
+		<level value="WARN"/>
+	</logger>
+	
+	<logger name="org.apache.camel">
+		<level value="INFO"/>
+	</logger>
+	
+	<logger name="org.apache.camel.processor.FatalFallbackErrorHandler">
+		<level value="FATAL"/>
+	</logger>
+	
+	<Logger name="org.apache.camel.component.netty.http.DefaultNettyHttpBinding" level="DEBUG" additivity="false">
+    <AppenderRef ref="traceFile"/>
+</Logger>
+
+<Logger name="org.jboss.netty.handler.codec.http" level="DEBUG" additivity="false">
+    <AppenderRef ref="traceFile"/>
+</Logger>
+    
+	<root>
+		<priority value="trace"/>
+        <!-- <appender-ref ref="console"/> -->
+        <appender-ref ref="logFile"/>
+        <!-- Uncomment below line to start TRACE -->
+         <appender-ref ref="traceFile"/>
+    </root>
+</log4j:configuration>

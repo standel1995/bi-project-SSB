@@ -1,0 +1,43 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+   <soapenv:Body>
+      <ns2:PelicanWebServiceResponse xmlns:ns2="http://acewebservice.acesw.com/">
+         <UniqueMessageID>000000897859</UniqueMessageID>
+         <PelicanRefID>M00000003799</PelicanRefID>
+         <ResultStatus>OFAC BLOCKED</ResultStatus>
+         <ErrorCode/>
+         <AmlScanResult>
+            <ViolationInfo/>
+            <AmlErrorCode/>
+            <AMLParameters/>
+         </AmlScanResult>
+         <OfacScanResult>
+            <Classification>BLOCKED</Classification>
+            <ClassificationOn>MSG</ClassificationOn>
+            <BlacklistInfo>825+839+101+CONCLUSIVE+OFAC:6365|825+839+103+CONCLUSIVE+WCEU:7246|825+839+101+CONCLUSIVE+WCEU:3969|825+839+103+CONCLUSIVE+WCOFAC:7246|825+839+101+CONCLUSIVE+WCOFAC:3969|825+839+103+CONCLUSIVE+WCUKHMT:7246|825+839+101+CONCLUSIVE+WCUKHMT:3969|825+839+103+CONCLUSIVE+WCOSFI:7246|825+839+101+CONCLUSIVE+WCOSFI:3969|825+839+103+CONCLUSIVE+WCUN:7246|825+839+101+CONCLUSIVE+WCUN:3969|*-1+-1+797+INFO+DJEU-RULESET:0|-1+-1+797+INFO+DJOFAC-RULESET:0|-1+-1+797+INFO+DJOSFI-RULESET:0|-1+-1+797+INFO+DJUKHMT-RULESET:0|-1+-1+797+INFO+DJUN-RULESET:0|-1+-1+797+INFO+OFAC-RULESET:0|-1+-1+797+INFO+WCEU-RULESET:0|-1+-1+797+INFO+WCOFAC-RULESET:0|-1+-1+797+INFO+WCUKHMT-RULESET:0|-1+-1+797+INFO+WCOSFI-RULESET:0|-1+-1+797+INFO+WCUN-RULESET:0|825+839+604+INFO+OFAC:6365|825+839+604+INFO+WCUN:7246|825+839+602+INFO+WCUN:3969|825+839+604+INFO+WCOFAC:7246|825+839+602+INFO+WCOFAC:3969|825+839+604+INFO+WCEU:7246|825+839+602+INFO+WCEU:3969|825+839+604+INFO+WCUKHMT:7246|825+839+602+INFO+WCUKHMT:3969|825+839+604+INFO+WCOSFI:7246|825+839+602+INFO+WCOSFI:3969|835+839+806+WARNING+OFAC:11378|835+839+601+INFO+OFAC:11378|835+839+605+INFO+OFAC:11378|835+839+806+WARNING+WCOFAC:97261|835+839+601+INFO+WCOFAC:97261|835+839+605+INFO+WCOFAC:97261|</BlacklistInfo>
+            <OFACParameters/>
+         </OfacScanResult>
+         <MessageParameters>
+            <Parameter>
+               <Key>INSTITUTION_ID</Key>
+               <Value>NIBCNLNV</Value>
+            </Parameter>
+            <Parameter>
+               <Key>RETURN_VALUE</Key>
+               <Value>BLOCKED</Value>
+            </Parameter>
+            <Parameter>
+               <Key>LOCATION_RETURN_VALUE</Key>
+               <Value>DEFAULT</Value>
+            </Parameter>
+            <Parameter>
+               <Key>PRIORITY</Key>
+               <Value>5</Value>
+            </Parameter>
+            <Parameter>
+               <Key>MESSAGE_FAMILY</Key>
+               <Value>NOTAPPLICABLE</Value>
+            </Parameter>
+         </MessageParameters>
+      </ns2:PelicanWebServiceResponse>
+   </soapenv:Body>
+</soapenv:Envelope>

@@ -1,0 +1,26 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<routeContext id="scheduling" xmlns="http://camel.apache.org/schema/spring">
+			
+		<route id="rest-scheduling">
+			<from uri="direct://rest-scheduling" />
+			<bean id="xmlParserscheduling" ref="xmlParser" />
+			<log message="Calling schedulingCheck" />
+			<bean id="jspPopulationDatascheduling" ref="jspExecute" 
+				method="executeWithHazelCastInstance(${exchange},schedulingCheck)" />
+			<choice>
+				<when>
+					<simple>${header.PLCNAPI_call}</simple>
+					<log message="Internal Call" />
+				</when>
+				<otherwise>
+					<removeHeaders pattern="*" excludePattern="status*"/>
+				</otherwise>
+			</choice>
+		</route>
+	</routeContext>
+</beans>

@@ -1,0 +1,1415 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <routeContext id="sepavalidation" xmlns="http://camel.apache.org/schema/spring">
+	
+	<!--<route id="licensepulse1" startupOrder="1" autoStartup="true">
+		<from uri="timer://licensepulseTrigger?fixedRate=true&amp;period=15000" />
+		<log loggingLevel="DEBUG" message="License Check" />
+		<bean ref="licensePulse" method="start" />
+	</route>-->
+	
+	<route id="validationRouteSEPAPacs008">
+		<from uri="direct://validationRouteSEPAPACS.008.001.08" />
+		<log message="INSIDE validationRouteSEPAPacs008." />
+		<bean id="jspPopulateDataEPCP8" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},epcEquensIsoXsdCheck)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_DBB2025_XSDCHECK} == true</simple>
+				<log message="DBB2025 XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.dbb2025.pacs.008.001.08}})" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_DBB_XSDCHECK} == true</simple>
+						<log message="DBB XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.dbb.pacs.008.001.08}})" />
+					</when>
+					<otherwise>
+						<choice>
+							<when>
+								<simple>${header.PLCN_EQUENS_XSDCHECK} == true</simple>
+								<log message="EQUENS XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.equens.pacs.008.001.08}})" />
+							</when>
+							<otherwise>
+								<choice>
+									<when>
+										<simple>${header.PLCN_EPC2025_XSDCHECK} == true</simple>
+										<log message="EPC2025 XSD CHECK." />
+										<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.pacs.008.001.08}})" />
+									</when>
+									<otherwise>
+										<choice>
+											<when>
+												<simple>${header.PLCN_EPC_XSDCHECK} == true</simple>
+												<log message="EPC XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.008.001.08}})" />
+											</when>
+											<otherwise>
+												<choice>
+													<when>
+														<simple>${header.PLCN_ISO_XSDCHECK} == true</simple>
+														<log message="ISO XSD CHECK." />
+														<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.008.001.08}})" />
+													</when>
+													<otherwise>
+														<choice>
+															<when>
+																<simple>${header.PLCN_DEFAULT2025_XSDCHECK} == true</simple>
+																<log message="DEFAULT2025 XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.pacs.008.001.08}})" />
+															</when>
+															<otherwise>
+																<log message="DEFAULT XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.008.001.08}})" />
+															</otherwise>
+														</choice>
+													</otherwise>
+												</choice>
+											</otherwise>
+										</choice>
+									</otherwise>
+								</choice>
+							</otherwise>
+						</choice>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+			<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.008.001.08}})" />  -->
+			 <!-- <to id="validatorRoute2"
+					uri="validator:classpath:/xsd/t2-pacs.008.001.08.xsd" />  -->
+		<log message="File XSD validation done successfully." />
+		<log loggingLevel="TRACE" message="Header in validationRouteSEPAPacs008 = ${headers}" />
+		<log loggingLevel="TRACE" message="Body in validationRouteSEPAPacs008 = ${body}" />
+		<bean id="xmlParser102" ref="xmlParser" />
+		<bean id="jspPopulateData01.5" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationSepaPacs008)" />			
+	</route>
+	
+	<route id="validationRouteSEPAPacs004">
+		<from uri="direct://validationRouteSEPAPACS.004.001.09" />
+		<log message="INSIDE validationRouteSEPAPacs004." />
+		<bean id="jspPopulateDataEPCP4" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},epcEquensIsoXsdCheck)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_DBB2025_XSDCHECK} == true</simple>
+				<log message="DBB2025 XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.dbb2025.pacs.004.001.09}})" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_DBB_XSDCHECK} == true</simple>
+						<log message="DBB XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.dbb.pacs.004.001.09}})" />
+					</when>
+					<otherwise>
+						<choice>
+							<when>
+								<simple>${header.PLCN_EQUENS_XSDCHECK} == true</simple>
+								<log message="EQUENS XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.equens.pacs.004.001.09}})" />
+							</when>
+							<otherwise>
+								<choice>
+									<when>
+										<simple>${header.PLCN_EPC2025_XSDCHECK} == true</simple>
+										<log message="EPC2025 XSD CHECK." />
+										<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.pacs.004.001.09}})" />
+									</when>
+									<otherwise>
+										<choice>
+											<when>
+												<simple>${header.PLCN_EPC_XSDCHECK} == true</simple>
+												<log message="EPC XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.004.001.09}})" />
+											</when>
+											<otherwise>
+												<choice>
+													<when>
+														<simple>${header.PLCN_ISO_XSDCHECK} == true</simple>
+														<log message="ISO XSD CHECK." />
+														<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.004.001.09}})" />
+													</when>
+													<otherwise>
+														<choice>
+															<when>
+																<simple>${header.PLCN_DEFAULT2025_XSDCHECK} == true</simple>
+																<log message="DEFAULT2025 XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.pacs.004.001.09}})" />
+															</when>
+															<otherwise>
+																<log message="DEFAULT XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.004.001.09}})" />
+															</otherwise>
+														</choice>
+													</otherwise>
+												</choice>
+											</otherwise>
+										</choice>
+									</otherwise>
+								</choice>
+							</otherwise>
+						</choice>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.004.001.09}})" /> -->
+		<log message="File XSD validation done successfully." />
+		<log loggingLevel="TRACE" message="Header in validationRouteSEPAPacs004 = ${headers}" />
+		<log loggingLevel="TRACE" message="Body in validationRouteSEPAPacs004 = ${body}" />
+		<bean id="xmlParser103" ref="xmlParser" />
+		<bean id="jspPopulateData1.6" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationSepaPacs004)" />
+	</route>
+	
+	<route id="validationRouteSEPAPacs004POS">
+		<from uri="direct://validationRouteSEPAPACS.004.001.09POS" />
+		<log message="INSIDE validationRouteSEPAPacs004POS." />
+		<bean id="jspPopulateDataEPCP4POS" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},epcEquensIsoXsdCheck)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_DBB2025_XSDCHECK} == true</simple>
+				<log message="DBB2025 XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.dbb2025.pacs.004.001.09}})" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_DBB_XSDCHECK} == true</simple>
+						<log message="DBB XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.dbb.pacs.004.001.09}})" />
+					</when>
+					<otherwise>
+						<choice>
+							<when>
+								<simple>${header.PLCN_EQUENS_XSDCHECK} == true</simple>
+								<log message="EQUENS XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.004.001.09pos}})" />
+							</when>
+							<otherwise>
+								<choice>
+									<when>
+										<simple>${header.PLCN_EPC2025_XSDCHECK} == true</simple>
+										<log message="EPC2025 XSD CHECK." />
+										<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.pacs.004.001.09pos}})" />
+									</when>
+									<otherwise>
+										<choice>
+											<when>
+												<simple>${header.PLCN_EPC_XSDCHECK} == true</simple>
+												<log message="EPC XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.004.001.09pos}})" />
+											</when>
+											<otherwise>
+												<choice>
+													<when>
+														<simple>${header.PLCN_ISO_XSDCHECK} == true</simple>
+														<log message="ISO XSD CHECK." />
+														<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.004.001.09pos}})" />
+													</when>
+													<otherwise>
+														<choice>
+															<when>
+																<simple>${header.PLCN_DEFAULT2025_XSDCHECK} == true</simple>
+																<log message="DEFAULT2025 XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.pacs.004.001.09pos}})" />
+															</when>
+															<otherwise>
+																<log message="DEFAULT XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.004.001.09pos}})" />
+															</otherwise>
+														</choice>
+													</otherwise>
+												</choice>
+											</otherwise>
+										</choice>
+									</otherwise>
+								</choice>
+							</otherwise>
+						</choice>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.004.001.09pos}})" /> -->
+		<log message="validationRouteSEPAPacs004POS: File XSD validation done successfully." />
+		<log loggingLevel="INFO" message="Header in validationRouteSEPAPacs004Pos = ${headers}" />
+		<log loggingLevel="INFO" message="Body in validationRouteSEPAPacs004Pos = ${body}" />
+		<bean id="xmlParserPos" ref="xmlParser" />
+		<bean id="jspPopulateDataPos" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationSepaPacs004)" />
+	</route>
+	
+	<route id="validationRouteSEPACamt056">
+		<from uri="direct://validationRouteSEPACAMT.056.001.08" />
+		<log message="INSIDE validationRouteSEPACamt056." />
+		<bean id="jspPopulateDataEPCC56" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},epcEquensIsoXsdCheck)" />
+		<bean id="jspPopulateDataEPCC56.2" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},sepaInstXSDCheckRsnCd)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_DBB2025_XSDCHECK} == true</simple>
+				<log message="DBB2025 XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.dbb2025.camt.056.001.08}})" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_DBB_XSDCHECK} == true</simple>
+						<log message="DBB XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.dbb.camt.056.001.08}})" />
+					</when>
+					<otherwise>
+						<choice>
+							<when>
+								<simple>${header.PLCN_EQUENS_XSDCHECK} == true</simple>
+								<log message="EQUENS XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.camt.056.001.08}})" />
+							</when>
+							<otherwise>
+								<choice>
+									<when>
+										<simple>${header.PLCN_EPC2025_XSDCHECK} == true</simple>
+										<log message="EPC2025 XSD CHECK." />
+										<choice>
+											<when>
+												<simple>${header.PLCN_BANK_XSDCHECK} == true</simple>
+												<log message="EPC2025 BANK XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.camt.056.001.08}})" />
+											</when>
+											<otherwise>
+												<!-- <simple>${header.PLCN_CUSTOMER_XSDCHECK} == true</simple> -->
+												<log message="EPC2025 CUSTOMER XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.rfro.camt.056.001.08}})" />
+											</otherwise>
+										</choice>
+									</when>
+									<otherwise>
+										<choice>
+											<when>
+												<simple>${header.PLCN_EPC_XSDCHECK} == true</simple>
+												<log message="EPC XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.camt.056.001.08}})" />
+											</when>
+											<otherwise>
+												<choice>
+													<when>
+														<simple>${header.PLCN_ISO_XSDCHECK} == true</simple>
+														<log message="ISO XSD CHECK." />
+														<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.camt.056.001.08}})" />
+													</when>
+													<otherwise>
+														<choice>
+															<when>
+																<simple>${header.PLCN_DEFAULT2025_XSDCHECK} == true</simple>
+																<log message="DEFAULT2025 XSD CHECK." />
+																<choice>
+																	<when>
+																		<simple>${header.PLCN_BANK_XSDCHECK} == true</simple>
+																		<log message="EPC2025 BANK XSD CHECK." />
+																		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.camt.056.001.08}})" />
+																	</when>
+																	<otherwise>
+																		<!-- <simple>${header.PLCN_CUSTOMER_XSDCHECK} == true</simple> -->
+																		<log message="EPC2025 CUSTOMER XSD CHECK." />
+																		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.rfro.camt.056.001.08}})" />
+																	</otherwise>
+																</choice>
+															</when>
+															<otherwise>
+																<log message="DEFAULT XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.camt.056.001.08}})" />
+															</otherwise>
+														</choice>
+													</otherwise>
+												</choice>
+											</otherwise>
+										</choice>
+									</otherwise>
+								</choice>
+							</otherwise>
+						</choice>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.camt.056.001.08}})" /> -->
+		<log message="validationRouteSEPACamt056: File XSD validation done successfully." />
+		<log loggingLevel="TRACE" message="Header in validationRouteSEPACamt056 = ${headers}" />
+		<log loggingLevel="TRACE" message="Body in validationRouteSEPACamt056 = ${body}" />
+		<bean ref="xmlParser" />
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},msgValidationSepaCamt056)" />
+	</route>
+
+	<route id="validationRouteSEPACamt029">
+		<from uri="direct://validationRouteSEPACAMT.029.001.09" />
+		<log message="INSIDE validationRouteSEPACamt029." />
+		<bean id="jspPopulateDataEPCC29" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},epcEquensIsoXsdCheck)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_DBB2025_XSDCHECK} == true</simple>
+				<log message="DBB2025 XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.dbb2025.camt.029.001.09}})" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_DBB_XSDCHECK} == true</simple>
+						<log message="DBB XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.dbb.camt.029.001.09}})" />
+					</when>
+					<otherwise>
+						<choice>
+							<when>
+								<simple>${header.PLCN_EQUENS_XSDCHECK} == true</simple>
+								<log message="EQUENS XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.camt.029.001.09}})" />
+							</when>
+							<otherwise>
+								<choice>
+									<when>
+										<simple>${header.PLCN_EPC2025_XSDCHECK} == true</simple>
+										<log message="EPC2025 XSD CHECK." />
+										<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.camt.029.001.09}})" />
+									</when>
+									<otherwise>
+										<choice>
+											<when>
+												<simple>${header.PLCN_EPC_XSDCHECK} == true</simple>
+												<log message="EPC XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.camt.029.001.09}})" />
+											</when>
+											<otherwise>
+												<choice>
+													<when>
+														<simple>${header.PLCN_ISO_XSDCHECK} == true</simple>
+														<log message="ISO XSD CHECK." />
+														<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.camt.029.001.09}})" />
+													</when>
+													<otherwise>
+														<choice>
+															<when>
+																<simple>${header.PLCN_DEFAULT2025_XSDCHECK} == true</simple>
+																<log message="DEFAULT2025 XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.camt.029.001.09}})" />
+															</when>
+															<otherwise>
+																<log message="DEFAULT XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.camt.029.001.09}})" />
+															</otherwise>
+														</choice>
+													</otherwise>
+												</choice>
+											</otherwise>
+										</choice>
+									</otherwise>
+								</choice>
+							</otherwise>
+						</choice>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.camt.029.001.09}})" /> -->
+		<log message="validationRouteSEPACamt029: File XSD validation done successfully." />
+		<log loggingLevel="TRACE" message="Header in validationRouteSEPACamt029 = ${headers}" />
+		<log loggingLevel="TRACE" message="Body in validationRouteSEPACamt029 = ${body}" />
+		<bean ref="xmlParser" />
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},msgValidationSepaCamt029)" />
+	</route>
+	
+	<!-- ................................................................. DPH 9.7 ...........................................................................................  -->
+	
+	<route id="validationRouteSEPAPacs002">
+		<from uri="direct://validationRouteSEPAPACS.002.001.10" />
+		<log message="INSIDE validationRouteSEPAPacs002." />
+		<bean id="jspPopulateDataEPCP2" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},epcEquensIsoXsdCheck)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_DBB2025_XSDCHECK} == true</simple>
+				<log message="DBB2025 XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.dbb2025.pacs.002.001.10}})" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_DBB_XSDCHECK} == true</simple>
+						<log message="DBB XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.dbb.pacs.002.001.10}})" />
+					</when>
+					<otherwise>
+						<choice>
+							<when>
+								<simple>${header.PLCN_EQUENS_XSDCHECK} == true</simple>
+								<log message="EQUENS XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.iso.pacs.002.001.10}})" />
+							</when>
+							<otherwise>
+								<choice>
+									<when>
+										<simple>${header.PLCN_EPC2025_XSDCHECK} == true</simple>
+										<log message="EPC2025 XSD CHECK." />
+										<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.pacs.002.001.10}})" />
+									</when>
+									<otherwise>
+										<choice>
+											<when>
+												<simple>${header.PLCN_EPC_XSDCHECK} == true</simple>
+												<log message="EPC XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.002.001.10}})" />
+											</when>
+											<otherwise>
+												<choice>
+													<when>
+														<simple>${header.PLCN_ISO_XSDCHECK} == true</simple>
+														<log message="ISO XSD CHECK." />
+														<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.002.001.10}})" />
+													</when>
+													<otherwise>
+														<choice>
+															<when>
+																<simple>${header.PLCN_DEFAULT2025_XSDCHECK} == true</simple>
+																<log message="DEFAULT2025 XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.pacs.002.001.10}})" />
+															</when>
+															<otherwise>
+																<log message="DEFAULT XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.002.001.10}})" />
+															</otherwise>
+														</choice>
+													</otherwise>
+												</choice>
+											</otherwise>
+										</choice>
+									</otherwise>
+								</choice>
+							</otherwise>
+						</choice>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.002.001.10}})" /> -->
+		<log message="File XSD validation done successfully." />
+		<log loggingLevel="TRACE" message="Header in validationRouteSEPAPacs002 = ${headers}" />
+		<log loggingLevel="TRACE" message="Body in validationRouteSEPAPacs002 = ${body}" />
+		<bean ref="xmlParser" />
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},msgValidationSepaPacs002)" />
+	</route>
+
+	<route id="validationRouteSEPAPacs002SDD">
+		<from uri="direct://validationRouteSEPAPACS.002.001.10SDD" />
+		<bean id="jspPopulateDataEPCP2DD" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},epcEquensIsoXsdCheck)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_EPC2025_XSDCHECK} == true</simple>
+				<log message="EPC2025 XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.pacs.002.001.10sdd}})" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_EPC_XSDCHECK} == true</simple>
+						<log message="EPC XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.002.001.10sdd}})" />
+					</when>
+					<otherwise>
+						<choice>
+							<when>
+								<simple>${header.PLCN_DEFAULT2025_XSDCHECK} == true</simple>
+								<log message="DEFAULT2025 XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.pacs.002.001.10sdd}})" />
+							</when>
+							<otherwise>
+								<log message="DEFAULT XSD CHECK." />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.002.001.10sdd}})" />
+							</otherwise>
+						</choice>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.002.001.10sdd}})" /> -->
+		<log message="validationRouteSEPAPacs002SDD: File XSD validation done successfully." />
+		<log loggingLevel="INFO" message="Header in validationRouteSEPAPacs002SDD = ${headers}" />
+		<log loggingLevel="INFO" message="Body in validationRouteSEPAPacs002SDD = ${body}" />
+		<bean ref="xmlParser" />
+		<bean ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationSepaPacs002)" />
+	</route>
+	
+	<route id="validationRouteSEPAPacs003">
+		<from uri="direct://validationRouteSEPAPACS.003.001.08" />
+		<log message="INSIDE validationRouteSEPAPacs003." />
+		<bean id="jspPopulateDataEPCP3" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},epcEquensIsoXsdCheck)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_EQUENS_XSDCHECK} == true</simple>
+				<log message="EQUENS XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.003.001.08}})" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_EPC2025_XSDCHECK} == true</simple>
+						<log message="EPC2025 XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.pacs.003.001.08}})" />
+					</when>
+					<otherwise>
+						<choice>
+							<when>
+								<simple>${header.PLCN_EPC_XSDCHECK} == true</simple>
+								<log message="EPC XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.003.001.08}})" />
+							</when>
+							<otherwise>
+								<choice>
+									<when>
+										<simple>${header.PLCN_ISO_XSDCHECK} == true</simple>
+										<log message="ISO XSD CHECK." />
+										<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.003.001.08}})" />
+									</when>
+									<otherwise>
+										<choice>
+											<when>
+												<simple>${header.PLCN_DEFAULT2025_XSDCHECK} == true</simple>
+												<log message="DEFAULT2025 XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.pacs.003.001.08}})" />
+											</when>
+											<otherwise>
+												<log message="DEFAULT XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.003.001.08}})" />
+											</otherwise>
+										</choice>
+									</otherwise>
+								</choice>
+							</otherwise>
+						</choice>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.003.001.08}})" /> -->
+		<log message="File XSD validation done successfully." />
+		<log loggingLevel="TRACE" message="Header in validationRouteSEPAPacs003 = ${headers}" />
+		<log loggingLevel="TRACE" message="Body in validationRouteSEPAPacs003 = ${body}" />
+		<bean ref="xmlParser" />
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},msgValidationSepaPacs003)" />
+	</route>
+	
+	<route id="validationRouteSEPAPacs004SDD">
+		<from uri="direct://validationRouteSEPAPACS.004.001.09SDD" />
+		<bean id="jspPopulateDataEPCP4DD" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},epcEquensIsoXsdCheck)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_EPC2025_XSDCHECK} == true</simple>
+				<log message="EPC2025 XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.pacs.004.001.09sdd}})" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_EPC_XSDCHECK} == true</simple>
+						<log message="EPC XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.004.001.09sdd}})" />
+					</when>
+					<otherwise>
+						<choice>
+							<when>
+								<simple>${header.PLCN_DEFAULT2025_XSDCHECK} == true</simple>
+								<log message="DEFAULT2025 XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.pacs.004.001.09sdd}})" />
+							</when>
+							<otherwise>
+								<log message="DEFAULT XSD CHECK." />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.004.001.09sdd}})" />
+							</otherwise>
+						</choice>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.004.001.09sdd}})" /> -->
+		<log message="validationRouteSEPAPacs004SDD: File XSD validation done successfully." />
+		<log loggingLevel="INFO" message="Header in validationRouteSEPAPacs004SDD = ${headers}" />
+		<log loggingLevel="INFO" message="Body in validationRouteSEPAPacs004SDD = ${body}" />
+		<bean ref="xmlParser" />
+		<bean ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationSepaPacs004)" />
+	</route>	
+
+	<route id="validationRouteSEPAPacs007">
+		<from uri="direct://validationRouteSEPAPACS.007.001.09" />
+		<bean id="jspPopulateDataEPCP7" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},epcEquensIsoXsdCheck)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_EQUENS_XSDCHECK} == true</simple>
+				<log message="EQUENS XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.007.001.09}})" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_EPC2025_XSDCHECK} == true</simple>
+						<log message="EPC2025 XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.pacs.007.001.09}})" />
+					</when>
+					<otherwise>
+						<choice>
+							<when>
+								<simple>${header.PLCN_EPC_XSDCHECK} == true</simple>
+								<log message="EPC XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.007.001.09}})" />
+							</when>
+							<otherwise>
+								<choice>
+									<when>
+										<simple>${header.PLCN_ISO_XSDCHECK} == true</simple>
+										<log message="ISO XSD CHECK." />
+										<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.007.001.09}})" />
+									</when>
+									<otherwise>
+										<choice>
+											<when>
+												<simple>${header.PLCN_DEFAULT2025_XSDCHECK} == true</simple>
+												<log message="DEFAULT2025 XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.epc2025.pacs.007.001.09}})" />
+											</when>
+											<otherwise>
+												<log message="DEFAULT XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.007.001.09}})" />
+											</otherwise>
+										</choice>
+									</otherwise>
+								</choice>
+							</otherwise>
+						</choice>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.007.001.09}})" /> -->
+		<log message="File XSD validation done successfully." />
+		<log loggingLevel="TRACE" message="Header in validationRouteSEPAPacs007 = ${headers}" />
+		<log loggingLevel="TRACE" message="Body in validationRouteSEPAPacs007 = ${body}" />
+		<bean ref="xmlParser" />
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},msgValidationSepaPacs007)" />
+	</route>
+
+	<route id="ParseAccMaster">
+		<from uri="direct://ParseAccMaster" />
+		<log message="In ParseAccMaster" />
+		<log loggingLevel="INFO" message="Body before call ParseAccMaster ${body}" />
+		<log loggingLevel="INFO" message="headers before call ParseAccMaster ${headers}" />
+		<setHeader headerName="CamelHttpMethod">
+			<constant>POST</constant>
+		</setHeader>
+		<serviceCall
+				name="parseField-service/wfapi/KBMsg/v1/KBMsgLookupFlow?headerFilterStrategy=#wfapiFilter" />
+		<log loggingLevel="INFO" message="Body after ParseAccMaster ${body}" />
+	</route>
+
+	<!-- <route id="validationRouteSEPAINSTPacs008">
+		<from uri="direct://validationRouteSEPAINSTPACS.008.001.08" />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.008.001.08}})" />
+		<log message="File XSD validation done successfully." />
+		<log loggingLevel="TRACE" message="Header in validationRouteSEPAINSTPacs008 = ${headers}" />
+		<log loggingLevel="TRACE" message="Body in validationRouteSEPAINSTPacs008 = ${body}" />
+		<bean id="xmlParser14" ref="xmlParser" />
+		<bean id="jspPopulateData14.2" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationSepaInstPacs008)" />
+	</route> -->
+	
+	<route id="validationRouteSEPAINSTPacs008">
+		<from uri="direct://validationRouteSEPAINSTPACS.008.001.08" />
+		<log message="INSIDE validationRouteSEPAINSTPacs008." />
+		<bean id="jspPopulateData008" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},sepaInstValidationCheck)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_EBA_XSDCHECK} == true</simple>
+				<log message="EBA XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.008.001.08}})" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_TIPS_XSDCHECK} == true</simple>
+						<log message="TIPS XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.tips.pacs.008.001.08}})" />
+					</when>
+					<otherwise>
+						<choice>
+							<when>
+								<simple>${header.PLCN_ISO_XSDCHECK} == true</simple>
+								<log message="ISO XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.008.001.08}})" />
+							</when>
+							<otherwise>
+								<choice>
+									<when>
+										<simple>${header.PLCN_EPC2025_XSDCHECK} == true</simple>
+										<log message="EPC2025 XSD CHECK." />
+										<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.epc2025.pacs.008.001.08}})" />
+									</when>
+									<otherwise>
+										<choice>
+											<when>
+												<simple>${header.PLCN_EPC_XSDCHECK} == true</simple>
+												<log message="EPC XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.008.001.08}})" />
+											</when>
+											<otherwise>
+												<choice>
+													<when>
+														<simple>${header.PLCN_TIPS2025_XSDCHECK} == true</simple>
+														<log message="TIPS 2025 XSD CHECK." />
+														<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.tips2025.pacs.008.001.08}})" />												
+													</when>
+													<otherwise>
+														<choice>
+															<when>
+																<simple>${header.PLCN_DEFAULT2025_XSDCHECK} == true</simple>
+																<log message="DEFAULT2025 XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.epc2025.pacs.008.001.08}})" />
+															</when>
+															<otherwise>
+																<log message="DEFAULT XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.008.001.08}})" />
+															</otherwise>
+														</choice>
+													</otherwise>
+												</choice>
+											</otherwise>
+										</choice>
+									</otherwise>
+								</choice>
+							</otherwise>
+						</choice>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<log message="File XSD validation done successfully." />
+		<log loggingLevel="TRACE" message="Header in validationRouteSEPAINSTPacs008 = ${headers}" />
+		<log loggingLevel="TRACE" message="Body in validationRouteSEPAINSTPacs008 = ${body}" />
+		<bean id="xmlParser14" ref="xmlParser" />
+		<bean id="jspPopulateData14.2" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationSepaInstPacs008)" />
+	</route>
+	
+	<!-- <route id="validationRouteSEPAINSTPacs004">
+		<from uri="direct://validationRouteSEPAINSTPACS.004.001.09" />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.004.001.09}})" />
+		<log message="File XSD validation done successfully." />
+		<log loggingLevel="TRACE" message="Header in validationRouteSEPAINSTPacs004 = ${headers}" />
+		<log loggingLevel="TRACE" message="Body in validationRouteSEPAINSTPacs004 = ${body}" />
+		<bean id="xmlParser15" ref="xmlParser" />
+		<bean id="jspPopulateData14.3" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationSepaInstPacs004)" />
+	</route> -->
+	
+	<route id="validationRouteSEPAINSTPacs004">
+		<from uri="direct://validationRouteSEPAINSTPACS.004.001.09" />
+		<log message="INSIDE validationRouteSEPAINSTPacs004." />
+		<bean id="jspPopulateData100" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},sepaInstValidationCheck)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_EBA_XSDCHECK} == true</simple>
+				<log message="EBA XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.004.001.09}})" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_TIPS_XSDCHECK} == true</simple>
+						<log message="TIPS XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.tips.pacs.004.001.09}})" />
+					</when>
+					<otherwise>
+						<choice>
+							<when>
+								<simple>${header.PLCN_EPC2025_XSDCHECK} == true</simple>
+								<log message="EPC2025 XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.epc2025.pacs.004.001.09}})" />
+							</when>
+							<otherwise>
+								<choice>
+									<when>
+										<simple>${header.PLCN_ISO_XSDCHECK} == true</simple>
+										<log message="ISO XSD CHECK." />
+										<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.004.001.09}})" />
+									</when>
+									<otherwise>
+										<choice>
+											<when>
+												<simple>${header.PLCN_TIPS2025_XSDCHECK} == true</simple>
+												<log message="TIPS 2025 XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.tips2025.pacs.004.001.09}})" />												
+											</when>
+											<otherwise>
+												<choice>
+													<when>
+														<simple>${header.PLCN_DEFAULT2025_XSDCHECK} == true</simple>
+														<log message="DEFAULT2025 XSD CHECK." />
+														<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.epc2025.pacs.004.001.09}})" />
+													</when>
+													<otherwise>
+														<log message="DEFAULT XSD CHECK." />
+														<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.004.001.09}})" />
+													</otherwise>
+												</choice>
+											</otherwise>
+										</choice>
+									</otherwise>
+								</choice>
+							</otherwise>
+						</choice>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepa.pacs.004.001.09}})" /> -->
+		<log message="File XSD validation done successfully." />
+		<log loggingLevel="TRACE" message="Header in validationRouteSEPAINSTPacs004 = ${headers}" />
+		<log loggingLevel="TRACE" message="Body in validationRouteSEPAINSTPacs004 = ${body}" />
+		<bean id="xmlParser200" ref="xmlParser" />
+		<bean id="jspPopulateData20" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationSepaInstPacs004)" />
+	</route>
+	
+	<route id="validationRouteSEPAINSTCamt056">
+		<from uri="direct://validationRouteSEPAINSTCAMT.056.001.08" />
+		<log message="INSIDE validationRouteSEPAINSTCamt056." />
+		<bean id="jspPopulateData056" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},sepaInstValidationCheck)" />
+		<bean id="jspPopulateData056.2" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},sepaInstXSDCheckRsnCd)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_EBA_XSDCHECK} == true</simple>
+				<log message="EBA XSD CHECK." />
+				<choice>
+					<when>
+						<simple>${header.PLCN_BANK_XSDCHECK} == true</simple>
+						<log message="BANK XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.camt.056.001.08}})" />
+					</when>
+					<otherwise>
+						<!-- <simple>${header.PLCN_CLIENT_XSDCHECK} == true</simple>
+						<log message="CLIENT XSD CHECK." /> -->
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.rfro.camt.056.001.08}})" />
+					</otherwise>
+				</choice>
+				<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.camt.056.001.08}})" />  -->
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_TIPS_XSDCHECK} == true</simple>
+						<log message="TIPS XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.tips.camt.056.001.08}})" />
+					</when>
+					<otherwise>
+						<choice>
+							<when>
+								<simple>${header.PLCN_ISO_XSDCHECK} == true</simple>
+								<log message="ISO XSD CHECK." />
+								<choice>
+									<when>
+										<simple>${header.PLCN_BANK_XSDCHECK} == true</simple>
+										<log message="BANK XSD CHECK." />
+										<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.camt.056.001.08}})" />
+									</when>
+									<otherwise>
+										<!-- <simple>${header.PLCN_CLIENT_XSDCHECK} == true</simple>
+										<log message="CLIENT XSD CHECK." /> -->
+										<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.rfro.camt.056.001.08}})" />
+									</otherwise>
+								</choice>
+								<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.camt.056.001.08}})" /> -->
+							</when>
+							<!-- <otherwise>
+								<log message="DEFAULT XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.camt.056.001.08}})" />
+							</otherwise> -->
+							<otherwise>
+								<choice>
+									<when>
+										<simple>${header.PLCN_EPC_XSDCHECK} == true</simple>
+										<log message="EPC XSD CHECK." />
+										<choice>
+											<when>
+												<simple>${header.PLCN_BANK_XSDCHECK} == true</simple>
+												<log message="BANK XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.camt.056.001.08}})" />
+											</when>
+											<otherwise>
+												<!-- <simple>${header.PLCN_CLIENT_XSDCHECK} == true</simple>
+												<log message="CLIENT XSD CHECK." /> -->
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.rfro.camt.056.001.08}})" />
+											</otherwise>
+										</choice>
+										<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.camt.056.001.08}})" /> -->
+									</when>
+									<otherwise>
+										<choice>
+											<when>
+												<simple>${header.PLCN_EPC2025_XSDCHECK} == true</simple>
+												<log message="EPC2025 XSD CHECK." />
+												<choice>
+													<when>
+														<simple>${header.PLCN_BANK_XSDCHECK} == true</simple>
+														<log message="EPC2025 BANK XSD CHECK." />
+														<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.epc2025.camt.056.001.08}})" />
+													</when>
+													<otherwise>
+														<!-- <simple>${header.PLCN_CUSTOMER_XSDCHECK} == true</simple> -->
+														<log message="EPC2025 CUSTOMER XSD CHECK." />
+														<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.epc2025.rfro.camt.056.001.08}})" />
+													</otherwise>
+												</choice>
+											</when>
+											<otherwise>
+												<choice>
+													<when>
+														<simple>${header.PLCN_DEFAULT2025_XSDCHECK} == true</simple>
+														<log message="DEFAULT2025 XSD CHECK." />
+														<choice>
+															<when>
+																<simple>${header.PLCN_BANK_XSDCHECK} == true</simple>
+																<log message="DEFAULT2025 BANK XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.epc2025.camt.056.001.08}})" />
+															</when>
+															<otherwise>
+																<!-- <simple>${header.PLCN_CUSTOMER_XSDCHECK} == true</simple> -->
+																<log message="DEFAULT2025 CUSTOMER XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.epc2025.rfro.camt.056.001.08}})" />
+															</otherwise>
+														</choice>
+													</when>
+													<otherwise>
+														<log message="DEFAULT XSD CHECK." />
+														<bean id="jspPopulateData056.1" ref="jspExecute"
+															method="executeWithHazelCastInstance(${exchange},sepaInstXSDCheckRsnCd)" />
+														<choice>
+															<when>
+																<simple>${header.PLCN_BANK_XSDCHECK} == true</simple>
+																<log message="BANK XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.camt.056.001.08}})" />
+															</when>
+															<otherwise>
+																<choice>
+																	<when>
+																		<simple>${header.PLCN_TIPS2025_XSDCHECK} == true</simple>
+																		<log message="TIPS 2025 XSD CHECK." />
+																		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.tips2025.camt.056.001.08}})" />												
+																	</when>
+																	<otherwise>
+																		<!-- <simple>${header.PLCN_CLIENT_XSDCHECK} == true</simple>
+																		<log message="CLIENT XSD CHECK." /> -->
+																		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.rfro.camt.056.001.08}})" />
+																	</otherwise>
+																</choice>
+																<!-- <bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.camt.056.001.08}})" /> -->
+															</otherwise>
+														</choice>
+													</otherwise>
+												</choice>
+											</otherwise>
+										</choice>
+									</otherwise>
+								</choice>
+							</otherwise>
+						</choice>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<log message="File XSD validation done successfully." />
+		<log loggingLevel="TRACE" message="Header in validationRouteSEPAINSTCamt056 = ${headers}" />
+		<log loggingLevel="TRACE" message="Body in validationRouteSEPAINSTCamt056 = ${body}" />
+		<bean ref="xmlParser" />
+		<bean id="jspPopulateData14.4" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationSepaInstCamt056)" />
+	</route>
+	
+	<!-- <route id="validationRouteSEPAINSTCamt056">
+		<from uri="direct://validationRouteSEPAINSTCAMT.056.001.08" />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.camt.056.001.08}})" />
+		<log message="File XSD validation done successfully." />
+		<log loggingLevel="TRACE" message="Header in validationRouteSEPAINSTPacs004 = ${headers}" />
+		<log loggingLevel="TRACE" message="Body in validationRouteSEPAINSTPacs004 = ${body}" />
+		<bean id="xmlParser16" ref="xmlParser" />
+		<bean id="jspPopulateData14.4" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationSepaInstCamt056)" />
+	</route> -->
+	
+	<!-- <route id="validationRouteSEPAINSTPacs002">
+		<from uri="direct://validationRouteSEPAPACS.002.001.10" />
+		<log message="INSIDE validationRouteSEPAINSTPacs002." />
+		<bean id="jspPopulateDataEPCP3" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},sepaInstValidationCheck)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_EQUENS_XSDCHECK} == true</simple>
+				<log message="EBA XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.002.001.10}})" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_EPC_XSDCHECK} == true</simple>
+						<log message="TIPS XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.002.001.10}})" />
+					</when>
+					<otherwise>
+						<choice>
+							<when>
+								<simple>${header.PLCN_ISO_XSDCHECK} == true</simple>
+								<log message="ISO XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.002.001.10}})" />
+							</when>
+							<otherwise>
+								<log message="DEFAULT XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.002.001.10}})" />
+							</otherwise>
+						</choice>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.002.001.10}})" />
+		<log message="File XSD validation done successfully." />
+		<log loggingLevel="TRACE" message="Header in validationRouteSEPAINSTPacs002 = ${headers}" />
+		<log loggingLevel="TRACE" message="Body in validationRouteSEPAINSTPacs002 = ${body}" />
+		<bean ref="xmlParser201" />
+		<bean id="jspPopulateData21" ref="jspExecute" 
+			method="executeWithHazelCastInstance(${exchange},msgValidationSepaINSTPacs002)" />
+	</route> -->
+	
+	<route id="validationRouteSEPAINSTCamt029">
+		<from uri="direct://validationRouteSEPAINSTCAMT.029.001.09" />
+		<bean id="jspPopulateData029" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},sepaInstValidationCheck)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_EBA_XSDCHECK} == true</simple>
+				<log message="EBA XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.camt.029.001.09}})" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_TIPS_XSDCHECK} == true</simple>
+						<log message="TIPS XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.tips.camt.029.001.09}})" />
+					</when>
+					<otherwise>
+						<choice>
+							<when>
+								<simple>${header.PLCN_EPC2025_XSDCHECK} == true</simple>
+								<log message="EPC2025 XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.epc2025.camt.029.001.09}})" />
+							</when>
+							<otherwise>
+								<choice>
+									<when>
+										<simple>${header.PLCN_ISO_XSDCHECK} == true</simple>
+										<log message="ISO XSD CHECK." />
+										<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.camt.029.001.09}})" />
+									</when>
+									<otherwise>
+										<choice>
+											<when>
+												<simple>${header.PLCN_TIPS2025_XSDCHECK} == true</simple>
+												<log message="TIPS 2025 XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.tips2025.camt.029.001.09}})" />												
+											</when>
+											<otherwise>
+												<choice>
+													<when>
+														<simple>${header.PLCN_DEFAULT2025_XSDCHECK} == true</simple>
+														<log message="DEFAULT2025 XSD CHECK." />
+														<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.epc2025.camt.029.001.09}})" />
+													</when>
+													<otherwise>
+														<log message="DEFAULT XSD CHECK." />
+														<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.camt.029.001.09}})" />
+													</otherwise>
+												</choice>
+											</otherwise>
+										</choice>
+									</otherwise>
+								</choice>
+							</otherwise>
+						</choice>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<log message="File XSD validation done successfully." />
+		<log loggingLevel="TRACE" message="Header in validationRouteSEPAINSTCamt029 = ${headers}" />
+		<log loggingLevel="TRACE" message="Body in validationRouteSEPAINSTCamt029 = ${body}" />
+		<bean id="xmlParser17" ref="xmlParser" />
+		<bean id="jspPopulateData14.7" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationSepaInstCamt029)" />
+	</route>
+	
+	<route id="validationRouteSEPAINSTPacs028">
+		<from uri="direct://validationRouteSEPAINSTPACS.028.001.03" />
+		<log message="INSIDE validationRouteSEPAINSTPacs028." />
+		<bean id="jspPopulateData300" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},sepaInstValidationCheck)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_EBA_XSDCHECK} == true</simple>
+				<log message="EBA XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.028.001.03}})" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_TIPS_XSDCHECK} == true</simple>
+						<log message="TIPS XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.tips.pacs.028.001.03}})" />
+					</when>
+					<otherwise>
+						<choice>
+							<when>
+								<simple>${header.PLCN_ISO_XSDCHECK} == true</simple>
+								<log message="ISO XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.028.001.03}})" />
+							</when>
+							<otherwise>
+								<choice>
+									<when>
+										<simple>${header.PLCN_EPC2025_XSDCHECK} == true</simple>
+										<log message="EPC2025 XSD CHECK." />
+										<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.epc2025.pacs.028.001.03}})" />
+									</when>
+									<otherwise>
+										<choice>
+											<when>
+												<simple>${header.PLCN_EPC_XSDCHECK} == true</simple>
+												<log message="EPC XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.028.001.03}})" />
+											</when>
+											<otherwise>
+												<choice>
+													<when>
+														<simple>${header.PLCN_TIPS2025_XSDCHECK} == true</simple>
+														<log message="TIPS 2025 XSD CHECK." />
+														<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.tips2025.pacs.028.001.03}})" />
+													</when>
+													<otherwise>
+														<choice>
+															<when>
+																<simple>${header.PLCN_DEFAULT2025_XSDCHECK} == true</simple>
+																<log message="DEFAULT2025 XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.epc2025.pacs.028.001.03}})" />
+															</when>
+															<otherwise>
+																<log message="DEFAULT XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.028.001.03}})" />
+															</otherwise>
+														</choice>
+													</otherwise>
+												</choice>
+											</otherwise>
+										</choice>
+									</otherwise>
+								</choice>
+							</otherwise>
+						</choice>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<log message="File XSD validation done successfully." />
+		<log loggingLevel="TRACE" message="Header in validationRouteSEPAINSTPacs028 = ${headers}" />
+		<log loggingLevel="TRACE" message="Body in validationRouteSEPAINSTPacs028 = ${body}" />
+		<bean id="xmlParser209" ref="xmlParser" />
+		<bean id="jspPopulateData29" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationSepaInstPacs028)" />
+	</route>
+	
+	<!-- <route id="validationRouteSEPAINSTPacs002POS">
+		<from uri="direct://validationRouteSEPAINSTPACS.002.001.10POS" />
+		<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.002.001.10pos}})" />
+		<log message="File XSD validation done successfully." />
+		<bean id="xmlParserSepaInstPacs002" ref="xmlParser" />
+		<bean id="jspPopulateDataSepaInstPacs002" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationSepaInstPacs002)" />
+	</route> -->
+	
+	<route id="validationRouteSEPAINSTPacs002POS">
+		<from uri="direct://validationRouteSEPAINSTPACS.002.001.10POS" />
+		<log message="File XSD validation done successfully." />
+		<bean ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},sepaInstValidationCheck)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_EBA_XSDCHECK} == true</simple>
+				<log message="EBA XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.002.001.10pos}})" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_TIPS_XSDCHECK} == true</simple>
+						<log message="TIPS XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.tips.pacs.002.001.10}})" />
+					</when>
+					<otherwise>
+						<choice>
+							<when>
+								<simple>${header.PLCN_ISO_XSDCHECK} == true</simple>
+								<log message="ISO XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.002.001.10pos}})" />
+							</when>
+							<otherwise>
+								<choice>
+									<when>
+										<simple>${header.PLCN_EPC2025_XSDCHECK} == true</simple>
+										<log message="EPC2025 XSD CHECK." />
+										<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.epc2025.pacs.002.001.10pos}})" />
+									</when>
+									<otherwise>
+										<choice>
+											<when>
+												<simple>${header.PLCN_EPC_XSDCHECK} == true</simple>
+												<log message="EPC XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.002.001.10pos}})" />
+											</when>
+											<otherwise>
+												<choice>
+													<when>
+												<simple>${header.PLCN_TIPS2025_XSDCHECK} == true</simple>
+														<log message="TIPS 2025 XSD CHECK." />
+														<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.tips2025.pacs.002.001.10}})" />
+													</when>
+													<otherwise>
+														<choice>
+															<when>
+																<simple>${header.PLCN_DEFAULT2025_XSDCHECK} == true</simple>
+																<log message="DEFAULT2025 XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.epc2025.pacs.002.001.10pos}})" />
+															</when>
+															<otherwise>
+																<log message="DEFAULT XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.002.001.10pos}})" />
+															</otherwise>
+														</choice>
+													</otherwise>
+												</choice>
+											</otherwise>
+										</choice>
+									</otherwise>
+								</choice>
+							</otherwise>
+						</choice>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<bean id="xmlParserSepaInstPacs002" ref="xmlParser" />
+		<bean id="jspPopulateDataSepaInstPacs002" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationSepaInstPacs002)" />
+	</route>
+
+	<route id="validationRouteSEPAINSTPacs002NEG">
+		<from uri="direct://validationRouteSEPAINSTPACS.002.001.10NEG" />
+		<bean ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},sepaInstValidationCheck)" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_EBA_XSDCHECK} == true</simple>
+				<log message="EBA XSD CHECK." />
+				<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.002.001.10neg}})" />
+			</when>
+			<otherwise>
+				<choice>
+					<when>
+						<simple>${header.PLCN_TIPS_XSDCHECK} == true</simple>
+						<log message="TIPS XSD CHECK." />
+						<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.tips.pacs.002.001.10}})" />
+					</when>
+					<otherwise>
+						<choice>
+							<when>
+								<simple>${header.PLCN_ISO_XSDCHECK} == true</simple>
+								<log message="ISO XSD CHECK." />
+								<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.002.001.10neg}})" />
+							</when>
+							<otherwise>
+								<choice>
+									<when>
+										<simple>${header.PLCN_EPC2025_XSDCHECK} == true</simple>
+										<log message="EPC2025 XSD CHECK." />
+										<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.epc2025.pacs.002.001.10neg}})" />
+									</when>
+									<otherwise>
+										<choice>
+											<when>
+												<simple>${header.PLCN_EPC_XSDCHECK} == true</simple>
+												<log message="EPC XSD CHECK." />
+												<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.002.001.10neg}})" />
+											</when>
+											<otherwise>
+												<choice>
+													<when>
+												<simple>${header.PLCN_TIPS2025_XSDCHECK} == true</simple>
+														<log message="TIPS 2025 XSD CHECK." />
+														<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.tips2025.pacs.002.001.10}})" />
+													</when>
+													<otherwise>
+														<choice>
+															<when>
+																<simple>${header.PLCN_DEFAULT2025_XSDCHECK} == true</simple>
+																<log message="DEFAULT2025 XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.epc2025.pacs.002.001.10neg}})" />
+															</when>
+															<otherwise>
+																<log message="DEFAULT XSD CHECK." />
+																<bean ref="xsdValidationNew" method="validateWithExtXSDUsingSAX(${exchange},{{xsd.Location.sepainst.pacs.002.001.10neg}})" />
+															</otherwise>
+														</choice>
+													</otherwise>
+												</choice>
+											</otherwise>
+										</choice>
+									</otherwise>
+								</choice>
+							</otherwise>
+						</choice>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<bean id="xmlParserSepaInst1Pacs002" ref="xmlParser" />
+		<bean id="jspPopulateDataSepaInst1Pacs002" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},msgValidationSepaInstPacs002)" />
+	</route>
+
+</routeContext>
+</beans>

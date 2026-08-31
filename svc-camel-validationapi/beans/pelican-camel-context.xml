@@ -1,0 +1,119 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:camel="http://camel.apache.org/schema/spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd          
+		http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd       
+		http://camel.apache.org/schema/spring 
+		http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<import resource="classpath:/routes/*.xml"/>
+	<import resource="classpath:/rest/*.xml"/>
+	
+	<camelContext id="MyCamel"
+		xmlns="http://camel.apache.org/schema/spring">
+			<propertyPlaceholder  id="routeProperty" location="classpath:/svc-camel-validationapi.properties" />
+
+		<defaultServiceCallConfiguration component="http">
+			<staticServiceDiscovery>
+					<servers>sanctioncall-service@10.10.11.159:8181</servers>	
+					<servers>parseField-service@10.10.11.159:3068</servers>
+			</staticServiceDiscovery>
+		</defaultServiceCallConfiguration>
+		
+		<routeContextRef ref="validation"/>
+		<!--<routeContextRef ref="callout"/> -->
+		<routeContextRef ref="duplicate"/>
+		<routeContextRef ref="ibanBic"/>
+		<routeContextRef ref="scheduling"/>
+		<routeContextRef ref="matching"/>
+		<routeContextRef ref="sanction"/>
+		<routeContextRef ref="sepavalidation"/>
+		<routeContextRef ref="benefvalidation"/>
+		<routeContextRef ref="proxyresolution"/>
+		<routeContextRef ref="accountingEntry"/>
+
+
+		<!-- <restContextRef ref="restValidation" /> -->
+		<restContextRef ref="restContext" />
+		<restContextRef ref="restDuplicate" />
+		<restContextRef ref="restIbanBic" />
+		<restContextRef ref="restScheduling" />
+		<restContextRef ref="restMatching" />
+		<restContextRef ref="restSanction" />
+		<restContextRef ref="restbenefvalidation" />
+		<restContextRef ref="restaccountingentry" />
+		<restContextRef ref="restproxyresolution" />
+
+		
+		<onException id="httpException">
+			<exception>org.apache.camel.http.common.HttpOperationFailedException</exception>
+			<exception>java.net.ConnectException</exception>
+			<redeliveryPolicy
+				maximumRedeliveries="2" />
+			<handled>
+				<camel:constant>true</camel:constant>
+			</handled>
+			<log message="HTTP failed..." />
+			<log message="In Exception handler :${exception.stacktrace}" />
+			<bean ref="pelicanController" method="exceptionLogger" />
+			<setHeader headerName="exception">
+				<simple>${exception.stacktrace}</simple>
+			</setHeader>
+			<setHeader headerName="PLCN_exceptionFlag">
+				<constant>true</constant>
+			</setHeader>
+		</onException>
+		
+		<onException>
+			<exception>org.apache.camel.ValidationException</exception>
+			<handled>
+				<constant>true</constant>
+			</handled>
+			<log loggingLevel="TRACE" message="In validation route err handler" />
+			<setHeader headerName="PLCN_XSDVAL_FAIL">
+				<simple>true</simple>
+			</setHeader>
+			<bean id="jspPopulateData2.1" ref="jspExecute"
+				method="executeWithHazelCastInstance(${exchange},onException)" />
+		</onException>
+		
+		<onException id="genericException">
+			<exception>java.lang.Exception</exception>
+			<handled>
+				<camel:constant>true</camel:constant>
+			</handled>
+			<log loggingLevel="INFO" message="In Exception handler java.lang.Exception" />
+			<log loggingLevel="TRACE" message="In Exception handler body :${body}" />
+			<log loggingLevel="TRACE" message="In Exception handler :${exception.stacktrace}" />
+			<log loggingLevel="TRACE" message="In Exception handler header :${headers}" />
+			<log loggingLevel="INFO" message="All headers at response time: ${headers}" />
+			<log loggingLevel="INFO" message="CamelHttpResponseCode: ${header.CamelHttpResponseCode}" />
+			<log loggingLevel="INFO" message="CamelHttpResponseText: ${header.CamelHttpResponseText}" />
+			<setHeader headerName="exception">
+				<simple>${exception.message}</simple>
+			</setHeader>
+			<setHeader headerName="PLCN_exceptionFlag">
+				<constant>true</constant>
+			</setHeader>
+			<setHeader headerName="PLCN_GENEXCEP_FAIL">
+				<constant>true</constant>
+			</setHeader>
+			<!-- <setBody>     
+				<simple>${header.PLCN_responseCdsDoc}</simple> 
+			</setBody> -->
+			<removeHeaders pattern="*" excludePattern="PLCN_*"/>
+			<log loggingLevel="INFO" message="About to remove PLCN_responseCdsDoc" /> 
+			<removeHeader headerName="PLCN_responseCdsDoc"/> 
+			<log loggingLevel="INFO" message="Successfully removed PLCN_responseCdsDoc" />
+			<log loggingLevel="TRACE" message="In stop body :${body}" />
+			<log loggingLevel="TRACE" message="after remove headers stop body :${headers}" />
+			<log message="Completed generic exception" />
+		</onException>
+	<restConfiguration component="netty-http" host="10.10.11.159" port="{{restdsl.port}}" />
+
+	</camelContext>
+	
+</beans>

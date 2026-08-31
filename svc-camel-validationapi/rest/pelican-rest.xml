@@ -1,0 +1,23 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<restContext id="restContext" xmlns="http://camel.apache.org/schema/spring">
+		<rest path="/payments/v1/validation" bindingMode="auto">
+			<post>
+				<route>
+					<log message="PaymentType in rest = ${header.PaymentType}"/>
+					<log message="MSGDB_ID in rest = ${header.PLCNAPI_msgDbId}"/>
+					<log loggingLevel="TRACE" message="Headers in rest = ${headers}" />
+					<log loggingLevel="TRACE" message="Body in rest = ${body}" />
+					<to uri="direct://rest-validation" />
+					<removeHeaders pattern="ACTIVE_INSTANCE"/>
+					<log loggingLevel="TRACE" message="Headers in rest after processing = ${headers}" />
+					<log message="MSGDB_ID in rest after processing = ${header.PLCNAPI_msgDbId}"/>
+				</route>
+			</post>
+		</rest>
+	</restContext>
+</beans>

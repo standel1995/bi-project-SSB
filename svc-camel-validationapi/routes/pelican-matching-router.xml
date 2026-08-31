@@ -1,0 +1,25 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<routeContext id="matching" xmlns="http://camel.apache.org/schema/spring">
+			
+		<route id="matchingRouter">
+			<from uri="direct://matchingRouter" />
+			<bean id="xmlParserMatchingRouter" ref="xmlParser" />
+			<bean id="jspPopulationDataMatching" ref="jspExecute" 
+				method="executeWithHazelCastInstance(${exchange},customMatching)" />
+		<choice>
+			<when>
+				<simple>${header.PLCNAPI_call}</simple>
+				<log message="PLCNAPI_call internal" />
+			</when>
+			<otherwise>
+				<removeHeaders pattern="*" excludePattern="status"/>
+			</otherwise>
+		</choice>
+		</route>
+	</routeContext>	
+</beans>	

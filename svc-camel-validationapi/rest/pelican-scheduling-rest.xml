@@ -1,0 +1,21 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<restContext id="restScheduling" xmlns="http://camel.apache.org/schema/spring">
+	    <rest path="/scheduling" bindingMode="auto">
+			<post>
+				<route>
+					<log loggingLevel="INFO" message="The header in restScheduling ${headers}" />
+					<log loggingLevel="INFO" message="Body in rest = ${body}" />
+					<to uri="direct://rest-scheduling" />
+					<removeHeaders pattern="ACTIVE_INSTANCE"/>
+					<log loggingLevel="INFO" message="The header in rest Scheduling after processing = ${headers}" />
+					<log loggingLevel="INFO" message="Body in rest after processing = ${body}" />
+				</route>
+			</post>
+		</rest>
+	</restContext>
+</beans>

@@ -1,0 +1,94 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<routeContext id="sanction" xmlns="http://camel.apache.org/schema/spring">
+
+		<route id="sanctionHeaderCheck">
+			<from uri="direct://sanctionHeaderCheck" />
+			<bean id="xmlParserHeadersanc" ref="xmlParser" />
+			<log message="Calling sanctionHeaderCheck" />
+			<bean id="jspPopulationDatasanction1" ref="jspExecute" 
+				method="executeWithHazelCastInstance(${exchange},validateHeaderCompliance)" />
+			<choice>
+				<when>
+					<simple>${header.PLCN_headerFlag}</simple>
+					<toD uri="direct://sanctionCheck"/>
+				</when>
+				<otherwise>
+					<log message="Invalid msg type in header"/>
+					<setHeader headerName="PLCN_exceptionFlag">
+						<constant>true</constant>
+					</setHeader>
+				</otherwise>
+			</choice>
+			<choice>
+				<when>
+					<simple>${header.PLCNAPI_call}</simple>
+					<log message="Internal Call" />
+					<removeHeaders pattern="PLCNXML*" />
+				</when>
+				<otherwise>
+					<removeHeaders pattern="*" excludePattern="status"/>
+				</otherwise>
+			</choice>
+			<log message="Headers after removeHeaders = ${headers}" />
+		</route>
+	
+		<route id="sanctionCheck">
+			<from uri="direct://sanctionCheck" />
+			<bean id="xmlParsersanction" ref="xmlParser" />
+			<log message="Calling sanctionCheck" />
+			<bean id="jspPopulationDatasanction" ref="jspExecute" 
+				method="executeWithHazelCastInstance(${exchange},sanctionCheck)" />
+			<setHeader headerName="PLCNXML_ofacRequest">
+				<constant>${body}</constant>
+			</setHeader>
+			<log loggingLevel="INFO" message="Request : ${header.PLCN_ofacRequest}" />
+			<removeHeaders pattern="CamelHttp*"/>
+			<removeHeaders pattern="CamelServiceCall*"/>				
+			<bean id="screening" ref="GenerateJWTToken" method="getJwtToken"/>
+			<log loggingLevel="TRACE" message="Body before sanctioncall : ${body}" />
+			<log loggingLevel="TRACE" message="Headers Before sanctioncall = ${headers}" />
+			<setHeader headerName="content-type">
+				<constant>application/json</constant>
+			</setHeader>
+			<removeHeaders pattern="ACTIVE_INSTANCE"/>				
+			<serviceCall name="sanctioncall-service/transactionScreening/v1/transaction-screening/transactions?headerFilterStrategy=#aceqFilter1" />
+			<log loggingLevel="TRACE" message="Response before XML conversion : ${body}" />
+			<bean id="screeningR" ref="GenerateJWTToken" method="jsonToXmlConversion"/>
+			<log loggingLevel="TRACE" message="Response : ${body}" />
+			<bean id="jspPopulationDatasanction" ref="jspExecute" 
+				method="executeWithHazelCastInstance(${exchange},enrichOFACMessage)" />
+			<log loggingLevel="TRACE" message="Headers after enrichOFACMessage = ${headers}" />
+			<bean id="jspPopulateDatacomp1" ref="jspExecute"
+				method="executeWithHazelCastInstance(${exchange},originalMessageCompliance)" />
+				<removeHeaders pattern="originalMsg" />
+			<log loggingLevel="TRACE" message="Headers after originalmessage = ${headers}" />
+			<bean id="jspPopulateDatacust1" ref="jspExecute"
+				method="executeWithHazelCastInstance(${exchange},customSntdSanctionCheck)" />
+			<choice>
+				<when>
+					<simple>${header.PLCNAPI_call}</simple>
+					<log message="Internal Call" />
+					<removeHeaders pattern="PLCNXML*" />
+				</when>
+				<otherwise>
+					<removeHeaders pattern="*" excludePattern="status"/>
+				</otherwise>
+			</choice>
+			<log loggingLevel="TRACE" message="Headers after removeHeaders = ${headers}" />
+		</route>
+		
+		<route id="sanctionSql">
+			<from uri="direct://sanctionSql" />
+			<log message="In sanctionSql" />
+			<log loggingLevel="INFO" message="PLCNAPI_msgDbId = ${header.PLCNAPI_msgDbId}" />
+			<log loggingLevel="INFO" message="Query = SELECT MSGDB_ID,QUEUEID,STATUS FROM MSGDB WHERE MSGDB_ID = ${header.PLCNAPI_msgDbId} ORDER BY MSGDB_ID ASC" />
+			<toD uri="sql:SELECT MSGDB_ID,QUEUEID,STATUS FROM MSGDB WHERE MSGDB_ID = ${header.PLCNAPI_msgDbId} ORDER BY MSGDB_ID ASC?outputType=SelectList" />
+		</route>
+		
+	</routeContext>
+</beans>

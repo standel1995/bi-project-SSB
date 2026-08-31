@@ -1,0 +1,25 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<routeContext id="accountingEntry" xmlns="http://camel.apache.org/schema/spring">	
+		<route id="accountingEntryRouter">
+			<from uri="direct://accountingEntryRouter" />
+			<!-- <bean id="xmlParseraccountingEntryRouter" ref="xmlParser" /> -->
+			<bean id="jspPopulationDataAcc" ref="jspExecute" 
+					method="executeWithHazelCastInstance(${exchange},accountingEntry)" />
+			<log message="AccountingEntry check successfully.."/>
+			<choice>
+				<when>
+					<simple>${header.PLCN_call}</simple>
+					<log message="PLCN_call internal" />
+				</when>
+				<otherwise>
+					<removeHeaders pattern="*" excludePattern="status"/>
+				</otherwise>
+			</choice>
+		</route>
+	</routeContext>	
+</beans>	

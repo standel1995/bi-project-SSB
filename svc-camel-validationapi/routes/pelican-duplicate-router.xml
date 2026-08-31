@@ -1,0 +1,75 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <routeContext id="duplicate" xmlns="http://camel.apache.org/schema/spring">
+	
+	<route id="duplicatecheckRoute">
+		<from uri="direct://duplicatecheckRoute" />
+		<log loggingLevel="TRACE" message="body in calculateHash ${body}"/>
+		<bean ref="jspExecute" method="executeWithHazelCastInstance(${exchange},setInternalFlag)" />
+		<bean id="jspPopulateDataduplicate" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},calculateHash)" />
+		<log loggingLevel="INFO" message="Out calculateHash: body = ${body}" />
+		<log loggingLevel="TRACE" message="CUSTOM5 after hashCheck function call = ${header.PLCN_custom5Dupl}" />
+		<log loggingLevel="TRACE" message="PLCN_duplicateMessage after hashCheck function call = ${header.PLCN_duplicateMessage}" />
+		<bean id="jspPopulateDatadup44" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},originalMessage)" />
+		<log loggingLevel="INFO" message="Out originalMessage: body = ${body}" />
+		<choice>
+			<when>
+				<simple>${header.PLCN_duplicateMessage} == false</simple>
+				<bean id="jspPopulateDatadup45" ref="jspExecute"
+					method="executeWithHazelCastInstance(${exchange},validateXmlInput)" />
+				<choice>
+					<when>
+						<simple>${header.PLCN_validXMLBody} == true</simple>
+						<bean id="calculateBusiness" ref="xmlParser" />
+					</when>
+				</choice>
+				<bean id="jspPopulateDatadup46" ref="jspExecute"
+					method="executeWithHazelCastInstance(${exchange},calculateBusiness)" />
+			</when>
+		</choice>	
+		<log loggingLevel="TRACE" message="duplicateFlag after businessCheck = ${header.PLCN_duplicateMessage}" />	
+		<log message=" duplication check done successfully." />
+		<log loggingLevel="TRACE" message="CUSTOM5 after hashCheck function call = ${header.PLCN_custom5Dupl}" />
+		<bean id="jspPopulateDatadup47" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},originalMessage)" />
+		<removeHeaders pattern="orgnlBody" />
+		<choice>
+			<when>
+				<simple>${header.PLCNAPI_call}</simple>
+				<log message="PLCNAPI_call internal" />
+			</when>
+			<otherwise>
+				<removeHeaders pattern="*" excludePattern="status"/>
+			</otherwise>
+		</choice>
+		<log loggingLevel="TRACE" message="Headers after duplicate check = ${headers}"/>
+	</route>
+	 
+		<route id="HashCheck">
+			<from uri="direct://HashCheck" />
+			<log message="In HashCheck" />
+			<to
+				uri="sql:SELECT MSGDB_ID,MESSAGENO,CUSTOM5,PREVQUEUEID,MSG_MODE_IN FROM MSGDB WHERE CUSTOM44 =:#CUSTOM44 AND STATUS NOT IN (103,104) ORDER BY MSGDB_ID ASC?outputType=SelectList" />
+			<log loggingLevel="TRACE" message="Out HashCheck ${body}" />
+			<log message="header = ${header.CamelSqlRowCount}" />
+		</route>
+		
+		<route id="businessCheck">
+			<from uri="direct://businessCheck" />
+			<log message="In businessCheck" />
+			<log message="Out businessCheck: SQL = SELECT MSGDB_ID,MESSAGENO,CUSTOM5,PREVQUEUEID,MSG_MODE_IN,QUEUEID FROM MSGDB WHERE ${header.MTCH_QUERY_VAL} AND RECORD_GROUP_TYPE NOT IN ('T') ORDER BY MSGDB_ID ASC" />
+			<toD uri="sql:SELECT MSGDB_ID,MESSAGENO,CUSTOM5,PREVQUEUEID,MSG_MODE_IN,QUEUEID FROM MSGDB WHERE ${header.MTCH_QUERY_VAL} AND RECORD_GROUP_TYPE NOT IN ('T', 'F','B') ORDER BY MSGDB_ID ASC?outputType=SelectList" />
+			<log message="Out businessCheck: CamelSqlRowCount = ${header.CamelSqlRowCount}" />
+			<log loggingLevel="TRACE" message="Out businessCheck: headers = ${headers}" />
+			<log loggingLevel="TRACE" message="Out businessCheck: body = ${body}" />
+			<log loggingLevel="TRACE" message="duplicateFlag in businessCheck = ${header.PLCN_duplicateMessage}" />
+		</route>
+	 
+</routeContext>
+</beans>
