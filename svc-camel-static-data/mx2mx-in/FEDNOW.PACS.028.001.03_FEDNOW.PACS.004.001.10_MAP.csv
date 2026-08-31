@@ -1,0 +1,14 @@
+Document,Document|urn:iso:std:iso:20022:tech:xsd:pacs.028.001.03
+Document/FIToFIPmtStsReq/GrpHdr/MsgId|FEDNOW,Document
+Document/FIToFIPmtStsReq/GrpHdr/CreDtTm|Date,Document
+Document/FIToFIPmtStsReq/TxInf/OrgnlGrpInf/OrgnlMsgId,Document/PmtRtr/GrpHdr/MsgId
+Document/FIToFIPmtStsReq/TxInf/OrgnlGrpInf/OrgnlMsgNmId|PACS.004.001.10,Document
+Document/FIToFIPmtStsReq/TxInf/OrgnlGrpInf/OrgnlCreDtTm,Document/PmtRtr/GrpHdr/CreDtTm
+Document/FIToFIPmtStsReq/TxInf/OrgnlInstrId,Document/PmtRtr/TxInf/OrgnlInstrId
+Document/FIToFIPmtStsReq/TxInf/OrgnlEndToEndId,Document/PmtRtr/TxInf/OrgnlEndToEndId
+Document/FIToFIPmtStsReq/TxInf/OrgnlTxId,Document/PmtRtr/TxInf/OrgnlTxId
+Document/FIToFIPmtStsReq/TxInf/OrgnlUETR,Document/PmtRtr/TxInf/OrgnlUETR
+Document/FIToFIPmtStsReq/TxInf/InstgAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd|USABA,Document
+Document/FIToFIPmtStsReq/TxInf/InstgAgt/FinInstnId/ClrSysMmbId/MmbId|199999999,Document
+Document/FIToFIPmtStsReq/TxInf/InstdAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd|USABA,Document
+Document/FIToFIPmtStsReq/TxInf/InstdAgt/FinInstnId/ClrSysMmbId/MmbId|199999999,Document

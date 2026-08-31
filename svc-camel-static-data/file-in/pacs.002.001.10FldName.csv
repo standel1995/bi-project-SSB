@@ -1,0 +1,216 @@
+/AppHdr,Business Application Header V02 (head.001.001.02)
+/AppHdr/CharSet,Character Set
+/AppHdr/Fr,From
+/AppHdr/Fr/OrgId,Organisation Identification
+/AppHdr/Fr/OrgId/Nm,Name
+/AppHdr/Fr/OrgId/PstlAdr,Postal Address
+/AppHdr/Fr/OrgId/Id,Identification
+/AppHdr/Fr/OrgId/Id/PrvtId,Private Identification
+/AppHdr/Fr/OrgId/CtryOfRes,Country Of Residence
+/AppHdr/Fr/OrgId/CtctDtls,Contact Details
+/AppHdr/Fr/FIId,Financial Institution Identification
+/AppHdr/Fr/FIId/FinInstnId,Financial Institution Identification
+/AppHdr/Fr/FIId/FinInstnId/BICFI,BICFI
+/AppHdr/Fr/FIId/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/AppHdr/Fr/FIId/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/AppHdr/Fr/FIId/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/AppHdr/Fr/FIId/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/AppHdr/Fr/FIId/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/AppHdr/Fr/FIId/FinInstnId/LEI,LEI
+/AppHdr/Fr/FIId/FinInstnId/Nm,Name
+/AppHdr/Fr/FIId/FinInstnId/PstlAdr,Postal Address
+/AppHdr/Fr/FIId/FinInstnId/Othr,Other
+/AppHdr/Fr/FIId/BrnchId,Branch Identification
+/AppHdr/To,To
+/AppHdr/To/OrgId,Organisation Identification
+/AppHdr/To/OrgId/Nm,Name
+/AppHdr/To/OrgId/PstlAdr,Postal Address
+/AppHdr/To/OrgId/Id,Identification
+/AppHdr/To/OrgId/Id/PrvtId,Private Identification
+/AppHdr/To/OrgId/CtryOfRes,Country Of Residence
+/AppHdr/To/OrgId/CtctDtls,Contact Details
+/AppHdr/To/FIId,Financial Institution Identification
+/AppHdr/To/FIId/FinInstnId,Financial Institution Identification
+/AppHdr/To/FIId/FinInstnId/BICFI,BICFI
+/AppHdr/To/FIId/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/AppHdr/To/FIId/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/AppHdr/To/FIId/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/AppHdr/To/FIId/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/AppHdr/To/FIId/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/AppHdr/To/FIId/FinInstnId/LEI,LEI
+/AppHdr/To/FIId/FinInstnId/Nm,Name
+/AppHdr/To/FIId/FinInstnId/PstlAdr,Postal Address
+/AppHdr/To/FIId/FinInstnId/Othr,Other
+/AppHdr/To/FIId/BrnchId,Branch Identification
+/AppHdr/BizMsgIdr,Business Message Identifier
+/AppHdr/MsgDefIdr,Message Definition Identifier
+/AppHdr/BizSvc,Business Service
+/AppHdr/MktPrctc,Market Practice
+/AppHdr/MktPrctc/Regy,Registry
+/AppHdr/MktPrctc/Id,Identification
+/AppHdr/CreDt,Creation Date
+/AppHdr/BizPrcgDt,Business Processing Date
+/AppHdr/CpyDplct,Copy Duplicate
+/AppHdr/CpyDplct,Copy Duplicate
+/AppHdr/CpyDplct,Copy
+/AppHdr/CpyDplct,Duplicate
+/AppHdr/PssblDplct,Possible Duplicate
+/AppHdr/Prty,Priority
+/AppHdr/Prty,High
+/AppHdr/Prty,Normal
+/AppHdr/Sgntr,Signature
+/AppHdr/Rltd,Related
+/AppHdr/Rltd/CharSet,Character Set
+/AppHdr/Rltd/Fr,From
+/AppHdr/Rltd/Fr/OrgId,Organisation Identification
+/AppHdr/Rltd/Fr/OrgId/Nm,Name
+/AppHdr/Rltd/Fr/OrgId/PstlAdr,Postal Address
+/AppHdr/Rltd/Fr/OrgId/CtryOfRes,Country Of Residence
+/AppHdr/Rltd/Fr/OrgId/CtctDtls,Contact Details
+/AppHdr/Rltd/Fr/FIId,Financial Institution Identification
+/AppHdr/Rltd/Fr/FIId/FinInstnId,Financial Institution Identification
+/AppHdr/Rltd/Fr/FIId/FinInstnId/BICFI,BICFI
+/AppHdr/Rltd/Fr/FIId/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/AppHdr/Rltd/Fr/FIId/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/AppHdr/Rltd/Fr/FIId/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/AppHdr/Rltd/Fr/FIId/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/AppHdr/Rltd/Fr/FIId/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/AppHdr/Rltd/Fr/FIId/FinInstnId/LEI,LEI
+/AppHdr/Rltd/Fr/FIId/FinInstnId/Nm,Name
+/AppHdr/Rltd/Fr/FIId/FinInstnId/PstlAdr,Postal Address
+/AppHdr/Rltd/Fr/FIId/FinInstnId/Othr,Other
+/AppHdr/Rltd/Fr/FIId/BrnchId,Branch Identification
+/AppHdr/Rltd/To,To
+/AppHdr/Rltd/To/OrgId,Organisation Identification
+/AppHdr/Rltd/To/OrgId/Nm,Name
+/AppHdr/Rltd/To/OrgId/PstlAdr,Postal Address
+/AppHdr/Rltd/To/OrgId/Id,Identification
+/AppHdr/Rltd/To/OrgId/Id/PrvtId,Private Identification
+/AppHdr/Rltd/To/OrgId/CtryOfRes,Country Of Residence
+/AppHdr/Rltd/To/OrgId/CtctDtls,Contact Details
+/AppHdr/Rltd/To/FIId,Financial Institution Identification
+/AppHdr/Rltd/To/FIId/FinInstnId,Financial Institution Identification
+/AppHdr/Rltd/To/FIId/FinInstnId/BICFI,BICFI
+/AppHdr/Rltd/To/FIId/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/AppHdr/Rltd/To/FIId/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/AppHdr/Rltd/To/FIId/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/AppHdr/Rltd/To/FIId/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/AppHdr/Rltd/To/FIId/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/AppHdr/Rltd/To/FIId/FinInstnId/LEI,LEI
+/AppHdr/Rltd/To/FIId/FinInstnId/Nm,Name
+/AppHdr/Rltd/To/FIId/FinInstnId/PstlAdr,Postal Address
+/AppHdr/Rltd/To/FIId/FinInstnId/Othr,Other
+/AppHdr/Rltd/To/FIId/BrnchId,Branch Identification
+/AppHdr/Rltd/BizMsgIdr,Business Message Identifier
+/AppHdr/Rltd/MsgDefIdr,Message Definition Identifier
+/AppHdr/Rltd/BizSvc,Business Service
+/AppHdr/Rltd/CreDt,Creation Date
+/AppHdr/Rltd/CpyDplct,Copy Duplicate
+/AppHdr/Rltd/CpyDplct,Copy Duplicate
+/AppHdr/Rltd/CpyDplct,Copy
+/AppHdr/Rltd/CpyDplct,Duplicate
+/AppHdr/Rltd/PssblDplct,Possible Duplicate
+/AppHdr/Rltd/Prty,Priority
+/AppHdr/Rltd/Sgntr,Signature
+/FIToFIPmtStsRpt,FI To FI Payment Status Report V10 (pacs.002.001.10)
+/FIToFIPmtStsRpt/GrpHdr,Group Header
+/FIToFIPmtStsRpt/GrpHdr/MsgId,Message Identification
+/FIToFIPmtStsRpt/GrpHdr/CreDtTm,Creation Date Time
+/FIToFIPmtStsRpt/GrpHdr/InstgAgt,Instructing Agent
+/FIToFIPmtStsRpt/GrpHdr/InstdAgt,Instructed Agent
+/FIToFIPmtStsRpt/OrgnlGrpInfAndSts,Original Group Information And Status
+/FIToFIPmtStsRpt/TxInfAndSts,Transaction Information And Status
+/FIToFIPmtStsRpt/TxInfAndSts/StsId,Status Identification
+/FIToFIPmtStsRpt/TxInfAndSts/OrgnlGrpInf,Original Group Information
+/FIToFIPmtStsRpt/TxInfAndSts/OrgnlGrpInf/OrgnlMsgId,Original Message Identification
+/FIToFIPmtStsRpt/TxInfAndSts/OrgnlGrpInf/OrgnlMsgNmId,Original Message Name Identification
+/FIToFIPmtStsRpt/TxInfAndSts/OrgnlGrpInf/OrgnlCreDtTm,Original Creation Date Time
+/FIToFIPmtStsRpt/TxInfAndSts/OrgnlInstrId,Original Instruction Identification
+/FIToFIPmtStsRpt/TxInfAndSts/OrgnlEndToEndId,Original End To End Identification
+/FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxId,Original Transaction Identification
+/FIToFIPmtStsRpt/TxInfAndSts/OrgnlUETR,Original UETR
+/FIToFIPmtStsRpt/TxInfAndSts/TxSts,Transaction Status
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf,Status Reason Information
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr,Originator
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Nm,Name
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/PstlAdr,Postal Address
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/PstlAdr/AdrTp,Address Type
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/PstlAdr/Dept,Department
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/PstlAdr/SubDept,Sub Department
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/PstlAdr/StrtNm,Street Name
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/PstlAdr/BldgNb,Building Number
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/PstlAdr/BldgNm,Building Name
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/PstlAdr/Flr,Floor
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/PstlAdr/PstBx,Post Box
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/PstlAdr/Room,Room
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/PstlAdr/PstCd,Post Code
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/PstlAdr/TwnNm,Town Name
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/PstlAdr/TwnLctnNm,Town Location Name
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/PstlAdr/DstrctNm,District Name
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/PstlAdr/CtrySubDvsn,Country Sub Division
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/PstlAdr/Ctry,Country
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/PstlAdr/AdrLine,Address Line
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id,Identification
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/OrgId,Organisation Identification
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/OrgId/AnyBIC,Any BIC
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/OrgId/LEI,LEI
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/OrgId/Othr,Other
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/OrgId/Othr/Id,Identification
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/OrgId/Othr/SchmeNm,Scheme Name
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/OrgId/Othr/SchmeNm/Cd,Code
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/OrgId/Othr/SchmeNm/Prtry,Proprietary
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/OrgId/Othr/Issr,Issuer
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/PrvtId,Private Identification
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/PrvtId/DtAndPlcOfBirth/BirthDt,Birth Date
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/PrvtId/DtAndPlcOfBirth/PrvcOfBirth,Province Of Birth
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/PrvtId/DtAndPlcOfBirth/CityOfBirth,City Of Birth
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/PrvtId/DtAndPlcOfBirth/CtryOfBirth,Country Of Birth
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/PrvtId/Othr,Other
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/PrvtId/Othr/Id,Identification
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/PrvtId/Othr/SchmeNm,Scheme Name
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/PrvtId/Othr/SchmeNm/Cd,Code
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/PrvtId/Othr/SchmeNm/Prtry,Proprietary
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/Id/PrvtId/Othr/Issr,Issuer
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/CtryOfRes,Country Of Residence
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Orgtr/CtctDtls,Contact Details
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Rsn,Reason
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Rsn/Cd,Code
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/Rsn/Prtry,Proprietary
+/FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf/AddtlInf,Additional Information
+/FIToFIPmtStsRpt/TxInfAndSts/ChrgsInf,Charges Information
+/FIToFIPmtStsRpt/TxInfAndSts/AccptncDtTm,Acceptance Date Time
+/FIToFIPmtStsRpt/TxInfAndSts/FctvIntrBkSttlmDt,Effective Interbank Settlement Date
+/FIToFIPmtStsRpt/TxInfAndSts/FctvIntrBkSttlmDt/Dt,Date
+/FIToFIPmtStsRpt/TxInfAndSts/FctvIntrBkSttlmDt/DtTm,Date Time
+/FIToFIPmtStsRpt/TxInfAndSts/AcctSvcrRef,Account Servicer Reference
+/FIToFIPmtStsRpt/TxInfAndSts/ClrSysRef,Clearing System Reference
+/FIToFIPmtStsRpt/TxInfAndSts/InstgAgt,Instructing Agent
+/FIToFIPmtStsRpt/TxInfAndSts/InstgAgt/FinInstnId,Financial Institution Identification
+/FIToFIPmtStsRpt/TxInfAndSts/InstgAgt/FinInstnId/BICFI,BICFI
+/FIToFIPmtStsRpt/TxInfAndSts/InstgAgt/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/FIToFIPmtStsRpt/TxInfAndSts/InstgAgt/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/FIToFIPmtStsRpt/TxInfAndSts/InstgAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/FIToFIPmtStsRpt/TxInfAndSts/InstgAgt/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/FIToFIPmtStsRpt/TxInfAndSts/InstgAgt/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/FIToFIPmtStsRpt/TxInfAndSts/InstgAgt/FinInstnId/LEI,LEI
+/FIToFIPmtStsRpt/TxInfAndSts/InstgAgt/FinInstnId/Nm,Name
+/FIToFIPmtStsRpt/TxInfAndSts/InstgAgt/FinInstnId/PstlAdr,Postal Address
+/FIToFIPmtStsRpt/TxInfAndSts/InstgAgt/FinInstnId/Othr,Other
+/FIToFIPmtStsRpt/TxInfAndSts/InstgAgt/BrnchId,Branch Identification
+/FIToFIPmtStsRpt/TxInfAndSts/InstdAgt,Instructed Agent
+/FIToFIPmtStsRpt/TxInfAndSts/InstdAgt/FinInstnId,Financial Institution Identification
+/FIToFIPmtStsRpt/TxInfAndSts/InstdAgt/FinInstnId/BICFI,BICFI
+/FIToFIPmtStsRpt/TxInfAndSts/InstdAgt/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/FIToFIPmtStsRpt/TxInfAndSts/InstdAgt/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/FIToFIPmtStsRpt/TxInfAndSts/InstdAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/FIToFIPmtStsRpt/TxInfAndSts/InstdAgt/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/FIToFIPmtStsRpt/TxInfAndSts/InstdAgt/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/FIToFIPmtStsRpt/TxInfAndSts/InstdAgt/FinInstnId/LEI,LEI
+/FIToFIPmtStsRpt/TxInfAndSts/InstdAgt/FinInstnId/Nm,Name
+/FIToFIPmtStsRpt/TxInfAndSts/InstdAgt/FinInstnId/PstlAdr,Postal Address
+/FIToFIPmtStsRpt/TxInfAndSts/InstdAgt/FinInstnId/Othr,Other
+/FIToFIPmtStsRpt/TxInfAndSts/InstdAgt/BrnchId,Branch Identification
+/FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef,Original Transaction Reference
+/FIToFIPmtStsRpt/TxInfAndSts/SplmtryData,Supplementary Data
+/FIToFIPmtStsRpt/SplmtryData,Supplementary Data

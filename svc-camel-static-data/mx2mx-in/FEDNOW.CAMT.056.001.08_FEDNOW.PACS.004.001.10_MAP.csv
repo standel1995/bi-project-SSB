@@ -1,0 +1,8 @@
+Document,Document|urn:iso:std:iso:20022:tech:xsd:pacs.004.001.10
+Document/RsltnOfInvstgtn/CxlDtls/TxInfAndSts/OrgnlGrpInf/OrgnlMsgId,Document/FIToFIPmtCxlReq/Assgnmt/Id
+Document/RsltnOfInvstgtn/CxlDtls/TxInfAndSts/OrgnlGrpInf/OrgnlMsgNmId|camt.056.001.08,Document
+Document/RsltnOfInvstgtn/CxlDtls/TxInfAndSts/OrgnlGrpInf/OrgnlCreDtTm,Document/FIToFIPmtCxlReq/Assgnmt/CreDtTm
+Document/RsltnOfInvstgtn/CxlDtls/TxInfAndSts/OrgnlInstrId,Document/FIToFIPmtCxlReq/Undrlyg/TxInf/OrgnlInstrId
+Document/RsltnOfInvstgtn/CxlDtls/TxInfAndSts/OrgnlEndToEndId,Document/FIToFIPmtCxlReq/Undrlyg/TxInf/OrgnlEndToEndId
+Document/RsltnOfInvstgtn/CxlDtls/TxInfAndSts/OrgnlTxId,Document/FIToFIPmtCxlReq/Undrlyg/TxInf/OrgnlTxId
+Document/RsltnOfInvstgtn/CxlDtls/TxInfAndSts/OrgnlUETR,Document/FIToFIPmtCxlReq/Undrlyg/TxInf/OrgnlUETR

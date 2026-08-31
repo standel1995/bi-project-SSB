@@ -1,0 +1,5 @@
+Document,Document|urn:iso:std:iso:20022:tech:xsd:admi.002.001.01
+Document/admi.002.001.01/RltdRef/Ref|NOTAVAILABLE,Document
+Document/admi.002.001.01/Rsn/RjctgPtyRsn|NA,Document
+Document/admi.002.001.01/Rsn/RjctnDtTm|Date,Document
+Document/admi.002.001.01/Rsn/RsnDesc|NA,Document

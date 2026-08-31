@@ -1,0 +1,14 @@
+Document,Document|urn:iso:std:iso:20022:tech:xsd:pacs.028.001.03
+Document/FIToFIPmtStsReq/GrpHdr/MsgId,FEDNOW
+Document/FIToFIPmtStsReq/GrpHdr/CreDtTm,Date
+Document/FIToFIPmtStsReq/TxInf/OrgnlGrpInf/OrgnlMsgId,Document/FIToFICstmrCdtTrf/GrpHdr/MsgId
+Document/FIToFIPmtStsReq/TxInf/OrgnlGrpInf/OrgnlMsgNmId,PACS.008.001.10
+Document/FIToFIPmtStsReq/TxInf/OrgnlGrpInf/OrgnlCreDtTm,Document/FIToFICstmrCdtTrf/GrpHdr/CreDtTm
+Document/FIToFIPmtStsReq/TxInf/OrgnlInstrId,Document/FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/InstrId
+Document/FIToFIPmtStsReq/TxInf/OrgnlEndToEndId,Document/FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/EndToEndId
+Document/FIToFIPmtStsReq/TxInf/OrgnlTxId,Document/FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/TxId
+Document/FIToFIPmtStsReq/TxInf/OrgnlUETR,Document/FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/UETR
+Document/FIToFIPmtStsReq/TxInf/InstgAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Document/FIToFICstmrCdtTrf/CdtTrfTxInf/InstgAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd
+Document/FIToFIPmtStsReq/TxInf/InstgAgt/FinInstnId/ClrSysMmbId/MmbId,Document/FIToFICstmrCdtTrf/CdtTrfTxInf/InstgAgt/FinInstnId/ClrSysMmbId/MmbId
+Document/FIToFIPmtStsReq/TxInf/InstdAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Document/FIToFICstmrCdtTrf/CdtTrfTxInf/InstdAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd
+Document/FIToFIPmtStsReq/TxInf/InstdAgt/FinInstnId/ClrSysMmbId/MmbId,Document/FIToFICstmrCdtTrf/CdtTrfTxInf/InstdAgt/FinInstnId/ClrSysMmbId/MmbId

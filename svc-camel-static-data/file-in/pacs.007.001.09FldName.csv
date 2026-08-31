@@ -1,0 +1,204 @@
+﻿/FIToFIPmtRvsl,FITo FIPayment Reversal V09
+/FIToFIPmtRvsl/GrpHdr,Group Header
+/FIToFIPmtRvsl/GrpHdr/MsgId,Message Identification
+/FIToFIPmtRvsl/GrpHdr/CreDtTm,Creation Date Time
+/FIToFIPmtRvsl/GrpHdr/Authstn,Authorisation
+/FIToFIPmtRvsl/GrpHdr/BtchBookg,Batch Booking
+/FIToFIPmtRvsl/GrpHdr/NbOfTxs,Number Of Transactions
+/FIToFIPmtRvsl/GrpHdr/CtrlSum,Control Sum
+/FIToFIPmtRvsl/GrpHdr/GrpRvsl,Group Reversal
+/FIToFIPmtRvsl/GrpHdr/TtlRvsdIntrBkSttlmAmt,Total Reversed Interbank Settlement Amount
+/FIToFIPmtRvsl/GrpHdr/IntrBkSttlmDt,Interbank Settlement Date
+/FIToFIPmtRvsl/GrpHdr/SttlmInf,Settlement Information
+/FIToFIPmtRvsl/GrpHdr/SttlmInf/SttlmMtd,Settlement Method
+/FIToFIPmtRvsl/GrpHdr/SttlmInf/SttlmAcct,Settlement Account
+/FIToFIPmtRvsl/GrpHdr/SttlmInf/ClrSys,Clearing System
+/FIToFIPmtRvsl/GrpHdr/SttlmInf/ClrSys/Cd,Code
+/FIToFIPmtRvsl/GrpHdr/SttlmInf/ClrSys/Prtry,Proprietary
+/FIToFIPmtRvsl/GrpHdr/SttlmInf/InstgRmbrsmntAgt,Instructing Reimbursement Agent
+/FIToFIPmtRvsl/GrpHdr/SttlmInf/InstgRmbrsmntAgtAcct,Instructing Reimbursement Agent Account
+/FIToFIPmtRvsl/GrpHdr/SttlmInf/InstdRmbrsmntAgt,Instructed Reimbursement Agent
+/FIToFIPmtRvsl/GrpHdr/SttlmInf/InstdRmbrsmntAgtAcct,Instructed Reimbursement Agent Account
+/FIToFIPmtRvsl/GrpHdr/SttlmInf/ThrdRmbrsmntAgt,Third Reimbursement Agent
+/FIToFIPmtRvsl/GrpHdr/SttlmInf/ThrdRmbrsmntAgtAcct,Third Reimbursement Agent Account
+/FIToFIPmtRvsl/GrpHdr/InstgAgt,Instructing Agent
+/FIToFIPmtRvsl/GrpHdr/InstdAgt,Instructing Agent
+/FIToFIPmtRvsl/OrgnlGrpInf,Original Group Information
+/FIToFIPmtRvsl/OrgnlGrpInf/OrgnlMsgId,Original Message Identification
+/FIToFIPmtRvsl/OrgnlGrpInf/OrgnlMsgNmId,Original Message Name Identification
+/FIToFIPmtRvsl/OrgnlGrpInf/OrgnlCreDtTm,Original Creation Date Time
+/FIToFIPmtRvsl/OrgnlGrpInf/RvslRsnInf,Reversal Reason Information
+/FIToFIPmtRvsl/OrgnlGrpInf/RvslRsnInf/Orgtr,Originator
+/FIToFIPmtRvsl/OrgnlGrpInf/RvslRsnInf/Rsn,Reason
+/FIToFIPmtRvsl/OrgnlGrpInf/RvslRsnInf/Rsn/Cd,Code
+/FIToFIPmtRvsl/OrgnlGrpInf/RvslRsnInf/Rsn/Prtry,Proprietary
+/FIToFIPmtRvsl/OrgnlGrpInf/RvslRsnInf/AddtlInf,Additional Information
+/FIToFIPmtRvsl/TxInf,Transaction Information
+/FIToFIPmtRvsl/TxInf/RvslId,Reversal Identification
+/FIToFIPmtRvsl/TxInf/OrgnlGrpInf,Original Group Information
+/FIToFIPmtRvsl/TxInf/OrgnlInstrId,Original Instruction Identification
+/FIToFIPmtRvsl/TxInf/OrgnlEndToEndId,Original End To End Identification
+/FIToFIPmtRvsl/TxInf/OrgnlTxId,Original Transaction Identification
+/FIToFIPmtRvsl/TxInf/OrgnlUETR,Original UETR
+/FIToFIPmtRvsl/TxInf/OrgnlClrSysRef,Original Clearing System Reference
+/FIToFIPmtRvsl/TxInf/OrgnlIntrBkSttlmAmt,Original Interbank Settlement Amount
+/FIToFIPmtRvsl/TxInf/RvsdIntrBkSttlmAmt,Reversed Interbank Settlement Amount
+/FIToFIPmtRvsl/TxInf/IntrBkSttlmDt,Interbank Settlement Date
+/FIToFIPmtRvsl/TxInf/SttlmPrty,Settlement Priority
+/FIToFIPmtRvsl/TxInf/SttlmTmIndctn,Settlement Time Indication
+/FIToFIPmtRvsl/TxInf/RvsdInstdAmt,Reversed Instructed Amount
+/FIToFIPmtRvsl/TxInf/XchgRate,Exchange Rate
+/FIToFIPmtRvsl/TxInf/CompstnAmt,Compensation Amount
+/FIToFIPmtRvsl/TxInf/ChrgBr,Charge Bearer
+/FIToFIPmtRvsl/TxInf/ChrgsInf,Charges Information
+/FIToFIPmtRvsl/TxInf/ChrgsInf/Amt,Amount
+/FIToFIPmtRvsl/TxInf/ChrgsInf/Agt,Agent
+/FIToFIPmtRvsl/TxInf/ChrgsInf/Agt/FinInstnId,Financial Institution Identification
+/FIToFIPmtRvsl/TxInf/ChrgsInf/Agt/BrnchId,Branch Identification
+/FIToFIPmtRvsl/TxInf/InstgAgt,Instructing Agent
+/FIToFIPmtRvsl/TxInf/InstdAgt,Instructed Agent
+/FIToFIPmtRvsl/TxInf/RvslRsnInf,Reversal Reason Information
+/FIToFIPmtRvsl/TxInf/RvslRsnInf/Orgtr,Originator
+/FIToFIPmtRvsl/TxInf/RvslRsnInf/Rsn,Reason
+/FIToFIPmtRvsl/TxInf/RvslRsnInf/Rsn/Cd,Code
+/FIToFIPmtRvsl/TxInf/RvslRsnInf/Rsn/Prtry,Proprietary
+/FIToFIPmtRvsl/TxInf/RvslRsnInf/AddtlInf,Additional Information
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef,Original Transaction Reference
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/IntrBkSttlmAmt,Interbank Settlement Amount
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/Amt,Amount
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/IntrBkSttlmDt,Interbank Settlement Date
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/ReqdColltnDt,Requested Collection Date
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/ReqdExctnDt,Requested Execution Date
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/CdtrSchmeId,Creditor Scheme Identification
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/SttlmInf,Settlement Information
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/PmtTpInf,Payment Type Information
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/PmtMtd,Payment Method
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/MndtRltdInf,Mandate Related Information
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/RmtInf,Remittance Information
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/UltmtDbtr,Ultimate Debtor
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/Dbtr,Debtor
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/DbtrAcct,Debtor Account
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/DbtrAgt,Debtor Agent
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/DbtrAgtAcct,Debtor Agent Account
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/CdtrAgt,Creditor Agent
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/CdtrAgtAcct,Creditor Agent Account
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/Cdtr,Creditor
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/CdtrAcct,Creditor Account
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/UltmtCdtr,Ultimate Creditor
+/FIToFIPmtRvsl/TxInf/OrgnlTxRef/Purp,Purpose
+/FIToFIPmtRvsl/TxInf/SplmtryData,Supplementary Data
+/FIToFIPmtRvsl/SplmtryData,Supplementary Data
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,

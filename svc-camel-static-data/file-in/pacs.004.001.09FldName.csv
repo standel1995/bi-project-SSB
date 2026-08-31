@@ -1,0 +1,2340 @@
+/AppHdr,Business Application Header V02 (head.001.001.02)
+/AppHdr/CharSet,Character Set
+/AppHdr/Fr,From
+/AppHdr/Fr/OrgId,Organisation Identification
+/AppHdr/Fr/OrgId/Nm,Name
+/AppHdr/Fr/OrgId/PstlAdr,Postal Address
+/AppHdr/Fr/OrgId/CtryOfRes,Country Of Residence
+/AppHdr/Fr/OrgId/CtctDtls,Contact Details
+/AppHdr/Fr/FIId,Financial Institution Identification
+/AppHdr/Fr/FIId/FinInstnId,Financial Institution Identification
+/AppHdr/Fr/FIId/FinInstnId/BICFI,BICFI
+/AppHdr/Fr/FIId/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/AppHdr/Fr/FIId/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/AppHdr/Fr/FIId/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/AppHdr/Fr/FIId/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/AppHdr/Fr/FIId/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/AppHdr/Fr/FIId/FinInstnId/LEI,LEI
+/AppHdr/Fr/FIId/FinInstnId/Nm,Name
+/AppHdr/Fr/FIId/FinInstnId/PstlAdr,Postal Address
+/AppHdr/Fr/FIId/FinInstnId/Othr,Other
+/AppHdr/Fr/FIId/BrnchId,Branch Identification
+/AppHdr/To,To
+/AppHdr/To/OrgId,Organisation Identification
+/AppHdr/To/OrgId/Nm,Name
+/AppHdr/To/OrgId/PstlAdr,Postal Address
+/AppHdr/To/OrgId/Id,Identification
+/AppHdr/To/OrgId/Id/PrvtId,Private Identification
+/AppHdr/To/OrgId/CtryOfRes,Country Of Residence
+/AppHdr/To/OrgId/CtctDtls,Contact Details
+/AppHdr/To/FIId,Financial Institution Identification
+/AppHdr/To/FIId/FinInstnId,Financial Institution Identification
+/AppHdr/To/FIId/FinInstnId/BICFI,BICFI
+/AppHdr/To/FIId/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/AppHdr/To/FIId/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/AppHdr/To/FIId/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/AppHdr/To/FIId/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/AppHdr/To/FIId/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/AppHdr/To/FIId/FinInstnId/LEI,LEI
+/AppHdr/To/FIId/FinInstnId/Nm,Name
+/AppHdr/To/FIId/FinInstnId/PstlAdr,Postal Address
+/AppHdr/To/FIId/FinInstnId/Othr,Other
+/AppHdr/To/FIId/BrnchId,Branch Identification
+/AppHdr/BizMsgIdr,Business Message Identifier
+/AppHdr/MsgDefIdr,Message Definition Identifier
+/AppHdr/BizSvc,Business Service
+/AppHdr/MktPrctc,Market Practice
+/AppHdr/MktPrctc/Regy,Registry
+/AppHdr/MktPrctc/Id,Identification
+/AppHdr/CreDt,Creation Date
+/AppHdr/BizPrcgDt,Business Processing Date
+/AppHdr/CpyDplct,Copy Duplicate
+/AppHdr/CpyDplct,Copy Duplicate
+/AppHdr/CpyDplct,Copy
+/AppHdr/CpyDplct,Duplicate
+/AppHdr/PssblDplct,Possible Duplicate
+/AppHdr/Prty,Priority
+/AppHdr/Prty,High
+/AppHdr/Prty,Normal
+/AppHdr/Sgntr,Signature
+/AppHdr/Rltd,Related
+/AppHdr/Rltd/CharSet,Character Set
+/AppHdr/Rltd/Fr,From
+/AppHdr/Rltd/Fr/OrgId,Organisation Identification
+/AppHdr/Rltd/Fr/OrgId/Nm,Name
+/AppHdr/Rltd/Fr/OrgId/PstlAdr,Postal Address
+/AppHdr/Rltd/Fr/OrgId/Id,Identification
+/AppHdr/Rltd/Fr/OrgId/Id/PrvtId,Private Identification
+/AppHdr/Rltd/Fr/OrgId/CtryOfRes,Country Of Residence
+/AppHdr/Rltd/Fr/OrgId/CtctDtls,Contact Details
+/AppHdr/Rltd/Fr/FIId,Financial Institution Identification
+/AppHdr/Rltd/Fr/FIId/FinInstnId,Financial Institution Identification
+/AppHdr/Rltd/Fr/FIId/FinInstnId/BICFI,BICFI
+/AppHdr/Rltd/Fr/FIId/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/AppHdr/Rltd/Fr/FIId/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/AppHdr/Rltd/Fr/FIId/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/AppHdr/Rltd/Fr/FIId/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/AppHdr/Rltd/Fr/FIId/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/AppHdr/Rltd/Fr/FIId/FinInstnId/LEI,LEI
+/AppHdr/Rltd/Fr/FIId/FinInstnId/Nm,Name
+/AppHdr/Rltd/Fr/FIId/FinInstnId/PstlAdr,Postal Address
+/AppHdr/Rltd/Fr/FIId/FinInstnId/Othr,Other
+/AppHdr/Rltd/Fr/FIId/BrnchId,Branch Identification
+/AppHdr/Rltd/To,To
+/AppHdr/Rltd/To/OrgId,Organisation Identification
+/AppHdr/Rltd/To/OrgId/Nm,Name
+/AppHdr/Rltd/To/OrgId/PstlAdr,Postal Address
+/AppHdr/Rltd/To/OrgId/Id,Identification
+/AppHdr/Rltd/To/OrgId/Id/PrvtId,Private Identification
+/AppHdr/Rltd/To/OrgId/CtryOfRes,Country Of Residence
+/AppHdr/Rltd/To/OrgId/CtctDtls,Contact Details
+/AppHdr/Rltd/To/FIId,Financial Institution Identification
+/AppHdr/Rltd/To/FIId/FinInstnId,Financial Institution Identification
+/AppHdr/Rltd/To/FIId/FinInstnId/BICFI,BICFI
+/AppHdr/Rltd/To/FIId/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/AppHdr/Rltd/To/FIId/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/AppHdr/Rltd/To/FIId/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/AppHdr/Rltd/To/FIId/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/AppHdr/Rltd/To/FIId/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/AppHdr/Rltd/To/FIId/FinInstnId/LEI,LEI
+/AppHdr/Rltd/To/FIId/FinInstnId/Nm,Name
+/AppHdr/Rltd/To/FIId/FinInstnId/PstlAdr,Postal Address
+/AppHdr/Rltd/To/FIId/FinInstnId/Othr,Other
+/AppHdr/Rltd/To/FIId/BrnchId,Branch Identification
+/AppHdr/Rltd/BizMsgIdr,Business Message Identifier
+/AppHdr/Rltd/MsgDefIdr,Message Definition Identifier
+/AppHdr/Rltd/BizSvc,Business Service
+/AppHdr/Rltd/CreDt,Creation Date
+/AppHdr/Rltd/CpyDplct,Copy Duplicate
+/AppHdr/Rltd/CpyDplct,Copy Duplicate
+/AppHdr/Rltd/CpyDplct,Copy
+/AppHdr/Rltd/CpyDplct,Duplicate
+/AppHdr/Rltd/PssblDplct,Possible Duplicate
+/AppHdr/Rltd/Prty,Priority
+/AppHdr/Rltd/Sgntr,Signature
+,Document
+/PmtRtr,Payment Return V09 (pacs.004.001.09)
+/PmtRtr/GrpHdr,Group Header
+/PmtRtr/GrpHdr/MsgId,Message Identification
+/PmtRtr/GrpHdr/CreDtTm,Creation Date Time
+/PmtRtr/GrpHdr/Authstn,Authorisation
+/PmtRtr/GrpHdr/BtchBookg,Batch Booking
+/PmtRtr/GrpHdr/NbOfTxs,Number Of Transactions
+/PmtRtr/GrpHdr/CtrlSum,Control Sum
+/PmtRtr/GrpHdr/GrpRtr,Group Return
+/PmtRtr/GrpHdr/TtlRtrdIntrBkSttlmAmt,Total Returned Interbank Settlement Amount
+/PmtRtr/GrpHdr/IntrBkSttlmDt,Interbank Settlement Date
+/PmtRtr/GrpHdr/SttlmInf,Settlement Information
+/PmtRtr/GrpHdr/SttlmInf/SttlmMtd,Settlement Method
+/PmtRtr/GrpHdr/SttlmInf/SttlmMtd,Instructed Agent
+/PmtRtr/GrpHdr/SttlmInf/SttlmMtd,Instructing Agent
+/PmtRtr/GrpHdr/SttlmInf/SttlmMtd,Cover Method
+/PmtRtr/GrpHdr/SttlmInf/SttlmMtd,Clearing System
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct,Settlement Account
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Id,Identification
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Id/IBAN,IBAN
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Id/Othr,Other
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Id/Othr/Id,Identification
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Id/Othr/SchmeNm,Scheme Name
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Id/Othr/SchmeNm/Cd,Code
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Id/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Id/Othr/Issr,Issuer
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Tp,Type
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Tp/Cd,Code
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Tp/Prtry,Proprietary
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Ccy,Currency
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Nm,Name
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Prxy,Proxy
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Prxy/Tp,Type
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Prxy/Tp/Cd,Code
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Prxy/Tp/Prtry,Proprietary
+/PmtRtr/GrpHdr/SttlmInf/SttlmAcct/Prxy/Id,Identification
+/PmtRtr/GrpHdr/SttlmInf/ClrSys,Clearing System
+/PmtRtr/GrpHdr/SttlmInf/InstgRmbrsmntAgt,Instructing Reimbursement Agent
+/PmtRtr/GrpHdr/SttlmInf/InstgRmbrsmntAgt/BrnchId,Branch Identification
+/PmtRtr/GrpHdr/SttlmInf/InstgRmbrsmntAgtAcct,Instructing Reimbursement Agent Account
+/PmtRtr/GrpHdr/SttlmInf/InstdRmbrsmntAgt,Instructed Reimbursement Agent
+/PmtRtr/GrpHdr/SttlmInf/InstdRmbrsmntAgt/BrnchId,Branch Identification
+/PmtRtr/GrpHdr/SttlmInf/InstdRmbrsmntAgtAcct,Instructed Reimbursement Agent Account
+/PmtRtr/GrpHdr/SttlmInf/ThrdRmbrsmntAgt,Third Reimbursement Agent
+/PmtRtr/GrpHdr/SttlmInf/ThrdRmbrsmntAgt/BrnchId,Branch Identification
+/PmtRtr/GrpHdr/SttlmInf/ThrdRmbrsmntAgtAcct,Third Reimbursement Agent Account
+/PmtRtr/GrpHdr/InstgAgt,Instructing Agent
+/PmtRtr/GrpHdr/InstdAgt,Instructed Agent
+/PmtRtr/OrgnlGrpInf,Original Group Information
+/PmtRtr/TxInf,Transaction Information
+/PmtRtr/TxInf/RtrId,Return Identification
+/PmtRtr/TxInf/OrgnlGrpInf,Original Group Information
+/PmtRtr/TxInf/OrgnlGrpInf/OrgnlMsgId,Original Message Identification
+/PmtRtr/TxInf/OrgnlGrpInf/OrgnlMsgNmId,Original Message Name Identification
+/PmtRtr/TxInf/OrgnlGrpInf/OrgnlCreDtTm,Original Creation Date Time
+/PmtRtr/TxInf/OrgnlInstrId,Original Instruction Identification
+/PmtRtr/TxInf/OrgnlEndToEndId,Original End To End Identification
+/PmtRtr/TxInf/OrgnlTxId,Original Transaction Identification
+/PmtRtr/TxInf/OrgnlUETR,Original UETR
+/PmtRtr/TxInf/OrgnlClrSysRef,Original Clearing System Reference
+/PmtRtr/TxInf/OrgnlIntrBkSttlmAmt,Original Interbank Settlement Amount
+/PmtRtr/TxInf/OrgnlIntrBkSttlmAmt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlIntrBkSttlmDt,Original Interbank Settlement Date
+/PmtRtr/TxInf/RtrdIntrBkSttlmAmt,Returned Interbank Settlement Amount
+/PmtRtr/TxInf/RtrdIntrBkSttlmAmt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/IntrBkSttlmDt,Interbank Settlement Date
+/PmtRtr/TxInf/SttlmPrty,Settlement Priority
+/PmtRtr/TxInf/SttlmPrty,Urgent
+/PmtRtr/TxInf/SttlmPrty,High
+/PmtRtr/TxInf/SttlmPrty,Normal
+/PmtRtr/TxInf/SttlmTmIndctn,Settlement Time Indication
+/PmtRtr/TxInf/SttlmTmIndctn/DbtDtTm,Debit Date Time
+/PmtRtr/TxInf/SttlmTmIndctn/CdtDtTm,Credit Date Time
+/PmtRtr/TxInf/RtrdInstdAmt,Returned Instructed Amount
+/PmtRtr/TxInf/RtrdInstdAmt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/XchgRate,Exchange Rate
+/PmtRtr/TxInf/CompstnAmt,Compensation Amount
+/PmtRtr/TxInf/ChrgBr,Charge Bearer
+/PmtRtr/TxInf/ChrgBr,Borne By Debtor
+/PmtRtr/TxInf/ChrgBr,Borne By Creditor
+/PmtRtr/TxInf/ChrgBr,Shared
+/PmtRtr/TxInf/ChrgBr,Following Service Level
+/PmtRtr/TxInf/ChrgsInf,Charges Information
+/PmtRtr/TxInf/ChrgsInf/Amt,Amount
+/PmtRtr/TxInf/ChrgsInf/Amt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/ChrgsInf/Agt,Agent
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/Nm,Name
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/ChrgsInf/Agt/FinInstnId/Othr,Other
+/PmtRtr/TxInf/ChrgsInf/Agt/BrnchId,Branch Identification
+/PmtRtr/TxInf/ClrSysRef,Clearing System Reference
+/PmtRtr/TxInf/InstgAgt,Instructing Agent
+/PmtRtr/TxInf/InstgAgt/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/InstgAgt/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/InstgAgt/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/InstgAgt/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/InstgAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/InstgAgt/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/InstgAgt/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/InstgAgt/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/InstgAgt/FinInstnId/Nm,Name
+/PmtRtr/TxInf/InstgAgt/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/InstgAgt/FinInstnId/Othr,Other
+/PmtRtr/TxInf/InstgAgt/BrnchId,Branch Identification
+/PmtRtr/TxInf/InstdAgt,Instructed Agent
+/PmtRtr/TxInf/InstdAgt/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/InstdAgt/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/InstdAgt/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/InstdAgt/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/InstdAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/InstdAgt/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/InstdAgt/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/InstdAgt/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/InstdAgt/FinInstnId/Nm,Name
+/PmtRtr/TxInf/InstdAgt/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/InstdAgt/FinInstnId/Othr,Other
+/PmtRtr/TxInf/InstdAgt/BrnchId,Branch Identification
+/PmtRtr/TxInf/RtrChain,Return Chain
+/PmtRtr/TxInf/RtrChain/UltmtDbtr,Ultimate Debtor
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty,Party
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Nm,Name
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/PstlAdr,Postal Address
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/PstlAdr/Dept,Department
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/PstlAdr/Room,Room
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id,Identification
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/OrgId,Organisation Identification
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/OrgId/AnyBIC,Any BIC
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/OrgId/LEI,LEI
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/OrgId/Othr,Other
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/OrgId/Othr/Id,Identification
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/OrgId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/OrgId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/OrgId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/OrgId/Othr/Issr,Issuer
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/PrvtId,Private Identification
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/PrvtId/DtAndPlcOfBirth/BirthDt,Birth Date
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/PrvtId/DtAndPlcOfBirth/PrvcOfBirth,Province Of Birth
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/PrvtId/DtAndPlcOfBirth/CityOfBirth,City Of Birth
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/PrvtId/DtAndPlcOfBirth/CtryOfBirth,Country Of Birth
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/PrvtId/Othr,Other
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/PrvtId/Othr/Id,Identification
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/PrvtId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/PrvtId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/PrvtId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/Id/PrvtId/Othr/Issr,Issuer
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/CtryOfRes,Country Of Residence
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Pty/CtctDtls,Contact Details
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Agt,Agent
+/PmtRtr/TxInf/RtrChain/UltmtDbtr/Agt/BrnchId,Branch Identification
+/PmtRtr/TxInf/RtrChain/Dbtr,Debtor
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty,Party
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Nm,Name
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/PstlAdr,Postal Address
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/PstlAdr/Dept,Department
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/PstlAdr/Room,Room
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id,Identification
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/OrgId,Organisation Identification
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/OrgId/AnyBIC,Any BIC
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/OrgId/LEI,LEI
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/OrgId/Othr,Other
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/OrgId/Othr/Id,Identification
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/OrgId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/OrgId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/OrgId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/OrgId/Othr/Issr,Issuer
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/PrvtId,Private Identification
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/PrvtId/DtAndPlcOfBirth/BirthDt,Birth Date
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/PrvtId/DtAndPlcOfBirth/PrvcOfBirth,Province Of Birth
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/PrvtId/DtAndPlcOfBirth/CityOfBirth,City Of Birth
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/PrvtId/DtAndPlcOfBirth/CtryOfBirth,Country Of Birth
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/PrvtId/Othr,Other
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/PrvtId/Othr/Id,Identification
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/PrvtId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/PrvtId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/PrvtId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/Id/PrvtId/Othr/Issr,Issuer
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/CtryOfRes,Country Of Residence
+/PmtRtr/TxInf/RtrChain/Dbtr/Pty/CtctDtls,Contact Details
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt,Agent
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/Nm,Name
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/FinInstnId/Othr,Other
+/PmtRtr/TxInf/RtrChain/Dbtr/Agt/BrnchId,Branch Identification
+/PmtRtr/TxInf/RtrChain/InitgPty,Initiating Party
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty,Party
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Nm,Name
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/PstlAdr,Postal Address
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/PstlAdr/Dept,Department
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/PstlAdr/Room,Room
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id,Identification
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/OrgId,Organisation Identification
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/OrgId/AnyBIC,Any BIC
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/OrgId/LEI,LEI
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/OrgId/Othr,Other
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/OrgId/Othr/Id,Identification
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/OrgId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/OrgId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/OrgId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/OrgId/Othr/Issr,Issuer
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/PrvtId,Private Identification
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/PrvtId/DtAndPlcOfBirth/BirthDt,Birth Date
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/PrvtId/DtAndPlcOfBirth/PrvcOfBirth,Province Of Birth
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/PrvtId/DtAndPlcOfBirth/CityOfBirth,City Of Birth
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/PrvtId/DtAndPlcOfBirth/CtryOfBirth,Country Of Birth
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/PrvtId/Othr,Other
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/PrvtId/Othr/Id,Identification
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/PrvtId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/PrvtId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/PrvtId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/Id/PrvtId/Othr/Issr,Issuer
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/CtryOfRes,Country Of Residence
+/PmtRtr/TxInf/RtrChain/InitgPty/Pty/CtctDtls,Contact Details
+/PmtRtr/TxInf/RtrChain/InitgPty/Agt,Agent
+/PmtRtr/TxInf/RtrChain/DbtrAgt,Debtor Agent
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/Nm,Name
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/RtrChain/DbtrAgt/FinInstnId/Othr,Other
+/PmtRtr/TxInf/RtrChain/DbtrAgt/BrnchId,Branch Identification
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1,Previous Instructing Agent 1
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/Nm,Name
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/FinInstnId/Othr,Other
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt1/BrnchId,Branch Identification
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2,Previous Instructing Agent 2
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/Nm,Name
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/FinInstnId/Othr,Other
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt2/BrnchId,Branch Identification
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3,Previous Instructing Agent 3
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/Nm,Name
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/FinInstnId/Othr,Other
+/PmtRtr/TxInf/RtrChain/PrvsInstgAgt3/BrnchId,Branch Identification
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1,Intermediary Agent 1
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/Nm,Name
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/FinInstnId/Othr,Other
+/PmtRtr/TxInf/RtrChain/IntrmyAgt1/BrnchId,Branch Identification
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2,Intermediary Agent 2
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/Nm,Name
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/FinInstnId/Othr,Other
+/PmtRtr/TxInf/RtrChain/IntrmyAgt2/BrnchId,Branch Identification
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3,Intermediary Agent 3
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/Nm,Name
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/FinInstnId/Othr,Other
+/PmtRtr/TxInf/RtrChain/IntrmyAgt3/BrnchId,Branch Identification
+/PmtRtr/TxInf/RtrChain/CdtrAgt,Creditor Agent
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/Nm,Name
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/RtrChain/CdtrAgt/FinInstnId/Othr,Other
+/PmtRtr/TxInf/RtrChain/CdtrAgt/BrnchId,Branch Identification
+/PmtRtr/TxInf/RtrChain/CdtrAgt/BrnchId/Id,Identification
+/PmtRtr/TxInf/RtrChain/CdtrAgt/BrnchId/LEI,LEI
+/PmtRtr/TxInf/RtrChain/CdtrAgt/BrnchId/Nm,Name
+/PmtRtr/TxInf/RtrChain/CdtrAgt/BrnchId/PstlAdr,Postal Address
+/PmtRtr/TxInf/RtrChain/Cdtr,Creditor
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty,Party
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Nm,Name
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/PstlAdr,Postal Address
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/PstlAdr/Dept,Department
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/PstlAdr/Room,Room
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id,Identification
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/OrgId,Organisation Identification
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/OrgId/AnyBIC,Any BIC
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/OrgId/LEI,LEI
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/OrgId/Othr,Other
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/OrgId/Othr/Id,Identification
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/OrgId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/OrgId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/OrgId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/OrgId/Othr/Issr,Issuer
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/PrvtId,Private Identification
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/PrvtId/DtAndPlcOfBirth/BirthDt,Birth Date
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/PrvtId/DtAndPlcOfBirth/PrvcOfBirth,Province Of Birth
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/PrvtId/DtAndPlcOfBirth/CityOfBirth,City Of Birth
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/PrvtId/DtAndPlcOfBirth/CtryOfBirth,Country Of Birth
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/PrvtId/Othr,Other
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/PrvtId/Othr/Id,Identification
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/PrvtId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/PrvtId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/PrvtId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/Id/PrvtId/Othr/Issr,Issuer
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/CtryOfRes,Country Of Residence
+/PmtRtr/TxInf/RtrChain/Cdtr/Pty/CtctDtls,Contact Details
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt,Agent
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/Nm,Name
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/FinInstnId/Othr,Other
+/PmtRtr/TxInf/RtrChain/Cdtr/Agt/BrnchId,Branch Identification
+/PmtRtr/TxInf/RtrChain/UltmtCdtr,Ultimate Creditor
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty,Party
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Nm,Name
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/PstlAdr,Postal Address
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/PstlAdr/Dept,Department
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/PstlAdr/Room,Room
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id,Identification
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/OrgId,Organisation Identification
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/OrgId/AnyBIC,Any BIC
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/OrgId/LEI,LEI
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/OrgId/Othr,Other
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/OrgId/Othr/Id,Identification
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/OrgId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/OrgId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/OrgId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/OrgId/Othr/Issr,Issuer
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/PrvtId,Private Identification
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/PrvtId/DtAndPlcOfBirth/BirthDt,Birth Date
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/PrvtId/DtAndPlcOfBirth/PrvcOfBirth,Province Of Birth
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/PrvtId/DtAndPlcOfBirth/CityOfBirth,City Of Birth
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/PrvtId/DtAndPlcOfBirth/CtryOfBirth,Country Of Birth
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/PrvtId/Othr,Other
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/PrvtId/Othr/Id,Identification
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/PrvtId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/PrvtId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/PrvtId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/Id/PrvtId/Othr/Issr,Issuer
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/CtryOfRes,Country Of Residence
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Pty/CtctDtls,Contact Details
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Agt,Agent
+/PmtRtr/TxInf/RtrChain/UltmtCdtr/Agt/BrnchId,Branch Identification
+/PmtRtr/TxInf/RtrRsnInf,Return Reason Information
+/PmtRtr/TxInf/RtrRsnInf/Orgtr,Originator
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Nm,Name
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/PstlAdr,Postal Address
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/PstlAdr/Dept,Department
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/PstlAdr/Room,Room
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id,Identification
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/OrgId,Organisation Identification
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/OrgId/AnyBIC,Any BIC
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/OrgId/LEI,LEI
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/OrgId/Othr,Other
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/OrgId/Othr/Id,Identification
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/OrgId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/OrgId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/OrgId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/OrgId/Othr/Issr,Issuer
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/PrvtId,Private Identification
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/PrvtId/DtAndPlcOfBirth/BirthDt,Birth Date
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/PrvtId/DtAndPlcOfBirth/PrvcOfBirth,Province Of Birth
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/PrvtId/DtAndPlcOfBirth/CityOfBirth,City Of Birth
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/PrvtId/DtAndPlcOfBirth/CtryOfBirth,Country Of Birth
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/PrvtId/Othr,Other
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/PrvtId/Othr/Id,Identification
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/PrvtId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/PrvtId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/PrvtId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/Id/PrvtId/Othr/Issr,Issuer
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/CtryOfRes,Country Of Residence
+/PmtRtr/TxInf/RtrRsnInf/Orgtr/CtctDtls,Contact Details
+/PmtRtr/TxInf/RtrRsnInf/Rsn,Reason
+/PmtRtr/TxInf/RtrRsnInf/Rsn/Cd,Code
+/PmtRtr/TxInf/RtrRsnInf/Rsn/Prtry,Proprietary
+/PmtRtr/TxInf/RtrRsnInf/AddtlInf,Additional Information
+/PmtRtr/TxInf/OrgnlTxRef,Original Transaction Reference
+/PmtRtr/TxInf/OrgnlTxRef/IntrBkSttlmAmt,Interbank Settlement Amount
+/PmtRtr/TxInf/OrgnlTxRef/IntrBkSttlmAmt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/Amt,Amount
+/PmtRtr/TxInf/OrgnlTxRef/Amt/InstdAmt,Instructed Amount
+/PmtRtr/TxInf/OrgnlTxRef/Amt/InstdAmt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/Amt/EqvtAmt,Equivalent Amount
+/PmtRtr/TxInf/OrgnlTxRef/Amt/EqvtAmt/Amt,Amount
+/PmtRtr/TxInf/OrgnlTxRef/Amt/EqvtAmt/Amt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/Amt/EqvtAmt/CcyOfTrf,Currency Of Transfer
+/PmtRtr/TxInf/OrgnlTxRef/IntrBkSttlmDt,Interbank Settlement Date
+/PmtRtr/TxInf/OrgnlTxRef/ReqdColltnDt,Requested Collection Date
+/PmtRtr/TxInf/OrgnlTxRef/ReqdExctnDt,Requested Execution Date
+/PmtRtr/TxInf/OrgnlTxRef/ReqdExctnDt/Dt,Date
+/PmtRtr/TxInf/OrgnlTxRef/ReqdExctnDt/DtTm,Date Time
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId,Creditor Scheme Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/AdrTp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/AdrTp/Cd,Postal
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/AdrTp/Cd,PO Box
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/AdrTp/Cd,Residential
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/AdrTp/Cd,Business
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/AdrTp/Cd,Mail To
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/AdrTp/Cd,Delivery To
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/AdrTp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/AdrTp/Prtry/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/AdrTp/Prtry/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/AdrTp/Prtry/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/OrgId,Organisation Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/OrgId/AnyBIC,Any BIC
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/OrgId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/OrgId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/OrgId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/OrgId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/OrgId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/OrgId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/OrgId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/PrvtId,Private Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/PrvtId/DtAndPlcOfBirth/BirthDt,Birth Date
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/PrvtId/DtAndPlcOfBirth/PrvcOfBirth,Province Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/PrvtId/DtAndPlcOfBirth/CityOfBirth,City Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/PrvtId/DtAndPlcOfBirth/CtryOfBirth,Country Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/PrvtId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/PrvtId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/PrvtId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/PrvtId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/PrvtId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/Id/PrvtId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtryOfRes,Country Of Residence
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls,Contact Details
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/NmPrfx,Name Prefix
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/NmPrfx,Doctor
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/NmPrfx,Madam
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/NmPrfx,Miss
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/NmPrfx,Mister
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/NmPrfx,Gender Neutral
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/PhneNb,Phone Number
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/MobNb,Mobile Number
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/FaxNb,Fax Number
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/EmailAdr,Email Address
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/EmailPurp,Email Purpose
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/JobTitl,Job Title
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/Rspnsblty,Responsibility
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/Othr/ChanlTp,Channel Type
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/PrefrdMtd,Preferred Method
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/PrefrdMtd,Letter
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/PrefrdMtd,Email
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/PrefrdMtd,Phone
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/PrefrdMtd,Fax
+/PmtRtr/TxInf/OrgnlTxRef/CdtrSchmeId/CtctDtls/PrefrdMtd,Mobile Or Cell Phone
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf,Settlement Information
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmMtd,Settlement Method
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmMtd,Instructed Agent
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmMtd,Instructing Agent
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmMtd,Cover Method
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmMtd,Clearing System
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct,Settlement Account
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Id/IBAN,IBAN
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Id/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Id/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Id/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Id/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Id/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Id/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Ccy,Currency
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Prxy,Proxy
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Prxy/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Prxy/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Prxy/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/SttlmAcct/Prxy/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ClrSys,Clearing System
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt,Instructing Reimbursement Agent
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/FinInstnId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt/BrnchId,Branch Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct,Instructing Reimbursement Agent Account
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Id/IBAN,IBAN
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Id/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Id/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Id/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Id/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Id/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Id/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Ccy,Currency
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Prxy,Proxy
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Prxy/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Prxy/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Prxy/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgtAcct/Prxy/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt,Instructed Reimbursement Agent
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/FinInstnId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt/BrnchId,Branch Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct,Instructed Reimbursement Agent Account
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Id/IBAN,IBAN
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Id/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Id/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Id/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Id/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Id/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Id/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Ccy,Currency
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Prxy,Proxy
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Prxy/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Prxy/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Prxy/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgtAcct/Prxy/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt,Third Reimbursement Agent
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/FinInstnId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgt/BrnchId,Branch Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct,Third Reimbursement Agent Account
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Id/IBAN,IBAN
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Id/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Id/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Id/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Id/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Id/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Id/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Ccy,Currency
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Prxy,Proxy
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Prxy/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Prxy/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Prxy/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/SttlmInf/ThrdRmbrsmntAgtAcct/Prxy/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf,Payment Type Information
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/InstrPrty,Instruction Priority
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/InstrPrty,High
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/InstrPrty,Normal
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/ClrChanl,Clearing Channel
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/ClrChanl,Real Time Gross Settlement System
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/ClrChanl,Real Time Net Settlement System
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/ClrChanl,Mass Payment Net System
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/ClrChanl,Book Transfer
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/SvcLvl,Service Level
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/SvcLvl/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/SvcLvl/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/LclInstrm,Local Instrument
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/LclInstrm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/LclInstrm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/SeqTp,Sequence Type
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/SeqTp,First
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/SeqTp,Recurring
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/SeqTp,Final
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/SeqTp,One Off
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/SeqTp,Represented
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/CtgyPurp,Category Purpose
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/CtgyPurp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/PmtTpInf/CtgyPurp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/PmtMtd,Payment Method
+/PmtRtr/TxInf/OrgnlTxRef/PmtMtd,Cheque
+/PmtRtr/TxInf/OrgnlTxRef/PmtMtd,Credit Transfer
+/PmtRtr/TxInf/OrgnlTxRef/PmtMtd,Direct Debit
+/PmtRtr/TxInf/OrgnlTxRef/PmtMtd,Transfer Advice
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf,Mandate Related Information
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/MndtId,Mandate Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/DtOfSgntr,Date Of Signature
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInd,Amendment Indicator
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls,Amendment Information Details
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlMndtId,Original Mandate Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId,Original Creditor Scheme Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/AdrTp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/AdrTp/Cd,Postal
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/AdrTp/Cd,PO Box
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/AdrTp/Cd,Residential
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/AdrTp/Cd,Business
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/AdrTp/Cd,Mail To
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/AdrTp/Cd,Delivery To
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/AdrTp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/AdrTp/Prtry/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/AdrTp/Prtry/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/AdrTp/Prtry/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/OrgId,Organisation Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/OrgId/AnyBIC,Any BIC
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/OrgId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/OrgId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/OrgId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/OrgId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/OrgId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/OrgId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/OrgId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/PrvtId,Private Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/PrvtId/DtAndPlcOfBirth/BirthDt,Birth Date
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/PrvtId/DtAndPlcOfBirth/PrvcOfBirth,Province Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/PrvtId/DtAndPlcOfBirth/CityOfBirth,City Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/PrvtId/DtAndPlcOfBirth/CtryOfBirth,Country Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/PrvtId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/PrvtId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/PrvtId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/PrvtId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/PrvtId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/PrvtId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtryOfRes,Country Of Residence
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls,Contact Details
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/NmPrfx,Name Prefix
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/NmPrfx,Doctor
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/NmPrfx,Madam
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/NmPrfx,Miss
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/NmPrfx,Mister
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/NmPrfx,Gender Neutral
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/PhneNb,Phone Number
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/MobNb,Mobile Number
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/FaxNb,Fax Number
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/EmailAdr,Email Address
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/EmailPurp,Email Purpose
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/JobTitl,Job Title
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/Rspnsblty,Responsibility
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/Othr/ChanlTp,Channel Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/PrefrdMtd,Preferred Method
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/PrefrdMtd,Letter
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/PrefrdMtd,Email
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/PrefrdMtd,Phone
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/PrefrdMtd,Fax
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls/PrefrdMtd,Mobile Or Cell Phone
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt,Original Creditor Agent
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/AdrTp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/AdrTp/Cd,Postal
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/AdrTp/Cd,PO Box
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/AdrTp/Cd,Residential
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/AdrTp/Cd,Business
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/AdrTp/Cd,Mail To
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/AdrTp/Cd,Delivery To
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/AdrTp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/AdrTp/Prtry/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/AdrTp/Prtry/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/AdrTp/Prtry/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/FinInstnId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId,Branch Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/AdrTp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/AdrTp/Cd,Postal
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/AdrTp/Cd,PO Box
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/AdrTp/Cd,Residential
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/AdrTp/Cd,Business
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/AdrTp/Cd,Mail To
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/AdrTp/Cd,Delivery To
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/AdrTp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/AdrTp/Prtry/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/AdrTp/Prtry/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/AdrTp/Prtry/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt/BrnchId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct,Original Creditor Agent Account
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Id/IBAN,IBAN
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Id/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Id/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Id/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Id/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Id/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Id/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Ccy,Currency
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Prxy,Proxy
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Prxy/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Prxy/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Prxy/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct/Prxy/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr,Original Debtor
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/AdrTp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/AdrTp/Cd,Postal
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/AdrTp/Cd,PO Box
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/AdrTp/Cd,Residential
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/AdrTp/Cd,Business
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/AdrTp/Cd,Mail To
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/AdrTp/Cd,Delivery To
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/AdrTp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/AdrTp/Prtry/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/AdrTp/Prtry/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/AdrTp/Prtry/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/OrgId,Organisation Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/OrgId/AnyBIC,Any BIC
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/OrgId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/OrgId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/OrgId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/OrgId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/OrgId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/OrgId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/OrgId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/PrvtId,Private Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/PrvtId/DtAndPlcOfBirth/BirthDt,Birth Date
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/PrvtId/DtAndPlcOfBirth/PrvcOfBirth,Province Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/PrvtId/DtAndPlcOfBirth/CityOfBirth,City Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/PrvtId/DtAndPlcOfBirth/CtryOfBirth,Country Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/PrvtId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/PrvtId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/PrvtId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/PrvtId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/PrvtId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/Id/PrvtId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtryOfRes,Country Of Residence
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls,Contact Details
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/NmPrfx,Name Prefix
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/NmPrfx,Doctor
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/NmPrfx,Madam
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/NmPrfx,Miss
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/NmPrfx,Mister
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/NmPrfx,Gender Neutral
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/PhneNb,Phone Number
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/MobNb,Mobile Number
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/FaxNb,Fax Number
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/EmailAdr,Email Address
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/EmailPurp,Email Purpose
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/JobTitl,Job Title
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/Rspnsblty,Responsibility
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/Othr/ChanlTp,Channel Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/PrefrdMtd,Preferred Method
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/PrefrdMtd,Letter
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/PrefrdMtd,Email
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/PrefrdMtd,Phone
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/PrefrdMtd,Fax
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr/CtctDtls/PrefrdMtd,Mobile Or Cell Phone
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct,Original Debtor Account
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Id/IBAN,IBAN
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Id/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Id/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Id/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Id/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Id/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Id/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Ccy,Currency
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Prxy,Proxy
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Prxy/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Prxy/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Prxy/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct/Prxy/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt,Original Debtor Agent
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/AdrTp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/AdrTp/Cd,Postal
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/AdrTp/Cd,PO Box
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/AdrTp/Cd,Residential
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/AdrTp/Cd,Business
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/AdrTp/Cd,Mail To
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/AdrTp/Cd,Delivery To
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/AdrTp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/AdrTp/Prtry/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/AdrTp/Prtry/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/AdrTp/Prtry/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/FinInstnId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId,Branch Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/AdrTp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/AdrTp/Cd,Postal
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/AdrTp/Cd,PO Box
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/AdrTp/Cd,Residential
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/AdrTp/Cd,Business
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/AdrTp/Cd,Mail To
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/AdrTp/Cd,Delivery To
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/AdrTp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/AdrTp/Prtry/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/AdrTp/Prtry/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/AdrTp/Prtry/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt/BrnchId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct,Original Debtor Agent Account
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Id/IBAN,IBAN
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Id/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Id/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Id/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Id/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Id/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Id/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Ccy,Currency
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Prxy,Proxy
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Prxy/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Prxy/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Prxy/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct/Prxy/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFnlColltnDt,Original Final Collection Date
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy,Original Frequency
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Tp,Annual
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Tp,Monthly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Tp,Quarterly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Tp,Semi Annual
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Tp,Weekly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Tp,Daily
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Tp,Adhoc
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Tp,Intra Day
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Tp,Fortnightly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Prd,Period
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Prd/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Prd/Tp,Annual
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Prd/Tp,Monthly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Prd/Tp,Quarterly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Prd/Tp,Semi Annual
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Prd/Tp,Weekly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Prd/Tp,Daily
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Prd/Tp,Adhoc
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Prd/Tp,Intra Day
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Prd/Tp,Fortnightly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/Prd/CntPerPrd,Count Per Period
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/PtInTm,Point In Time
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/PtInTm/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/PtInTm/Tp,Annual
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/PtInTm/Tp,Monthly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/PtInTm/Tp,Quarterly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/PtInTm/Tp,Semi Annual
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/PtInTm/Tp,Weekly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/PtInTm/Tp,Daily
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/PtInTm/Tp,Adhoc
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/PtInTm/Tp,Intra Day
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/PtInTm/Tp,Fortnightly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy/PtInTm/PtInTm,Point In Time
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlRsn,Original Reason
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlRsn/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlRsn/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/AmdmntInfDtls/OrgnlTrckgDays,Original Tracking Days
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/ElctrncSgntr,Electronic Signature
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/FrstColltnDt,First Collection Date
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/FnlColltnDt,Final Collection Date
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy,Frequency
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Tp,Annual
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Tp,Monthly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Tp,Quarterly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Tp,Semi Annual
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Tp,Weekly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Tp,Daily
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Tp,Adhoc
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Tp,Intra Day
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Tp,Fortnightly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Prd,Period
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Prd/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Prd/Tp,Annual
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Prd/Tp,Monthly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Prd/Tp,Quarterly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Prd/Tp,Semi Annual
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Prd/Tp,Weekly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Prd/Tp,Daily
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Prd/Tp,Adhoc
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Prd/Tp,Intra Day
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Prd/Tp,Fortnightly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/Prd/CntPerPrd,Count Per Period
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/PtInTm,Point In Time
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/PtInTm/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/PtInTm/Tp,Annual
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/PtInTm/Tp,Monthly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/PtInTm/Tp,Quarterly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/PtInTm/Tp,Semi Annual
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/PtInTm/Tp,Weekly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/PtInTm/Tp,Daily
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/PtInTm/Tp,Adhoc
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/PtInTm/Tp,Intra Day
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/PtInTm/Tp,Fortnightly
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Frqcy/PtInTm/PtInTm,Point In Time
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Rsn,Reason
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Rsn/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/Rsn/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/MndtRltdInf/TrckgDays,Tracking Days
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf,Remittance Information
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Ustrd,Unstructured
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd,Structured
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf,Referred Document Information
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry,Code Or Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd,Metered Service Invoice
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd,Credit Note Related To Financial Adjustment
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd,Debit Note Related To Financial Adjustment
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd,Commercial Invoice
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd,Credit Note
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd,Debit Note
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd,Hire Invoice
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd,Self Billed Invoice
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd,Commercial Contract
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd,Statement Of Account
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd,Dispatch Advice
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd,Bill Of Lading
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd,Voucher
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd,Account Receivable Open Item
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd,Trade Services Utility Transaction
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Cd,Purchase Order
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/CdOrPrtry/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Tp/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Nb,Number
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/RltdDt,Related Date
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls,Line Details
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Id/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Id/Tp/CdOrPrtry,Code Or Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Id/Tp/CdOrPrtry/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Id/Tp/CdOrPrtry/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Id/Tp/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Id/Nb,Number
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Id/RltdDt,Related Date
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Desc,Description
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt,Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/DuePyblAmt,Due Payable Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/DuePyblAmt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/DscntApldAmt,Discount Applied Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/DscntApldAmt/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/DscntApldAmt/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/DscntApldAmt/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/DscntApldAmt/Amt,Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/DscntApldAmt/Amt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/CdtNoteAmt,Credit Note Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/CdtNoteAmt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/TaxAmt,Tax Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/TaxAmt/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/TaxAmt/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/TaxAmt/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/TaxAmt/Amt,Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/TaxAmt/Amt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/AdjstmntAmtAndRsn,Adjustment Amount And Reason
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/AdjstmntAmtAndRsn/Amt,Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/AdjstmntAmtAndRsn/Amt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/AdjstmntAmtAndRsn/CdtDbtInd,Credit Debit Indicator
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/AdjstmntAmtAndRsn/CdtDbtInd,Credit
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/AdjstmntAmtAndRsn/CdtDbtInd,Debit
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/AdjstmntAmtAndRsn/Rsn,Reason
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/AdjstmntAmtAndRsn/AddtlInf,Additional Information
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/RmtdAmt,Remitted Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/RmtdAmt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt,Referred Document Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/DuePyblAmt,Due Payable Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/DuePyblAmt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/DscntApldAmt,Discount Applied Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/DscntApldAmt/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/DscntApldAmt/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/DscntApldAmt/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/DscntApldAmt/Amt,Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/DscntApldAmt/Amt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/CdtNoteAmt,Credit Note Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/CdtNoteAmt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/TaxAmt,Tax Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/TaxAmt/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/TaxAmt/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/TaxAmt/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/TaxAmt/Amt,Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/TaxAmt/Amt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/AdjstmntAmtAndRsn,Adjustment Amount And Reason
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/AdjstmntAmtAndRsn/Amt,Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/AdjstmntAmtAndRsn/Amt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/AdjstmntAmtAndRsn/CdtDbtInd,Credit Debit Indicator
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/AdjstmntAmtAndRsn/CdtDbtInd,Credit
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/AdjstmntAmtAndRsn/CdtDbtInd,Debit
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/AdjstmntAmtAndRsn/Rsn,Reason
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/AdjstmntAmtAndRsn/AddtlInf,Additional Information
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/RmtdAmt,Remitted Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/RfrdDocAmt/RmtdAmt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/CdtrRefInf,Creditor Reference Information
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/CdtrRefInf/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/CdtrRefInf/Tp/CdOrPrtry,Code Or Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/CdtrRefInf/Tp/CdOrPrtry/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/CdtrRefInf/Tp/CdOrPrtry/Cd,Remittance Advice Message
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/CdtrRefInf/Tp/CdOrPrtry/Cd,Related Payment Instruction
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/CdtrRefInf/Tp/CdOrPrtry/Cd,Foreign Exchange Deal Reference
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/CdtrRefInf/Tp/CdOrPrtry/Cd,Dispatch Advice
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/CdtrRefInf/Tp/CdOrPrtry/Cd,Purchase Order
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/CdtrRefInf/Tp/CdOrPrtry/Cd,Structured Communication Reference
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/CdtrRefInf/Tp/CdOrPrtry/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/CdtrRefInf/Tp/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/CdtrRefInf/Ref,Reference
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr,Invoicer
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/OrgId,Organisation Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/OrgId/AnyBIC,Any BIC
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/OrgId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/OrgId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/OrgId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/OrgId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/OrgId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/OrgId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/OrgId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/PrvtId,Private Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/PrvtId/DtAndPlcOfBirth/BirthDt,Birth Date
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/PrvtId/DtAndPlcOfBirth/PrvcOfBirth,Province Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/PrvtId/DtAndPlcOfBirth/CityOfBirth,City Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/PrvtId/DtAndPlcOfBirth/CtryOfBirth,Country Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/PrvtId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/PrvtId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/PrvtId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/PrvtId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/PrvtId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/Id/PrvtId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/CtryOfRes,Country Of Residence
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcr/CtctDtls,Contact Details
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee,Invoicee
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/OrgId,Organisation Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/OrgId/AnyBIC,Any BIC
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/OrgId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/OrgId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/OrgId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/OrgId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/OrgId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/OrgId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/OrgId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/PrvtId,Private Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/PrvtId/DtAndPlcOfBirth/BirthDt,Birth Date
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/PrvtId/DtAndPlcOfBirth/PrvcOfBirth,Province Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/PrvtId/DtAndPlcOfBirth/CityOfBirth,City Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/PrvtId/DtAndPlcOfBirth/CtryOfBirth,Country Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/PrvtId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/PrvtId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/PrvtId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/PrvtId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/PrvtId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/Id/PrvtId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/CtryOfRes,Country Of Residence
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/Invcee/CtctDtls,Contact Details
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt,Tax Remittance
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Cdtr,Creditor
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Cdtr/TaxId,Tax Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Cdtr/RegnId,Registration Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Cdtr/TaxTp,Tax Type
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Dbtr,Debtor
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Dbtr/TaxId,Tax Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Dbtr/RegnId,Registration Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Dbtr/TaxTp,Tax Type
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Dbtr/Authstn,Authorisation
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Dbtr/Authstn/Titl,Title
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Dbtr/Authstn/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/UltmtDbtr,Ultimate Debtor
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/UltmtDbtr/TaxId,Tax Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/UltmtDbtr/RegnId,Registration Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/UltmtDbtr/TaxTp,Tax Type
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/UltmtDbtr/Authstn,Authorisation
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/UltmtDbtr/Authstn/Titl,Title
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/UltmtDbtr/Authstn/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/AdmstnZone,Administration Zone
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/RefNb,Reference Number
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Mtd,Method
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/TtlTaxblBaseAmt,Total Taxable Base Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/TtlTaxblBaseAmt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/TtlTaxAmt,Total Tax Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/TtlTaxAmt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Dt,Date
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/SeqNb,Sequence Number
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd,Record
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Ctgy,Category
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/CtgyDtls,Category Details
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/DbtrSts,Debtor Status
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/CertId,Certificate Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/FrmsCd,Forms Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd,Period
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Yr,Year
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,First Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,Second Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,Third Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,Fourth Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,Fifth Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,Sixth Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,Seventh Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,Eighth Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,Ninth Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,Tenth Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,Eleventh Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,Twelfth Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,First Quarter
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,Second Quarter
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,Third Quarter
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,Fourth Quarter
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,First Half
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/Tp,Second Half
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/FrToDt,From To Date
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/FrToDt/FrDt,From Date
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Prd/FrToDt/ToDt,To Date
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt,Tax Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Rate,Rate
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/TaxblBaseAmt,Taxable Base Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/TaxblBaseAmt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/TtlAmt,Total Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/TtlAmt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls,Details
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd,Period
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Yr,Year
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,First Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,Second Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,Third Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,Fourth Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,Fifth Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,Sixth Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,Seventh Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,Eighth Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,Ninth Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,Tenth Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,Eleventh Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,Twelfth Month
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,First Quarter
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,Second Quarter
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,Third Quarter
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,Fourth Quarter
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,First Half
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/Tp,Second Half
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/FrToDt,From To Date
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/FrToDt/FrDt,From Date
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Prd/FrToDt/ToDt,To Date
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Amt,Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/TaxAmt/Dtls/Amt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/AddtlInf,Additional Information
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt,Garnishment Remittance
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Tp/CdOrPrtry,Code Or Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Tp/CdOrPrtry/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Tp/CdOrPrtry/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Tp/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee,Garnishee
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/OrgId,Organisation Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/OrgId/AnyBIC,Any BIC
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/OrgId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/OrgId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/OrgId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/OrgId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/OrgId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/OrgId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/OrgId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/PrvtId,Private Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/PrvtId/DtAndPlcOfBirth/BirthDt,Birth Date
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/PrvtId/DtAndPlcOfBirth/PrvcOfBirth,Province Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/PrvtId/DtAndPlcOfBirth/CityOfBirth,City Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/PrvtId/DtAndPlcOfBirth/CtryOfBirth,Country Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/PrvtId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/PrvtId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/PrvtId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/PrvtId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/PrvtId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id/PrvtId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/CtryOfRes,Country Of Residence
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/CtctDtls,Contact Details
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr,Garnishment Administrator
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/OrgId,Organisation Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/OrgId/AnyBIC,Any BIC
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/OrgId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/OrgId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/OrgId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/OrgId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/OrgId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/OrgId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/OrgId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/PrvtId,Private Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/PrvtId/DtAndPlcOfBirth/BirthDt,Birth Date
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/PrvtId/DtAndPlcOfBirth/PrvcOfBirth,Province Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/PrvtId/DtAndPlcOfBirth/CityOfBirth,City Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/PrvtId/DtAndPlcOfBirth/CtryOfBirth,Country Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/PrvtId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/PrvtId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/PrvtId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/PrvtId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/PrvtId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id/PrvtId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/CtryOfRes,Country Of Residence
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/CtctDtls,Contact Details
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/RefNb,Reference Number
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Dt,Date
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/RmtdAmt,Remitted Amount
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/RmtdAmt/Ccy,Xml Attribute Currency
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/FmlyMdclInsrncInd,Family Medical Insurance Indicator
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/MplyeeTermntnInd,Employee Termination Indicator
+/PmtRtr/TxInf/OrgnlTxRef/RmtInf/Strd/AddtlRmtInf,Additional Remittance Information
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr,Ultimate Debtor
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty,Party
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/OrgId,Organisation Identification
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/OrgId/AnyBIC,Any BIC
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/OrgId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/OrgId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/OrgId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/OrgId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/OrgId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/OrgId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/OrgId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/PrvtId,Private Identification
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/PrvtId/DtAndPlcOfBirth/BirthDt,Birth Date
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/PrvtId/DtAndPlcOfBirth/PrvcOfBirth,Province Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/PrvtId/DtAndPlcOfBirth/CityOfBirth,City Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/PrvtId/DtAndPlcOfBirth/CtryOfBirth,Country Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/PrvtId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/PrvtId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/PrvtId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/PrvtId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/PrvtId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/Id/PrvtId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/CtryOfRes,Country Of Residence
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Pty/CtctDtls,Contact Details
+/PmtRtr/TxInf/OrgnlTxRef/UltmtDbtr/Agt,Agent
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr,Debtor
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty,Party
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/OrgId,Organisation Identification
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/OrgId/AnyBIC,Any BIC
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/OrgId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/OrgId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/OrgId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/OrgId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/OrgId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/OrgId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/OrgId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/PrvtId,Private Identification
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/PrvtId/DtAndPlcOfBirth/BirthDt,Birth Date
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/PrvtId/DtAndPlcOfBirth/PrvcOfBirth,Province Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/PrvtId/DtAndPlcOfBirth/CityOfBirth,City Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/PrvtId/DtAndPlcOfBirth/CtryOfBirth,Country Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/PrvtId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/PrvtId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/PrvtId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/PrvtId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/PrvtId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/Id/PrvtId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/CtryOfRes,Country Of Residence
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Pty/CtctDtls,Contact Details
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt,Agent
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/FinInstnId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/Dbtr/Agt/BrnchId,Branch Identification
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct,Debtor Account
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Id/IBAN,IBAN
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Id/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Id/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Id/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Id/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Id/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Id/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Ccy,Currency
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Prxy,Proxy
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Prxy/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Prxy/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Prxy/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAcct/Prxy/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt,Debtor Agent
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/FinInstnId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgt/BrnchId,Branch Identification
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct,Debtor Agent Account
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Id/IBAN,IBAN
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Id/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Id/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Id/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Id/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Id/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Id/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Ccy,Currency
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Prxy,Proxy
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Prxy/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Prxy/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Prxy/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/DbtrAgtAcct/Prxy/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt,Creditor Agent
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/FinInstnId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/BrnchId,Branch Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/BrnchId/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/BrnchId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/BrnchId/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgt/BrnchId/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct,Creditor Agent Account
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Id/IBAN,IBAN
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Id/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Id/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Id/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Id/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Id/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Id/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Ccy,Currency
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Prxy,Proxy
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Prxy/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Prxy/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Prxy/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAgtAcct/Prxy/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr,Creditor
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty,Party
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/OrgId,Organisation Identification
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/OrgId/AnyBIC,Any BIC
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/OrgId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/OrgId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/OrgId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/OrgId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/OrgId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/OrgId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/OrgId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/PrvtId,Private Identification
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/PrvtId/DtAndPlcOfBirth/BirthDt,Birth Date
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/PrvtId/DtAndPlcOfBirth/PrvcOfBirth,Province Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/PrvtId/DtAndPlcOfBirth/CityOfBirth,City Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/PrvtId/DtAndPlcOfBirth/CtryOfBirth,Country Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/PrvtId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/PrvtId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/PrvtId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/PrvtId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/PrvtId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/Id/PrvtId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/CtryOfRes,Country Of Residence
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Pty/CtctDtls,Contact Details
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt,Agent
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId,Financial Institution Identification
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/BICFI,BICFI
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/ClrSysMmbId,Clearing System Member Identification
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/ClrSysMmbId/ClrSysId,Clearing System Identification
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/ClrSysMmbId/ClrSysId/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/ClrSysMmbId/ClrSysId/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/ClrSysMmbId/MmbId,Member Identification
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/FinInstnId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/Cdtr/Agt/BrnchId,Branch Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct,Creditor Account
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Id/IBAN,IBAN
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Id/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Id/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Id/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Id/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Id/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Id/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Ccy,Currency
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Prxy,Proxy
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Prxy/Tp,Type
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Prxy/Tp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Prxy/Tp/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/CdtrAcct/Prxy/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr,Ultimate Creditor
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty,Party
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Nm,Name
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/PstlAdr,Postal Address
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/PstlAdr/AdrTp,Address Type
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/PstlAdr/Dept,Department
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/PstlAdr/SubDept,Sub Department
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/PstlAdr/StrtNm,Street Name
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/PstlAdr/BldgNb,Building Number
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/PstlAdr/BldgNm,Building Name
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/PstlAdr/Flr,Floor
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/PstlAdr/PstBx,Post Box
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/PstlAdr/Room,Room
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/PstlAdr/PstCd,Post Code
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/PstlAdr/TwnNm,Town Name
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/PstlAdr/TwnLctnNm,Town Location Name
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/PstlAdr/DstrctNm,District Name
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/PstlAdr/CtrySubDvsn,Country Sub Division
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/PstlAdr/Ctry,Country
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/PstlAdr/AdrLine,Address Line
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/OrgId,Organisation Identification
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/OrgId/AnyBIC,Any BIC
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/OrgId/LEI,LEI
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/OrgId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/OrgId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/OrgId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/OrgId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/OrgId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/OrgId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/PrvtId,Private Identification
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/PrvtId/DtAndPlcOfBirth/BirthDt,Birth Date
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/PrvtId/DtAndPlcOfBirth/PrvcOfBirth,Province Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/PrvtId/DtAndPlcOfBirth/CityOfBirth,City Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/PrvtId/DtAndPlcOfBirth/CtryOfBirth,Country Of Birth
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/PrvtId/Othr,Other
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/PrvtId/Othr/Id,Identification
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/PrvtId/Othr/SchmeNm,Scheme Name
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/PrvtId/Othr/SchmeNm/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/PrvtId/Othr/SchmeNm/Prtry,Proprietary
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/Id/PrvtId/Othr/Issr,Issuer
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/CtryOfRes,Country Of Residence
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Pty/CtctDtls,Contact Details
+/PmtRtr/TxInf/OrgnlTxRef/UltmtCdtr/Agt,Agent
+/PmtRtr/TxInf/OrgnlTxRef/Purp,Purpose
+/PmtRtr/TxInf/OrgnlTxRef/Purp/Cd,Code
+/PmtRtr/TxInf/OrgnlTxRef/Purp/Prtry,Proprietary
+/PmtRtr/TxInf/SplmtryData,Supplementary Data
+/PmtRtr/SplmtryData,Supplementary Data

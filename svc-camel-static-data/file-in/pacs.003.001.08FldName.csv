@@ -1,0 +1,204 @@
+﻿/FIToFICstmrDrctDbt,FITo FICustomer Direct Debit V08
+/FIToFICstmrDrctDbt/CharSet,Group Header
+/FIToFICstmrDrctDbt/CharSet/MsgId,Message Identification
+/FIToFICstmrDrctDbt/CharSet/CreDtTm,Creation Date Time
+/FIToFICstmrDrctDbt/CharSet/Authstn,Authorisation
+/FIToFICstmrDrctDbt/CharSet/BtchBookg,Batch Booking
+/FIToFICstmrDrctDbt/CharSet/NbOfTxs,Number Of Transactions
+/FIToFICstmrDrctDbt/CharSet/CtrlSum,Control Sum
+/FIToFICstmrDrctDbt/CharSet/TtlIntrBkSttlmAmt,Total Interbank Settlement Amount
+/FIToFICstmrDrctDbt/CharSet/IntrBkSttlmDt,Interbank Settlement Date
+/FIToFICstmrDrctDbt/CharSet/SttlmInf,Settlement Information
+/FIToFICstmrDrctDbt/CharSet/SttlmInf/SttlmMtd,Settlement Method
+/FIToFICstmrDrctDbt/CharSet/SttlmInf/SttlmAcct,Settlement Account
+/FIToFICstmrDrctDbt/CharSet/SttlmInf/ClrSys,Clearing System
+/FIToFICstmrDrctDbt/CharSet/PmtTpInf,Payment Type Information
+/FIToFICstmrDrctDbt/CharSet/PmtTpInf/InstrPrty,Instruction Priority
+/FIToFICstmrDrctDbt/CharSet/PmtTpInf/ClrChanl,Clearing Channel
+/FIToFICstmrDrctDbt/CharSet/PmtTpInf/SvcLvl,Service Level
+/FIToFICstmrDrctDbt/CharSet/PmtTpInf/SvcLvl/Cd,Code
+/FIToFICstmrDrctDbt/CharSet/PmtTpInf/SvcLvl/Prtry,Proprietary
+/FIToFICstmrDrctDbt/CharSet/PmtTpInf/LclInstrm,Local Instrument
+/FIToFICstmrDrctDbt/CharSet/PmtTpInf/LclInstrm/Cd,Code
+/FIToFICstmrDrctDbt/CharSet/PmtTpInf/LclInstrm/Prtry,Proprietary
+/FIToFICstmrDrctDbt/CharSet/PmtTpInf/SeqTp,Sequence Type
+/FIToFICstmrDrctDbt/CharSet/PmtTpInf/CtgyPurp,Category Purpose
+/FIToFICstmrDrctDbt/CharSet/PmtTpInf/CtgyPurp/Cd,Code
+/FIToFICstmrDrctDbt/CharSet/PmtTpInf/CtgyPurp/Prtry,Proprietary
+/FIToFICstmrDrctDbt/CharSet/InstgAgt,Instructing Agent
+/FIToFICstmrDrctDbt/CharSet/InstdAgt,Instructed Agent
+/FIToFICstmrDrctDbt/DrctDbtTxInf,Direct Debit Transaction Information
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtId,Payment Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtId/InstrId,Instruction Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtId/EndToEndId,End To End Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtId/TxId,Transaction Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtId/UETR,UETR
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtId/ClrSysRef,Clearing System Reference
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtTpInf,Payment Type Information
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtTpInf/InstrPrty,Instruction Priority
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtTpInf/ClrChanl,Clearing Channel
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtTpInf/SvcLvl,Service Level
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtTpInf/SvcLvl/Cd,Code
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtTpInf/SvcLvl/Prtry,Proprietary
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtTpInf/LclInstrm,Local Instrument
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtTpInf/LclInstrm/Cd,Code
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtTpInf/LclInstrm/Prtry,Proprietary
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtTpInf/SeqTp,Sequence Type
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtTpInf/CtgyPurp,Category Purpose
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtTpInf/CtgyPurp/Cd,Code
+/FIToFICstmrDrctDbt/DrctDbtTxInf/PmtTpInf/CtgyPurp/Prtry,Proprietary
+/FIToFICstmrDrctDbt/DrctDbtTxInf/IntrBkSttlmAmt,Interbank Settlement Amount
+/FIToFICstmrDrctDbt/DrctDbtTxInf/IntrBkSttlmDt,Interbank Settlement Date
+/FIToFICstmrDrctDbt/DrctDbtTxInf/SttlmPrty,Settlement Priority
+/FIToFICstmrDrctDbt/DrctDbtTxInf/SttlmTmIndctn,Settlement Time Indication
+/FIToFICstmrDrctDbt/DrctDbtTxInf/InstdAmt,Instructed Amount
+/FIToFICstmrDrctDbt/DrctDbtTxInf/XchgRate,Exchange Rate
+/FIToFICstmrDrctDbt/DrctDbtTxInf/ChrgBr,Charge Bearer
+/FIToFICstmrDrctDbt/DrctDbtTxInf/ChrgsInf,Charges Information
+/FIToFICstmrDrctDbt/DrctDbtTxInf/ReqdColltnDt,Requested Collection Date
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx,Direct Debit Transaction
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf,Mandate Related Information
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/MndtId,Mandate Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/DtOfSgntr,Date Of Signature
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInd,Amendment Indicator
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls,Amendment Information Details
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlMndtId,Original Mandate Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId,Original Creditor Scheme Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Nm,Name
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/PstlAdr,Postal Address
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id,Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/OrgId,Organisation Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/PrvtId,Private Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/Id/PrvtId/Othr,Other
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtryOfRes,Country Of Residence
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrSchmeId/CtctDtls,Contact Details
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgt,Original Creditor Agent
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlCdtrAgtAcct,Original Creditor Agent Account
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlDbtr,Original Debtor
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAcct,Original Debtor Account
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgt,Original Debtor Agent
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlDbtrAgtAcct,Original Debtor Agent Account
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlFnlColltnDt,Original Final Collection Date
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlFrqcy,Original Frequency
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlRsn,Original Reason
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/AmdmntInfDtls/OrgnlTrckgDays,Original Tracking Days
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/ElctrncSgntr,Electronic Signature
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/FrstColltnDt,First Collection Date
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/FnlColltnDt,Final Collection Date
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/Frqcy,Frequency
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/Rsn,Reason
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/TrckgDays,Tracking Days
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/CdtrSchmeId,Creditor Scheme Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/CdtrSchmeId/Nm,Name
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/CdtrSchmeId/PstlAdr,Postal Address
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/CdtrSchmeId/Id,Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/CdtrSchmeId/Id/OrgId,Organisation Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/CdtrSchmeId/Id/PrvtId,Private Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/CdtrSchmeId/Id/PrvtId/DtAndPlcOfBirth,Date And Place Of Birth
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/CdtrSchmeId/Id/PrvtId/Othr,Other
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/CdtrSchmeId/CtryOfRes,Country Of Residence
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/CdtrSchmeId/CtctDtls,Contact Details
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/PreNtfctnId,Pre Notification Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DrctDbtTx/PreNtfctnDt,Pre Notification Date
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr,Creditor
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/Nm,Name
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr,Postal Address
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/AdrTp,Address Type
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/Dept,Department
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/SubDept,Sub Department
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/StrtNm,Street Name
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/BldgNb,Building Number
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/BldgNm,Building Name
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/Flr,Floor
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/PstBx,Post Box
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/Room,Room
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/PstCd,Post Code
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/TwnNm,Town Name
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/TwnLctnNm,Town Location Name
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/DstrctNm,District Name
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/CtrySubDvsn,Country Sub Division
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/Ctry,Country
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/PstlAdr/AdrLine,Address Line
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/Id,Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/CtryOfRes,Country Of Residence
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Cdtr/CtctDtls,Contact Details
+/FIToFICstmrDrctDbt/DrctDbtTxInf/CdtrAcct,Creditor Account
+/FIToFICstmrDrctDbt/DrctDbtTxInf/CdtrAgt,Creditor Agent
+/FIToFICstmrDrctDbt/DrctDbtTxInf/CdtrAgtAcct,Creditor Agent Account
+/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtCdtr,Ultimate Creditor
+/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtCdtr/Nm,Name
+/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtCdtr/PstlAdr,Postal Address
+/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtCdtr/Id,Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtCdtr/Id/OrgId,Organisation Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtCdtr/Id/PrvtId,Private Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtCdtr/CtryOfRes,Country Of Residence
+/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtCdtr/CtctDtls,Contact Details
+/FIToFICstmrDrctDbt/DrctDbtTxInf/InitgPty,Initiating Party
+/FIToFICstmrDrctDbt/DrctDbtTxInf/InstgAgt,Instructing Agent
+/FIToFICstmrDrctDbt/DrctDbtTxInf/InstdAgt,Instructed Agent
+/FIToFICstmrDrctDbt/DrctDbtTxInf/IntrmyAgt1,Intermediary Agent 1
+/FIToFICstmrDrctDbt/DrctDbtTxInf/IntrmyAgt1Acct,Intermediary Agent 1Account
+/FIToFICstmrDrctDbt/DrctDbtTxInf/IntrmyAgt2,Intermediary Agent 2
+/FIToFICstmrDrctDbt/DrctDbtTxInf/IntrmyAgt2Acct,Intermediary Agent 2Account
+/FIToFICstmrDrctDbt/DrctDbtTxInf/IntrmyAgt3,Intermediary Agent 3
+/FIToFICstmrDrctDbt/DrctDbtTxInf/IntrmyAgt3Acct,Intermediary Agent 3Account
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr,Debtor
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/Nm,Name
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr,Postal Address
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/AdrTp,Address Type
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/Dept,Department
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/SubDept,Sub Department
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/StrtNm,Street Name
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/BldgNb,Building Number
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/BldgNm,Building Name
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/Flr,Floor
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/PstBx,Post Box
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/Room,Room
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/PstCd,Post Code
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/TwnNm,Town Name
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/TwnLctnNm,Town Location Name
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/DstrctNm,District Name
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/CtrySubDvsn,Country Sub Division
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/Ctry,Country
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/PstlAdr/AdrLine,Address Line
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/Id,Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/Id/OrgId,Organisation Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/Id/PrvtId,Private Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/CtryOfRes,Country Of Residence
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Dbtr/CtctDtls,Contact Details
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DbtrAcct,Debtor Account
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DbtrAgt,Debtor Agent
+/FIToFICstmrDrctDbt/DrctDbtTxInf/DbtrAgtAcct,Debtor Agent Account
+/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtDbtr,Ultimate Debtor
+/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtDbtr/Nm,Name
+/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtDbtr/PstlAdr,Postal Address
+/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtDbtr/Id,Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtDbtr/Id/OrgId,Organisation Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtDbtr/Id/PrvtId,Private Identification
+/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtDbtr/CtryOfRes,Country Of Residence
+/FIToFICstmrDrctDbt/DrctDbtTxInf/UltmtDbtr/CtctDtls,Contact Details
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Purp,Purpose
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Purp/Cd,Code
+/FIToFICstmrDrctDbt/DrctDbtTxInf/Purp/Prtry,Proprietary
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RgltryRptg,Regulatory Reporting
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RltdRmtInf,Related Remittance Information
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RmtInf,Remittance Information
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RmtInf/Ustrd,Unstructured
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RmtInf/Strd,Structured
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RmtInf/Strd/RfrdDocInf,Referred Document Information
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RmtInf/Strd/RfrdDocAmt,Referred Document Amount
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RmtInf/Strd/CdtrRefInf,Creditor Reference Information
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RmtInf/Strd/CdtrRefInf/Tp,Type
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RmtInf/Strd/CdtrRefInf/Tp/CdOrPrtry,Code Or Proprietary
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RmtInf/Strd/CdtrRefInf/Tp/CdOrPrtry/Cd,Code
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RmtInf/Strd/CdtrRefInf/Tp/CdOrPrtry/Prtry,Proprietary
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RmtInf/Strd/CdtrRefInf/Tp/Issr,Issuer
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RmtInf/Strd/CdtrRefInf/Ref,Reference
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RmtInf/Strd/Invcr,Invoicer
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RmtInf/Strd/Invcee,Invoicee
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RmtInf/Strd/TaxRmt,Tax Remittance
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RmtInf/Strd/GrnshmtRmt,Garnishment Remittance
+/FIToFICstmrDrctDbt/DrctDbtTxInf/RmtInf/Strd/AddtlRmtInf,Additional Remittance Information
+/FIToFICstmrDrctDbt/DrctDbtTxInf/SplmtryData,Supplementary Data
+/FIToFICstmrDrctDbt/SplmtryData,Supplementary Data

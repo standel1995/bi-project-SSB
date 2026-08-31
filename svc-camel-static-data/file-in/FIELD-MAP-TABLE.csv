@@ -1,0 +1,14 @@
+20,Message-Level
+32,ValueDate-Currency-InterbankSettledAmount
+52,OrderingInstitution
+53,Sender’sCorrespondent
+54,Receiver’sCorrespondent
+55,ThirdReimbursementInstitution
+56,IntermediaryInstitution
+57,AccountWithInstitution
+58,BeneficiaryInstitution
+59,BeneficiaryCustomer
+72,sendertoReceiverInformation
+INTERMEDIARY,56
+ORDERING-INSTITUTE,52
+VALUE-DATE,32
