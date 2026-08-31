@@ -1,0 +1,8 @@
+link:BeneficiaryNameAndAddress,pacs.008.001.08|pacs008|pacs.004.001.09|pacs004|pacs.009|pacs.009.001.08
+link:CorrespondentBankCode,pacs.008.001.08|pacs008|pacs.004.001.09|pacs004|pacs.009|pacs.009.001.08
+link:ClearingID,pacs.008.001.08|pacs008|pacs.004.001.09|pacs004|pacs.009.001.08|pacs.009
+link:DebitAccount,pacs.008.001.08|pacs008|pacs.004.001.09|pacs004|pacs.009.001.08|pacs.009
+link:Amount,pacs.008.001.08|pacs008|pacs.004.001.09|pacs004|pacs.009.001.08|pacs.009
+link:BeneficiaryBank,pacs.008.001.08|pacs008|pacs.004.001.09|pacs004|pacs.009.001.08|pacs.009
+link:BeneficiaryAccount,pacs.008.001.08|pacs008|pacs.004.001.09|pacs004|pacs.009.001.08|pacs.009
+link:DestinationCountry,pacs.008.001.08|pacs008|pacs.004.001.09|pacs004|pacs.009.001.08|pacs.009
