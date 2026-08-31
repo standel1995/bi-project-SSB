@@ -1,0 +1,22 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<restContext id="restTranslation" xmlns="http://camel.apache.org/schema/spring">
+	<rest path="/payments/v1/Translation" bindingMode="auto">
+		<post>
+			<route>
+				<log message="SRC_PaymentType in rest = ${header.SRC_PaymentType}"/>
+				<log message="TGT_PaymentType in rest = ${header.TGT_PaymentType}"/>
+				<log message="TGT_PaymentType in rest = ${header.MSG_BLOCK81}"/>
+				<log loggingLevel="INFO" message="Body before route-translation = ${body}" />
+				<to uri="direct://route-translation" />
+				<log loggingLevel="INFO" message="Body after route-translation = ${body}" />
+			</route>
+		</post>
+	</rest>
+	</restContext>
+
+</beans>

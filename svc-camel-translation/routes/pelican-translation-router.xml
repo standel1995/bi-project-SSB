@@ -1,0 +1,95 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <routeContext id="Translation" xmlns="http://camel.apache.org/schema/spring">
+	
+	<route id="loggerRoute" startupOrder="1" autoStartup="true">
+		<from uri="timer://loggerRouteTrigger?fixedRate=true&amp;period=86400000" />
+		<log loggingLevel="WARN" message="Camel service is running." />
+	</route>
+	
+	<route id="route-translation">
+		<from uri="direct://route-translation"/>
+		<log message="In Translation route"  />
+		<bean id="jspPopulatsetBody" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},setBody)" />
+		<setHeader headerName="CamelHttpMethod">
+			<constant>POST</constant>
+		</setHeader>
+		<log loggingLevel="TRACE" message="body before function call : ${body}" />
+		<bean id="xmlParserTranslation" ref="xmlParser" />
+		<bean id="jspPopulatemx2mx" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},mx2mx)" />
+		<log loggingLevel="TRACE" message="body after function call: ${body} " />
+		<log loggingLevel="INFO" message="headers after function call : ${headers}" />
+		<removeHeaders pattern="CamelHttp*"/>
+		<removeHeaders pattern="CamelNetty*"/>
+		<removeHeaders pattern="CamelServiceCall*"/>
+		<setHeader headerName="CamelHttpMethod">
+			<constant>POST</constant>
+		</setHeader>
+		<log loggingLevel="TRACE" message="headers before validation service call: ${headers}" />
+		<!-- <loadBalance>
+			<failover roundRobin="true" maximumFailoverAttempts="1"/>
+			<serviceCall
+			name="validation-service/payments/v1/validation?headerFilterStrategy=#aceqFilter" />
+			<serviceCall
+			name="validation-service1/payments/v1/validation?headerFilterStrategy=#aceqFilter" />			
+		</loadBalance> -->
+		<!-- <loadBalance>
+			<failover>
+				<exception>org.apache.camel.http.common.HttpOperationFailedException</exception>
+				<exception>java.net.ConnectException</exception>
+			</failover>
+			<serviceCall
+				name="validation-service/payments/v1/validation?headerFilterStrategy=#aceqFilter" />
+			<serviceCall
+				name="validation-service1/payments/v1/validation?headerFilterStrategy=#aceqFilter" />
+		</loadBalance> -->
+		<removeHeaders pattern="ACTIVE_INSTANCE"/>
+		<log loggingLevel="TRACE" message="Message body before Encoding: ${body}" />
+		<setHeader headerName="CamelCharsetName">
+			<constant>UTF-8</constant>
+		</setHeader>
+		<!-- Convert the body to String -->
+		<convertBodyTo type="java.lang.String" />
+		<log loggingLevel="TRACE" message="Message body before validationAPI: ${body}" />
+		<serviceCall
+			name="validation-service/payments/v1/validation?headerFilterStrategy=#aceqFilter" />		
+		<log message="validation Service Call completed" />
+		<bean id="xmlParserSetStatus" ref="xmlParser" />
+		<bean id="jspPopulatsetStatus" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},setStatus)" />
+   		<choice>
+			<when>
+				<simple>${header.ACEDB_Status}</simple>
+				<log message="business level valid message" /> 
+				<log loggingLevel="TRACE" message="Message body : ${body}" />
+				<removeHeaders pattern="PLCN_*" />
+				<log message="Translation is successful" />
+				<removeHeaders pattern="ACEDB_*" />
+				<log loggingLevel="INFO" message="headers in valid case: ${headers}" />
+				<!-- <to uri="direct://dbOperation" />
+				<to uri="aceq://endpointwrite?queueID=CPFRTQ&amp;pollStatus=69" />				
+				<log message="Updated record in DB with CPFRTQ and Status=69" /> -->
+			</when>
+			<otherwise>
+				<log message="Business level invalid message" />
+				<bean id="jspPopulateencodeAudit" ref="jspExecute"
+					method="executeWithHazelCastInstance(${exchange},encodeAudit)" />
+				<log message="Translation is unsuccessful" />
+				<removeHeaders pattern="ACEDB_*" />
+				<log loggingLevel="TRACE" message=" headers in invalid case : ${headers}" />
+				<!-- <to uri="direct://dbOperation" />
+				<to uri="aceq://endpointwrite?queueID=TMPMSGQ&amp;pollStatus=69" />				
+				<log message="Updated record in DB with TMPMSGQ and Status=69" /> -->
+			</otherwise>
+		<!-- <bean id="jspPopulatsetStatus" ref="jspExecute"
+			method="executeWithHazelCastInstance(${exchange},setWfHeaderPacs028)" /> -->			
+		</choice>
+	</route>
+</routeContext>
+</beans>

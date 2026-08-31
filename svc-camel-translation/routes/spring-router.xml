@@ -1,0 +1,35 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <routeContext id="main" xmlns="http://camel.apache.org/schema/spring">
+		
+	<route id="tester" autoStartup="true">
+		<from id="readingRoute1"
+			uri="file:{{input.Directory}}?noop=false" />
+		
+		  <split id="splitterRoute1" parallelProcessing="false">
+			<method id="inMsgMethod" ref="inMsg" method="process" />
+			<to uri="direct://sub-1" />
+			<log message="Going to insert in DB" />
+			<to uri="aceq://endpointwrite?queueID=CPTESTQ&amp;pollStatus=404" />
+			<to uri="genaudit://route1Audit" />
+			<log message="Inserted into DB" />
+		</split>
+		<log message="Message processed successfully.." />
+		<stop />		
+	</route>
+        
+        <route id="sub-1">
+			<from uri="direct://sub-1" />
+			<bean id="xmlParserSubRoute2" ref="xmlParser" />
+			<bean id="jspPopulateData2" ref="jspExecute"
+				method="execute(${exchange},extract)" />
+				<to uri="genaudit://route1Audit?endtoend=y" />
+			<log message="In sub-1 MSGDB map after extract ${header.AceQ_Write_MsgdbBean}" />
+		</route>
+                
+</routeContext>
+</beans>

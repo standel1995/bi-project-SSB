@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AppHdr xmlns="urn:iso:std:iso:20022:tech:xsd:head.001.001.01">
+    <Fr>
+        <FIId>
+            <FinInstnId>
+                <BICFI>PGGMNL2UXXX</BICFI>
+            </FinInstnId>
+        </FIId>
+    </Fr>
+    <To>
+        <FIId>
+            <FinInstnId>
+                <BICFI>APKEFIHHXXX</BICFI>
+            </FinInstnId>
+        </FIId>
+    </To>
+    <BizMsgIdr>R3F502-ARNU71</BizMsgIdr>
+    <MsgDefIdr>pacs.008.001.08</MsgDefIdr>
+    <CreDt>2021-06-03T16:48:09Z</CreDt>
+</AppHdr>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+	
+	<Appenders>
+		<RollingFile name="logFile"
+			fileName="/pelapp/software/pas_BUAT/usr/local/clo/app/pel/pas/ace.pelican/log/svc-camel-static-data.log"
+			filePattern="/pelapp/software/pas_BUAT/usr/local/clo/app/pel/pas/ace.pelican/log/svc-camel-static-data-%d{.yyyyMMdd}-%i.log">
+			<PatternLayout>
+				<Pattern>[%d{dd.MM.yyyy HH:mm:ss.SSS}][%-5p][%-10t][%-10c{1}][%M] :	%m%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1"
+					modulate="true" />
+				<SizeBasedTriggeringPolicy size="250MB" />
+			</Policies>
+			<!--<DirectWriteRolloverStrategy maxFiles="10"/> -->
+		</RollingFile>
+		
+		<!--For trace, Uncomment this RollingFile tag part -->
+		<!--<RollingFile name="traceFile"
+			fileName="/pelapp/software/pas_BUAT/usr/local/clo/app/pel/pas/ace.pelican/trace/svc-camel-static-data.trc"
+			filePattern="/pelapp/software/pas_BUAT/usr/local/clo/app/pel/pas/ace.pelican/trace/svc-camel-static-data-%d{.yyyyMMdd}-%i.trc">
+			<PatternLayout>
+				<Pattern>[%d{dd.MM.yyyy HH:mm:ss.SSS}][%-5p][%-10t][%-10c{1}][%M] :	%m%n</Pattern>
+			</PatternLayout>
+			<SizeBasedTriggeringPolicy size="250MB" />
+		</RollingFile>-->
+
+	</Appenders>
+	<Loggers>	
+		<Root level="trace">
+			<AppenderRef ref="logFile" level="info"/>
+			<!--For trace, Uncomment this part-->
+			<!--<AppenderRef ref="traceFile" />-->
+		</Root>
+	</Loggers>
+</Configuration>

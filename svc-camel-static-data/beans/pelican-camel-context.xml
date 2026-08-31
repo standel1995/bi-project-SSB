@@ -1,0 +1,46 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:camel="http://camel.apache.org/schema/spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd          
+		http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd       
+		http://camel.apache.org/schema/spring 
+		http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<import resource="classpath:/routes/*.xml"/>
+	
+	<camelContext id="MyCamel"
+		xmlns="http://camel.apache.org/schema/spring">
+
+
+		<routeContextRef ref="main"/>
+
+		<onException id="httpException">
+			<exception>org.apache.camel.http.common.HttpOperationFailedException</exception>
+			<exception>java.net.ConnectException</exception>
+			<redeliveryPolicy
+				maximumRedeliveries="2" />
+			<handled>
+				<camel:constant>true</camel:constant>
+			</handled>
+			<setHeader headerName="exception">
+				<simple>${exception.stacktrace}</simple>
+			</setHeader>
+			<log message="In Exception handler :${exception.stacktrace}" />
+		</onException>
+		
+		<onException id="hazelReconnect">
+			<exception>com.hazelcast.client.HazelcastClientNotActiveException</exception>
+			<exception>com.hazelcast.client.HazelcastClientOfflineException</exception>
+			<handled>
+				<constant>true</constant>
+			</handled>
+			<log message="In hazelReconnect handler." />
+			<bean ref="pelicanController" method="stopRoutes" />
+		</onException>
+
+	</camelContext>
+	
+</beans>

@@ -1,0 +1,641 @@
+	<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+	   
+		<bean id="MyMemIdemRepo1" class="org.apache.camel.processor.idempotent.MemoryIdempotentRepository" />
+		<bean id="MyMemIdemRepo2" class="org.apache.camel.processor.idempotent.MemoryIdempotentRepository" />
+
+    <routeContext id="main" xmlns="http://camel.apache.org/schema/spring">
+	 
+	<route id="licensepulse" startupOrder="1" autoStartup="true">
+			<from uri="timer://licensepulseTrigger?fixedRate=true&amp;period=15000" />
+		<log loggingLevel="DEBUG" message="License Check" />
+		<bean ref="licensePulse" method="start" />
+	</route>
+	
+	<route id="_pel_mainRoute" startupOrder="2" autoStartup="true">
+		<from
+			uri="timer://mainRouteTimer2?fixedRate=true&amp;period=30000" />
+		<bean ref="staticDataMaps" method="getCompletedFlag" />
+		<log loggingLevel="INFO" message="Headers in _pel_mainRoute route of static data ${headers}." />
+		<choice>
+			<when>
+				<simple>${header.completedFlag} == false</simple>
+				<log message="Starting Startup activity.." />
+				<bean ref="pelicanController" method="startRoutes" />
+				<to uri="direct://g_tabledetails" />
+				<to uri="direct://bicplusIban" />
+				<to uri="direct://instparam" />
+				<to uri="direct://instHierarchy" />
+				<to uri="direct://keyloadStartup" />
+				<to uri="direct://clgSys" />
+				<to uri="direct://populateMxClgId" />
+				<to uri="direct://populateClStartTime" />
+				<to uri="direct://chlHoliday" />
+				<to uri="direct://langDesc" />
+				<to uri="direct://chChannel" />
+				<to uri="direct://accountmaster" />
+				<to uri="direct://accountmasterchannel" />
+				<to uri="direct://accountmastercurr" />
+				<to uri="direct://queueTable" />
+				<bean id="myIdemRepoReset1" ref="MyMemIdemRepo1" method="clear" />
+				<to uri="controlbus://route?routeId=hazelcastFile&amp;action=start" />
+				<bean id="myIdemRepoReset2" ref="MyMemIdemRepo2" method="clear" />
+				<to uri="controlbus://route?routeId=mx2mxConfig&amp;action=start" />
+				<to uri="controlbus://route?routeId=iprConfig&amp;action=start" />				
+				<bean ref="staticDataMaps" method="setCompletedFlag" />
+				<log message = "Log after setting completedFlag=true"/>
+				<log message="Startup activity completed.." />
+			</when>
+			<otherwise>
+				<log loggingLevel="DEBUG" message="Hazelcast data already loaded... " />
+				<log loggingLevel="INFO" message="Hazelcast data already loaded new added statement... " />
+			</otherwise>
+		</choice>
+	</route> 
+	
+	<route id="dynamicFileLoader" startupOrder="3" autoStartup="true">
+	
+		<from uri="timer://dynamicLoaderTimer?fixedRate=true&amp;period=1000" />
+			<!-- <log loggingLevel="INFO" message="Dynamic data load router....." /> -->
+			
+			<setHeader headerName="inputLocation">
+				<simple>file:{{file.inputLocation}}</simple>
+			</setHeader>
+			<setHeader headerName="backupLocation">
+				<simple>file:{{file.inputLocation}}\backup</simple>
+			</setHeader>
+			
+			<pollEnrich timeout="1000">
+				<simple>file:{{file.inputLocation}}?move=backup
+				</simple>
+			</pollEnrich>
+
+			<bean ref="hzlStaticFileLoader" method="getDynamicCompletedFlag" />
+			
+			<choice>
+				<when>
+					<simple>${header.dynamicCompletedFlag} == false &amp;&amp;
+						${file:onlyname} == null
+					</simple>
+					<log loggingLevel="INFO" message="Calling Start-up route." />
+					<to uri="direct:startUpRoute" />
+					<bean ref="hzlStaticFileLoader"
+						method="setDynamicCompletedFlag" />
+					<log loggingLevel="INFO" message="Backup file inserted." />
+				</when>
+				<when>
+					<simple>${file:onlyname} != null</simple>
+					<log message="Loading CSV-${file:name}" loggingLevel="INFO" />
+					<to uri="direct:fileLoaderCsv" />
+					<bean ref="hzlStaticFileLoader"
+						method="setDynamicCompletedFlag" />
+					<log message="File loaded successfully." loggingLevel="INFO" />
+				</when>
+			</choice>
+			<log loggingLevel="TRACE" message="Dynamic router....." />
+	</route>
+	
+		<route id="fileLoader">
+			<from uri="direct:fileLoaderCsv" />
+			<bean ref="hzlStaticFileLoader"
+				method="filetoHazelcastLoaderDynamic" />
+			<log loggingLevel="INFO" message="file load completed" />
+		</route>
+
+		<route id="startupRoute">
+			<from uri="direct:startUpRoute" />
+			<log loggingLevel="INFO" message="startupRoute started..." />
+			<pollEnrich timeout="1000">
+				<simple>file:{{file.inputLocation}}\backup?noop=true&amp;sorter=#mySort
+				</simple>
+			</pollEnrich>
+			<log loggingLevel="INFO" message="Moving file....${file:name} " />
+			<choice>
+				<when>
+					<simple>${file:name} != null</simple>
+					<to uri="file:{{file.inputLocation}}?fileName=${file:name}" />
+				</when>
+				<otherwise>
+					<log loggingLevel="INFO" message="Initial start-up initiated." />
+				</otherwise>
+			</choice>
+			
+		</route>
+
+	<route id="cron_g_tabledetails" autoStartup="true">
+		<from uri="quartz2://cron_g_tabledetails?cron=0+58+15+*+*+?+*" />
+		<to uri="direct://g_tabledetails" />
+	</route>
+
+	<route id="cron_bicplusIban" autoStartup="true">
+		<from uri="quartz2://cron_bicplusIban?cron=0+59+15+*+*+?+*" />
+		<to uri="direct://bicplusIban" />
+	</route>
+
+	<route id="g_tabledetails" autoStartup="true">
+		<from uri="direct://g_tabledetails" />
+		<log message="g_tabledetails started" />
+		<to
+			uri="sql:select TDKEY,TDVALUE from TABLEDETAILS where TDIDCODE='HZL_LD_IN'?outputType=StreamList" />
+		<split streaming="true">
+			<simple>${body}</simple>
+			<log message="${body}"></log>
+			<setHeader headerName="HZL_MAPS">
+				<simple>${body[TDVALUE]}</simple>
+			</setHeader>
+			<to uri="direct://tabledetails" />
+			<log message="Executed.." />
+		</split>
+	</route>
+
+	<route>
+		<from uri="direct://tabledetails" />
+		<log message="tabledetails started" />
+		<setHeader headerName="JS_FUNCTION_NAME">
+			<constant>populateTabledetails</constant>
+		</setHeader>
+		<bean ref="staticDataMaps" method="getActiveMaps" />
+		<to
+			uri="sql:select * from TABLEDETAILS where TDIDCODE=:#TDKEY?outputType=SelectList" />
+		<!--<split streaming="true">
+			<simple>${body}</simple>
+			<log message="Inside body" />
+			<bean id="jsppopulateHashMap2" ref="jspExecute"
+				method="executeWithHazelCastInstance(${exchange},populateTabledetails)" />
+			<bean ref="staticDataMaps" method="loadStaticDataMap" />
+		</split>-->
+		<bean ref="staticDataMaps" method="executeJsAndLoadStaticDataMapWithHazelCastInstance" />
+		<bean ref="staticDataMaps" method="setActiveMaps" />
+		<log message="tabledeatils executed" />
+	</route>
+
+	<route id="bicplusIban">
+		<from uri="direct://bicplusIban" />
+		<log message="bic_db started" />
+		<setHeader headerName="HZL_MAPS">
+			<constant>VALID_BICS</constant>
+		</setHeader>
+		<setHeader headerName="HZL_KEY_COLUMN">
+			<constant>BICCODE</constant>
+		</setHeader>
+		<setHeader headerName="HZL_CONSTANT_VALUE">
+			<constant>Y</constant>
+		</setHeader>
+		<bean ref="staticDataMaps" method="getActiveMaps" />
+		<to
+			uri="sql:select BICCODE from VIEW_PAYLIB WHERE BICCODE IS NOT NULL?outputType=SelectList" />
+		<!--<split streaming="true" parallelProcessing="false">
+			<simple>${body}</simple>
+			<bean ref="staticDataMaps" method="loadStaticDataMap" />
+			<setHeader headerName="HZL_KEY">
+				<simple>${body[BICCODE]}</simple>
+			</setHeader>
+			<setHeader headerName="HZL_VALUE">
+				<constant>Y</constant>
+			</setHeader>
+			<bean ref="staticDataMaps" method="loadViewPaylib" />
+		</split>-->
+		<bean ref="staticDataMaps" method="loadStaticDataMapAndViewPaylib"/>
+		<bean ref="staticDataMaps" method="setActiveMaps" />
+		<log message="bic_db executed" />
+	</route>
+
+	<route id="hazelcastFile" autoStartup="false">
+		<from id="hazelcastFileReader" uri="file:{{hazelFile.Directory}}?noop=true&amp;idempotentRepository=#MyMemIdemRepo1"/>
+		<log message="hazelcastFile CamelBatchComplete ${headers[CamelBatchComplete]}" />
+		<!-- <from id="hazelcastFileReader"
+			uri="file:{{hazelFile.Directory}}?noop=true&amp;scheduler=quartz2&amp;scheduler.cron=0+0/3+*+?+*+*+*" /> -->
+		<log loggingLevel="INFO" message="hazelcastFileReader started" />
+		<bean ref="hzlStaticFileLoader" method="filetoHazelcastLoader" />
+		<log loggingLevel="INFO" message="hazelcastFileReader executed.." />	
+		<choice>
+			<when>
+				<simple>${header.CamelBatchComplete} == 'true'</simple>
+				<log message="hazelcastFile BATCH is Complete" />
+				<to uri="controlbus://route?routeId=hazelcastFile&amp;action=stop&amp;async=true" />
+			</when>
+		</choice>
+	</route>
+	
+	<route id="mx2mxConfig" autoStartup="false">
+       <from id="hazelcastFileMerge"
+                uri="file:{{mx2mxFile.Directory}}?noop=true&amp;idempotentRepository=#MyMemIdemRepo2"/>
+		<log message="mx2mxConfig CamelBatchComplete ${headers[CamelBatchComplete]}" />
+		<!--<from id="hazelcastFileMerge"
+			uri="file:{{mx2mxFile.Directory}}?noop=true&amp;scheduler=quartz2&amp;scheduler.cron=0+0/3+*+?+*+*+*" /> -->
+        <log loggingLevel="INFO" message="HazelcastFileMerge started"/>
+        <setHeader headerName="HZL_DELIMITER">
+			<constant>|</constant>
+        </setHeader>
+        <bean ref="hzlStaticFileLoader" method="filetoHazelcastMerge"/>
+        <log loggingLevel="INFO" message="HazelcastFileMerge executed"/>
+		<choice>
+			<when>
+				<simple>${header.CamelBatchComplete} == 'true'</simple>
+				<log message="mx2mxConfig BATCH is Complete" />
+				<to uri="controlbus://route?routeId=mx2mxConfig&amp;action=stop&amp;async=true" />
+			</when>
+		</choice> 
+    </route>
+	
+	<route id="instparam" autoStartup="true" >
+		<from uri="timer:startupTimer?repeatCount=1" />
+		<log message="inst_paramTrigger started" />
+		<to uri="direct:instparam" />
+		<log message="Executed.." />
+	</route>
+
+	<route>
+		<from uri="direct://instparam" />
+		<log message="InstitutionParam started" />
+		<setHeader headerName="HZL_MAPS"> 
+			<constant>INST_PARAM</constant>
+		</setHeader>
+		<setHeader headerName="JS_FUNCTION_NAME">
+			<constant>populateInstParam</constant>
+		</setHeader>
+		<bean ref="staticDataMaps" method="getActiveMaps" />
+		<to uri="sql:select INSTITUTIONID, PATH, PARAMNAME, PARAMVALUE from INSTITUTIONPARAMETERS where PARAMNAME IS NOT NULL AND PARAMVALUE IS NOT NULL?outputType=SelectList" />
+		<!--<split streaming="true">
+			<simple>${body}</simple>
+			<bean id="jsppopulateinstparam" ref="jspExecute"
+				method="execute(${exchange},populateInstParam)" />
+			<bean ref="staticDataMaps"
+				method="loadStaticDataMap" />
+		</split>-->
+		<bean ref="staticDataMaps" method="executeJsAndLoadStaticDataMap" />
+		<bean ref="staticDataMaps" method="setActiveMaps" />
+		<log message="InstParam executed" />
+	</route>
+	
+	<route>
+		<from uri="direct://instHierarchy" />
+		<log message="instHierarchy started" />
+		<setHeader headerName="HZL_MAPS"> 
+			<constant>INST_HIERARCHY</constant>
+		</setHeader>
+		<setHeader headerName="JS_FUNCTION_NAME">
+			<constant>populateInstHierarchy</constant>
+		</setHeader>
+		<bean ref="staticDataMaps" method="getActiveMaps" />
+		<to uri="sql:select * from INSTITUTIONHIERARCHY?outputType=SelectList" />
+		<!--<split streaming="true">
+			<simple>${body}</simple>
+			<bean id="jsppopulateinstHierarchy" ref="jspExecute"
+				method="execute(${exchange},populateInstHierarchy)" />
+			<bean ref="staticDataMaps"
+				method="loadStaticDataMap" />
+		</split>-->
+		<bean ref="staticDataMaps" method="executeJsAndLoadStaticDataMap" />
+		<bean ref="staticDataMaps" method="setActiveMaps" />
+		<log message="instHierarchy executed" />
+	</route>	
+	
+	<route id="KeyloadStartUp">
+		<from uri="direct://keyloadStartup" />
+		<to uri="direct://keyloadThread" />
+		<to uri="direct://keyloadThread2" />
+		<to uri="direct://keyloadThread1" />
+	</route>
+	
+	<route id="KeyloadTimerThread">
+		<from uri="timer://keyloadTimer?fixedRate=true&amp;period=900000" />
+		<to uri="direct://keyloadThread" />
+		<to uri="direct://keyloadThread2" />
+		<to uri="direct://keyloadThread1" />
+	</route>
+	
+	<route id="keyload">
+		<from uri="direct://keyloadThread" />
+		<log message="keyload started.." />
+		<setHeader headerName="HZL_MAPS">
+			<constant>CH_CHANNEL_KEY</constant>
+		</setHeader>
+		<setHeader headerName="HZL_KEY_COLUMN">
+			<constant>CH_CHANNEL_ID</constant>
+		</setHeader>
+		<setHeader headerName="HZL_VALUE_COLUMN">
+			<constant>KEY</constant>
+		</setHeader>
+		<bean ref="staticDataMaps" method="getActiveMaps" />
+		<to uri="sql:SELECT CH_CHANNEL.CH_CHANNEL_ID,KEYPASSWORD.KEY FROM KEYPASSWORD INNER JOIN CH_CHANNEL ON CH_CHANNEL.CH_KEY_ID=KEYPASSWORD.KEY_ID?outputType=SelectList" />
+		<!--<split streaming="true" parallelProcessing="false">
+			<simple>${body}</simple>
+			<bean ref="staticDataMaps" method="loadStaticDataMap" />
+			<setHeader headerName="HZL_KEY">
+				<simple>${body[CH_CHANNEL_ID]}</simple>
+			</setHeader>
+			<setHeader headerName="HZL_VALUE">
+				<simple>${body[KEY]}</simple>
+			</setHeader>
+			<bean ref="staticDataMaps" method="loadViewPaylib" />
+		</split>-->
+		<bean ref="staticDataMaps" method="loadStaticDataMapAndViewPaylib"/>
+		<bean ref="staticDataMaps" method="setActiveMaps" />
+		<log message="keyload executed.." />
+	</route>
+	
+	<route id="keyload2">
+		<from uri="direct://keyloadThread2" />
+		<log message="keyload2 started.." />
+		<setHeader headerName="HZL_MAPS">
+			<constant>CH_KEY</constant>
+		</setHeader>
+		<setHeader headerName="HZL_KEY_COLUMN">
+			<constant>KEY_ID</constant>
+		</setHeader>
+		<setHeader headerName="HZL_VALUE_COLUMN">
+			<constant>KEY</constant>
+		</setHeader>
+		<bean ref="staticDataMaps" method="getActiveMaps" />
+		<to uri="sql:SELECT KEY_ID,KEY FROM KEYPASSWORD where KEY is not null?outputType=SelectList" />
+		<!--<split streaming="true" parallelProcessing="false">
+			<simple>${body}</simple>
+			<bean ref="staticDataMaps" method="loadStaticDataMap" />
+			<log loggingLevel="INFO" message="KEY_ID = ${body[KEY_ID]}" />
+			<log loggingLevel="INFO" message="KEY = ${body[KEY]}" />
+			<setHeader headerName="HZL_KEY">
+				<simple>${body[KEY_ID]}</simple>
+			</setHeader>
+			<setHeader headerName="HZL_VALUE">
+				<simple>${body[KEY]}</simple>
+			</setHeader>
+			<bean ref="staticDataMaps" method="loadViewPaylib" />
+		</split>-->
+		<bean ref="staticDataMaps" method="loadStaticDataMapAndViewPaylib"/>
+		<bean ref="staticDataMaps" method="setActiveMaps" />
+		<log message="keyload executed.." />
+	</route>
+	
+	<route id="keyload1">
+		<from uri="direct://keyloadThread1" />
+		<log message="keyload1 started.." />
+		<setHeader headerName="HZL_MAPS">
+			<constant>CH_CHANNEL_KEY_ID</constant>
+		</setHeader>
+		<setHeader headerName="HZL_KEY_COLUMN">
+			<constant>CH_CHANNEL_ID</constant>
+		</setHeader>
+		<setHeader headerName="HZL_VALUE_COLUMN">
+			<constant>KEY_ID</constant>
+		</setHeader>
+		<bean ref="staticDataMaps" method="getActiveMaps" />
+		<to uri="sql:SELECT CH_CHANNEL.CH_CHANNEL_ID,KEYPASSWORD.KEY_ID FROM KEYPASSWORD INNER JOIN CH_CHANNEL ON CH_CHANNEL.CH_KEY_ID=KEYPASSWORD.KEY_ID?outputType=SelectList" />
+		<!--<split streaming="true" parallelProcessing="false">
+			<simple>${body}</simple>
+			<bean ref="staticDataMaps" method="loadStaticDataMap" />
+			<setHeader headerName="HZL_KEY">
+				<simple>${body[CH_CHANNEL_ID]}</simple>
+			</setHeader>
+			<setHeader headerName="HZL_VALUE">
+				<simple>${body[KEY_ID]}</simple>
+			</setHeader>
+			<bean ref="staticDataMaps" method="loadViewPaylib" />
+		</split>-->
+		<bean ref="staticDataMaps" method="loadStaticDataMapAndViewPaylib"/>
+		<bean ref="staticDataMaps" method="setActiveMaps" />
+		<log message="keyload executed.." />
+	</route>
+	
+	<route id="clgSys" autoStartup="true" >
+		<from uri="direct://clgSys" />
+		<log message="clgSys started" />
+		<setHeader headerName="HZL_MAPS"> 
+			<constant>CLGSYS</constant>
+		</setHeader>
+		<setHeader headerName="JS_FUNCTION_NAME">
+			<constant>populateClgsys</constant>
+		</setHeader>
+		<bean ref="staticDataMaps" method="getActiveMaps" />
+		<to uri="sql:select * from CL_CLGSYS?outputType=SelectList" />
+		<!--<split streaming="true">
+			<simple>${body}</simple>
+			<bean id="jsppopulateclgSys" ref="jspExecute" method="execute(${exchange},populateClgsys)" />
+			<bean ref="staticDataMaps" method="loadStaticDataMap" />
+		</split>-->
+		<bean ref="staticDataMaps" method="executeJsAndLoadStaticDataMap" />
+		<bean ref="staticDataMaps" method="setActiveMaps" />
+		<log message="clgSys executed" />
+	</route>
+
+	<route id="populateMxClgId" autoStartup="true" >
+		<from uri="direct://populateMxClgId" />
+		<log message="populateMxClgId started" />
+		<setHeader headerName="HZL_MAPS"> 
+			<constant>MX_CLG_ID_MAP</constant>
+		</setHeader>
+		<setHeader headerName="JS_FUNCTION_NAME">
+			<constant>populateMxClgId</constant>
+		</setHeader>
+		<bean ref="staticDataMaps" method="getActiveMaps" />
+		<to uri="sql:select CL_CLGSYS_ID from CL_CLGSYS?outputType=SelectList" />
+		<!--<split streaming="true">
+			<simple>${body}</simple>
+			<bean ref="jspExecute" method="execute(${exchange},populateMxClgId)" />
+			<bean ref="staticDataMaps" method="loadStaticDataMap" />
+		</split>-->
+		<bean ref="staticDataMaps" method="executeJsAndLoadStaticDataMap" />
+		<bean ref="staticDataMaps" method="setActiveMaps" />
+		<log message="populateMxClgId executed" />
+	</route>	
+
+	<route id="populateClStartTime" autoStartup="true" >
+		<from uri="direct://populateClStartTime" />
+		<log message="populateClStartTime started" />
+		<setHeader headerName="HZL_MAPS"> 
+			<constant>CL_START_TIME_MAP</constant>
+		</setHeader>
+		<setHeader headerName="JS_FUNCTION_NAME">
+			<constant>populateClStartTime</constant>
+		</setHeader>
+		<bean ref="staticDataMaps" method="getActiveMaps" />
+		<to uri="sql:select CL_CLGSYS_ID, CL_START_TIME from CL_CLGSYS?outputType=SelectList" />
+		<!--<split streaming="true">
+			<simple>${body}</simple>
+			<bean ref="jspExecute" method="execute(${exchange},populateClStartTime)" />
+			<bean ref="staticDataMaps" method="loadStaticDataMap" />
+		</split>-->
+		<bean ref="staticDataMaps" method="executeJsAndLoadStaticDataMap" />
+		<bean ref="staticDataMaps" method="setActiveMaps" />
+		<log message="populateClStartTime executed" />
+	</route>
+	
+	<route id="chlHoliday" autoStartup="true" >
+		<from uri="direct://chlHoliday" />
+		<log message="chlHoliday started" />
+		<setHeader headerName="HZL_MAPS"> 
+			<constant>CHL_HOLIDAY</constant>
+		</setHeader>
+		<setHeader headerName="JS_FUNCTION_NAME">
+			<constant>populateChlHoliday</constant>
+		</setHeader>
+		<bean ref="staticDataMaps" method="getActiveMaps" />
+		<to uri="sql:select * from CHL_HOLIDAY?outputType=SelectList" />
+		<!--<split streaming="true">
+			<simple>${body}</simple>
+			<bean id="jsppopulatechlHoliday" ref="jspExecute"
+				method="execute(${exchange},populateChlHoliday)" />
+			<bean ref="staticDataMaps"
+				method="loadStaticDataMap" />
+		</split>-->
+		<bean ref="staticDataMaps" method="executeJsAndLoadStaticDataMap" />
+		<bean ref="staticDataMaps" method="setActiveMaps" />
+		<log message="chlHoliday executed" />
+	</route>
+	
+	<route id="langDesc" autoStartup="true" >
+		<from uri="direct://langDesc" />
+		<log message="langDesc started" />
+		<setHeader headerName="HZL_MAPS"> 
+			<constant>LANGDESC</constant>
+		</setHeader>
+		<setHeader headerName="JS_FUNCTION_NAME">
+			<constant>populateLangDesc</constant>
+		</setHeader>
+		<bean ref="staticDataMaps" method="getActiveMaps" />
+		<to uri="sql:select MODULECODE, ITEMNO, LANGDESC1 from LANGDESC where LANGDESC1 is not null?outputType=SelectList" />
+		<!--<split streaming="true">
+			<simple>${body}</simple>
+			<bean id="jsppopulateLangDesc" ref="jspExecute"
+				method="execute(${exchange},populateLangDesc)" />
+			<bean ref="staticDataMaps"
+				method="loadStaticDataMap" />
+		</split>-->
+		<bean ref="staticDataMaps" method="executeJsAndLoadStaticDataMap" />
+		<bean ref="staticDataMaps" method="setActiveMaps" />
+		<log message="langDesc executed" />
+	</route>
+	
+	<route id="chChannel" autoStartup="true" >
+		<from uri="direct://chChannel" />
+		<log message="chChannel started" />
+		<setHeader headerName="HZL_MAPS"> 
+			<constant>LAU_CONFIG</constant>
+		</setHeader>
+		<setHeader headerName="JS_FUNCTION_NAME">
+			<constant>populateChChannel</constant>
+		</setHeader>
+		<bean ref="staticDataMaps" method="getActiveMaps" />
+		<to uri="sql:SELECT CH_CHANNEL_ID, CH_INSTITUTIONID, CH_ENCRYPT_REQ from CH_CHANNEL where CH_KEY_ID is not null?outputType=SelectList" />
+		<!--<split streaming="true">
+			<simple>${body}</simple>
+			<bean id="jsppopulatechChannel" ref="jspExecute"
+				method="execute(${exchange},populateChChannel)" />
+			<bean ref="staticDataMaps"
+				method="loadStaticDataMap" />
+		</split>-->
+		<bean ref="staticDataMaps" method="executeJsAndLoadStaticDataMap" />
+		<bean ref="staticDataMaps" method="setActiveMaps" />
+		<log message="chChannel executed" />
+	</route>
+	
+	<route id="accountmaster" autoStartup="true" >
+		<from uri="direct://accountmaster" />
+		<log message="ACCOUNT_MASTER started" />
+		<setHeader headerName="HZL_MAPS"> 
+			<constant>ACCOUNT_MASTER</constant>
+		</setHeader>
+		<setHeader headerName="JS_FUNCTION_NAME">
+			<constant>populateaccountNumber</constant>
+		</setHeader>
+		<bean ref="staticDataMaps" method="getActiveMaps" />
+		<to uri="sql:select INSTITUTION_ID, BANK_CODE, ACCOUNT_NUMBER, ACCOUNT_IBAN, ACCOUNT_CURR from ACCOUNT_MASTER where ACCOUNT_NUMBER IS NOT NULL AND ACCOUNT_IBAN IS NOT NULL AND ACCOUNT_STATUS != 'DELETED'?outputType=SelectList" />
+		<!--<split streaming="true">
+			<simple>${body}</simple>
+			<bean id="jsppopulateaccmaster" ref="jspExecute"
+				method="execute(${exchange},populateaccountNumber)" />
+			<bean ref="staticDataMaps"
+				method="loadStaticDataMap" />
+		</split>-->
+		<bean ref="staticDataMaps" method="executeJsAndLoadStaticDataMap" />
+		<bean ref="staticDataMaps" method="setActiveMaps" />
+		<log message="ACCOUNT_MASTER executed" />
+	</route>
+	
+	<route id="accountmastercurr" autoStartup="true" >
+		<from uri="direct://accountmastercurr" />
+		<log message="ACC_MASTER_CURR started" />
+		<setHeader headerName="HZL_MAPS"> 
+			<constant>ACC_MASTER_CURR</constant>
+		</setHeader>
+		<setHeader headerName="JS_FUNCTION_NAME">
+			<constant>populateAccountCurrency</constant>
+		</setHeader>
+		<bean ref="staticDataMaps" method="getActiveMaps" />
+		<to uri="sql:select INSTITUTION_ID, BANK_CODE, ACCOUNT_NUMBER, ACCOUNT_CURR from ACCOUNT_MASTER where ACCOUNT_NUMBER IS NOT NULL AND ACCOUNT_IBAN IS NOT NULL AND ACCOUNT_STATUS != 'DELETED'?outputType=SelectList" />
+		<!--<split streaming="true">
+			<simple>${body}</simple>
+			<bean id="jsppopulateaccmastercurr" ref="jspExecute"
+				method="execute(${exchange},populateAccountCurrency)" />
+			<bean ref="staticDataMaps"
+				method="loadStaticDataMap" />
+		</split>-->
+		<bean ref="staticDataMaps" method="executeJsAndLoadStaticDataMap" />
+		<bean ref="staticDataMaps" method="setActiveMaps" />
+		<log message="ACC_MASTER_CURR executed" />
+	</route>
+	
+	<route id="accountmasterchannel" autoStartup="true" >
+		<from uri="direct://accountmasterchannel" />
+		<log message="ACC_MASTER_CHANNEL started" />
+		<setHeader headerName="HZL_MAPS"> 
+			<constant>ACC_MASTER_CHANNEL</constant>
+		</setHeader>
+		<setHeader headerName="JS_FUNCTION_NAME">
+			<constant>populateaccountchannel</constant>
+		</setHeader>
+		<bean ref="staticDataMaps" method="getActiveMaps" />
+		<to uri="sql:select INSTITUTION_ID, BANK_CODE, ACCOUNT_NUMBER, INPUT_CHANNEL, ACCOUNT_IBAN from ACCOUNT_MASTER where INPUT_CHANNEL IS NOT NULL AND ACCOUNT_IBAN IS NOT NULL AND ACCOUNT_STATUS != 'DELETED'?outputType=SelectList" />
+		<!--<split streaming="true">
+			<simple>${body}</simple>
+			<bean id="jsppopulateaccchannel" ref="jspExecute"
+				method="execute(${exchange},populateaccountchannel)" />
+			<bean ref="staticDataMaps"
+				method="loadStaticDataMap" />
+		</split>-->
+		<bean ref="staticDataMaps" method="executeJsAndLoadStaticDataMap" />
+		<bean ref="staticDataMaps" method="setActiveMaps" />
+		<log message="ACC_MASTER_CHANNEL executed" />
+	</route>
+	
+	<route id="queueTable" autoStartup="true" >
+		<from uri="direct://queueTable" />
+		<log message="QUEUETABLE started" />
+		<setHeader headerName="HZL_MAPS"> 
+			<constant>QUEUE</constant>
+		</setHeader>
+		<setHeader headerName="JS_FUNCTION_NAME">
+			<constant>populatequeueTable</constant>
+		</setHeader>
+		<bean ref="staticDataMaps" method="getActiveMaps" />
+		<to uri="sql:select INSTITUTIONID, QUEUEID, PROCESSING_STAGE from QUEUE where PROCESSING_STAGE IS NOT NULL?outputType=SelectList" />
+		<!--<split streaming="true">
+			<simple>${body}</simple>
+			<bean id="jsppopulatequeueTable" ref="jspExecute"
+				method="execute(${exchange},populatequeueTable)" />
+			<bean ref="staticDataMaps"
+				method="loadStaticDataMap" />
+		</split>-->
+		<bean ref="staticDataMaps" method="executeJsAndLoadStaticDataMap" />
+		<bean ref="staticDataMaps" method="setActiveMaps" />
+		<log message="queueTable executed" />
+	</route>
+	
+	<route id="iprConfig" autoStartup="false">
+       <from id="hazelcastFileMerge"
+                uri="file:{{ipr.Directory}}?noop=true"/>
+				<!-- <from id="hazelcastFileMerge"
+			uri="file:{{ipr.Directory}}?noop=true&amp;scheduler=quartz2&amp;scheduler.cron=0+0/3+*+?+*+*+*" />-->
+            <log loggingLevel="INFO" message="HazelcastFileMerge started"/>
+            <setHeader headerName="HZL_DELIMITER">
+                 <constant>|</constant>
+            </setHeader>
+            <bean ref="hzlStaticFileLoader" method="filetoHazelcastMerge"/>
+            <log loggingLevel="INFO" message="HazelcastFileMerge executed"/>
+    </route>
+    
+</routeContext>
+</beans>
